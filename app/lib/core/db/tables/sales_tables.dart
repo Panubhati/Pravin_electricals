@@ -50,6 +50,10 @@ class InvoiceLines extends Table with BaseColumns {
   IntColumn get lineTotalPaise => integer()();
   TextColumn get coilId => text().nullable()();
   TextColumn get serial => text().nullable()();
+
+  /// HSN code the item had when it was sold (schema v4), so a reprint shows
+  /// what the bill showed. Null on older lines.
+  TextColumn get hsn => text().nullable()();
 }
 
 class InvoicePayments extends Table with BaseColumns {

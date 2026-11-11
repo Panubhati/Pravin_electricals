@@ -176,6 +176,7 @@ class InvoiceRepository {
 
         for (final l in input.lines) {
           final lid = ctx.newId();
+          final hsn = (await _items.getItem(l.itemId)).hsn;
           await ctx.insertRow(
             ctx.db.invoiceLines,
             InvoiceLinesCompanion.insert(
@@ -195,6 +196,7 @@ class InvoiceRepository {
               priceUnitFactor: Value(l.priceUnitFactor),
               discountPaise: Value(l.discountPaise),
               gstRateBp: Value(l.gstRateBp),
+              hsn: Value(hsn),
             ),
             'invoice_lines',
             lid,
@@ -272,6 +274,42 @@ class InvoiceRepository {
       rethrow;
     }
     return id;
+  }
+
+  /// Saved bills for the history screen, newest first. [query] matches the bill
+  /// number or the customer's name; [from] and [to] limit by day (inclusive).
+  Future<List<InvoiceListEntry>> list({
+    String query = '',
+    DateTime? from,
+    DateTime? to,
+    int limit = 200,
+  }) async {
+    final db = ctx.db;
+    final q = query.trim().replaceAll('%', '').replaceAll('_', '');
+    final select = db.select(db.invoices).join([
+      leftOuterJoin(db.parties, db.parties.id.equalsExp(db.invoices.partyId)),
+    ])
+      ..where(db.invoices.deletedAt.isNull() & db.invoices.shopId.equals(ctx.shopId))
+      ..orderBy([
+        OrderingTerm.desc(db.invoices.date),
+        OrderingTerm.desc(db.invoices.number),
+      ])
+      ..limit(limit);
+    if (q.isNotEmpty) {
+      select.where(db.invoices.invoiceNoText.like('%$q%') | db.parties.name.like('%$q%'));
+    }
+    if (from != null) {
+      select.where(db.invoices.date
+          .isBiggerOrEqualValue(DateTime(from.year, from.month, from.day)));
+    }
+    if (to != null) {
+      select.where(db.invoices.date
+          .isSmallerThanValue(DateTime(to.year, to.month, to.day + 1)));
+    }
+    return [
+      for (final r in await select.get())
+        InvoiceListEntry(r.readTable(db.invoices), r.readTableOrNull(db.parties)?.name),
+    ];
   }
 
   /// Everything needed to print or review a saved invoice.
@@ -381,6 +419,18 @@ class InvoiceRepository {
       throw DomainException('Credit sale needs a customer');
     }
   }
+}
+
+/// One row of the bills list.
+class InvoiceListEntry {
+  const InvoiceListEntry(this.invoice, this.partyName);
+  final Invoice invoice;
+
+  /// Null for a walk-in customer.
+  final String? partyName;
+
+  /// Still to be collected from the customer (the credit part of the bill).
+  int get duePaise => invoice.totalPaise - invoice.paidPaise;
 }
 
 /// A saved invoice with its lines, payments and customer, for printing.

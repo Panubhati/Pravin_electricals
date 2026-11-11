@@ -1,6 +1,8 @@
 import 'package:drift/drift.dart';
 
+import '../../printing/upi_link.dart';
 import '../app_database.dart';
+import 'audit_repository.dart';
 import 'repo_context.dart';
 
 /// Well-known setting keys.
@@ -10,6 +12,8 @@ class SettingKeys {
   static const autoLockMinutes = 'auto_lock_minutes';
   static const dailySummaryOn = 'daily_summary_on';
   static const dailySummaryHour = 'daily_summary_hour';
+  static const upiId = 'upi_id';
+  static const upiName = 'upi_name';
 }
 
 /// Shop settings with defaults. Changes are written through the outbox.
@@ -73,4 +77,38 @@ class SettingsRepository {
   Future<bool> dailySummaryOn() async => (await get(SettingKeys.dailySummaryOn)) == '1';
   Future<int> dailySummaryHour() =>
       getInt(SettingKeys.dailySummaryHour, defaultSummaryHour);
+
+  /// Where customers' UPI payments go, or null when no UPI ID is set. The name
+  /// customers see defaults to [shopName].
+  Future<UpiPayee?> upiPayee(String shopName) async {
+    final vpa = (await get(SettingKeys.upiId))?.trim() ?? '';
+    if (vpa.isEmpty) return null;
+    final name = (await get(SettingKeys.upiName))?.trim() ?? '';
+    return UpiPayee(vpa: vpa, name: name.isEmpty ? shopName : name);
+  }
+
+  /// Sets (or clears, with an empty [vpa]) the shop's UPI ID and payee name.
+  /// This decides where customers' money goes, so every change is audited.
+  Future<void> setUpi({required String vpa, String name = '', String? userId}) async {
+    final id = vpa.trim();
+    final payee = name.trim();
+    if (id.isNotEmpty && !UpiLink.isValidVpa(id)) {
+      throw DomainException('UPI ID should look like shop@bank.');
+    }
+    await ctx.db.transaction(() async {
+      final beforeId = (await get(SettingKeys.upiId))?.trim() ?? '';
+      final beforeName = (await get(SettingKeys.upiName))?.trim() ?? '';
+      if (beforeId == id && beforeName == payee) return;
+      await set(SettingKeys.upiId, id);
+      await set(SettingKeys.upiName, payee);
+      await AuditRepository(ctx).record(
+        action: 'upi_changed',
+        entity: 'shop',
+        entityId: ctx.shopId,
+        userId: userId,
+        before: {'upiId': beforeId, 'upiName': beforeName},
+        after: {'upiId': id, 'upiName': payee},
+      );
+    });
+  }
 }

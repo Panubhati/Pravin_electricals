@@ -8921,6 +8921,15 @@ class $InvoiceLinesTable extends InvoiceLines
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _hsnMeta = const VerificationMeta('hsn');
+  @override
+  late final GeneratedColumn<String> hsn = GeneratedColumn<String>(
+    'hsn',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -8942,6 +8951,7 @@ class $InvoiceLinesTable extends InvoiceLines
     lineTotalPaise,
     coilId,
     serial,
+    hsn,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -9099,6 +9109,12 @@ class $InvoiceLinesTable extends InvoiceLines
         serial.isAcceptableOrUnknown(data['serial']!, _serialMeta),
       );
     }
+    if (data.containsKey('hsn')) {
+      context.handle(
+        _hsnMeta,
+        hsn.isAcceptableOrUnknown(data['hsn']!, _hsnMeta),
+      );
+    }
     return context;
   }
 
@@ -9199,6 +9215,10 @@ class $InvoiceLinesTable extends InvoiceLines
         DriftSqlType.string,
         data['${effectivePrefix}serial'],
       ),
+      hsn: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hsn'],
+      ),
     );
   }
 
@@ -9232,6 +9252,10 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
   final int lineTotalPaise;
   final String? coilId;
   final String? serial;
+
+  /// HSN code the item had when it was sold (schema v4), so a reprint shows
+  /// what the bill showed. Null on older lines.
+  final String? hsn;
   const InvoiceLine({
     required this.id,
     required this.shopId,
@@ -9252,6 +9276,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
     required this.lineTotalPaise,
     this.coilId,
     this.serial,
+    this.hsn,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -9282,6 +9307,9 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
     }
     if (!nullToAbsent || serial != null) {
       map['serial'] = Variable<String>(serial);
+    }
+    if (!nullToAbsent || hsn != null) {
+      map['hsn'] = Variable<String>(hsn);
     }
     return map;
   }
@@ -9315,6 +9343,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
           coilId == null && nullToAbsent ? const Value.absent() : Value(coilId),
       serial:
           serial == null && nullToAbsent ? const Value.absent() : Value(serial),
+      hsn: hsn == null && nullToAbsent ? const Value.absent() : Value(hsn),
     );
   }
 
@@ -9343,6 +9372,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
       lineTotalPaise: serializer.fromJson<int>(json['lineTotalPaise']),
       coilId: serializer.fromJson<String?>(json['coilId']),
       serial: serializer.fromJson<String?>(json['serial']),
+      hsn: serializer.fromJson<String?>(json['hsn']),
     );
   }
   @override
@@ -9368,6 +9398,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
       'lineTotalPaise': serializer.toJson<int>(lineTotalPaise),
       'coilId': serializer.toJson<String?>(coilId),
       'serial': serializer.toJson<String?>(serial),
+      'hsn': serializer.toJson<String?>(hsn),
     };
   }
 
@@ -9391,6 +9422,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
     int? lineTotalPaise,
     Value<String?> coilId = const Value.absent(),
     Value<String?> serial = const Value.absent(),
+    Value<String?> hsn = const Value.absent(),
   }) => InvoiceLine(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -9411,6 +9443,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
     lineTotalPaise: lineTotalPaise ?? this.lineTotalPaise,
     coilId: coilId.present ? coilId.value : this.coilId,
     serial: serial.present ? serial.value : this.serial,
+    hsn: hsn.present ? hsn.value : this.hsn,
   );
   InvoiceLine copyWithCompanion(InvoiceLinesCompanion data) {
     return InvoiceLine(
@@ -9443,6 +9476,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
               : this.lineTotalPaise,
       coilId: data.coilId.present ? data.coilId.value : this.coilId,
       serial: data.serial.present ? data.serial.value : this.serial,
+      hsn: data.hsn.present ? data.hsn.value : this.hsn,
     );
   }
 
@@ -9467,7 +9501,8 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
           ..write('taxPaise: $taxPaise, ')
           ..write('lineTotalPaise: $lineTotalPaise, ')
           ..write('coilId: $coilId, ')
-          ..write('serial: $serial')
+          ..write('serial: $serial, ')
+          ..write('hsn: $hsn')
           ..write(')'))
         .toString();
   }
@@ -9493,6 +9528,7 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
     lineTotalPaise,
     coilId,
     serial,
+    hsn,
   );
   @override
   bool operator ==(Object other) =>
@@ -9516,7 +9552,8 @@ class InvoiceLine extends DataClass implements Insertable<InvoiceLine> {
           other.taxPaise == this.taxPaise &&
           other.lineTotalPaise == this.lineTotalPaise &&
           other.coilId == this.coilId &&
-          other.serial == this.serial);
+          other.serial == this.serial &&
+          other.hsn == this.hsn);
 }
 
 class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
@@ -9539,6 +9576,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
   final Value<int> lineTotalPaise;
   final Value<String?> coilId;
   final Value<String?> serial;
+  final Value<String?> hsn;
   final Value<int> rowid;
   const InvoiceLinesCompanion({
     this.id = const Value.absent(),
@@ -9560,6 +9598,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
     this.lineTotalPaise = const Value.absent(),
     this.coilId = const Value.absent(),
     this.serial = const Value.absent(),
+    this.hsn = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   InvoiceLinesCompanion.insert({
@@ -9582,6 +9621,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
     required int lineTotalPaise,
     this.coilId = const Value.absent(),
     this.serial = const Value.absent(),
+    this.hsn = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
@@ -9615,6 +9655,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
     Expression<int>? lineTotalPaise,
     Expression<String>? coilId,
     Expression<String>? serial,
+    Expression<String>? hsn,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -9637,6 +9678,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
       if (lineTotalPaise != null) 'line_total_paise': lineTotalPaise,
       if (coilId != null) 'coil_id': coilId,
       if (serial != null) 'serial': serial,
+      if (hsn != null) 'hsn': hsn,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -9661,6 +9703,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
     Value<int>? lineTotalPaise,
     Value<String?>? coilId,
     Value<String?>? serial,
+    Value<String?>? hsn,
     Value<int>? rowid,
   }) {
     return InvoiceLinesCompanion(
@@ -9683,6 +9726,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
       lineTotalPaise: lineTotalPaise ?? this.lineTotalPaise,
       coilId: coilId ?? this.coilId,
       serial: serial ?? this.serial,
+      hsn: hsn ?? this.hsn,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -9747,6 +9791,9 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
     if (serial.present) {
       map['serial'] = Variable<String>(serial.value);
     }
+    if (hsn.present) {
+      map['hsn'] = Variable<String>(hsn.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -9775,6 +9822,7 @@ class InvoiceLinesCompanion extends UpdateCompanion<InvoiceLine> {
           ..write('lineTotalPaise: $lineTotalPaise, ')
           ..write('coilId: $coilId, ')
           ..write('serial: $serial, ')
+          ..write('hsn: $hsn, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -22614,6 +22662,7 @@ typedef $$InvoiceLinesTableCreateCompanionBuilder =
       required int lineTotalPaise,
       Value<String?> coilId,
       Value<String?> serial,
+      Value<String?> hsn,
       Value<int> rowid,
     });
 typedef $$InvoiceLinesTableUpdateCompanionBuilder =
@@ -22637,6 +22686,7 @@ typedef $$InvoiceLinesTableUpdateCompanionBuilder =
       Value<int> lineTotalPaise,
       Value<String?> coilId,
       Value<String?> serial,
+      Value<String?> hsn,
       Value<int> rowid,
     });
 
@@ -22810,6 +22860,11 @@ class $$InvoiceLinesTableFilterComposer
 
   ColumnFilters<String> get serial => $composableBuilder(
     column: $table.serial,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get hsn => $composableBuilder(
+    column: $table.hsn,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22997,6 +23052,11 @@ class $$InvoiceLinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get hsn => $composableBuilder(
+    column: $table.hsn,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$InvoicesTableOrderingComposer get invoiceId {
     final $$InvoicesTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -23131,6 +23191,9 @@ class $$InvoiceLinesTableAnnotationComposer
 
   GeneratedColumn<String> get serial =>
       $composableBuilder(column: $table.serial, builder: (column) => column);
+
+  GeneratedColumn<String> get hsn =>
+      $composableBuilder(column: $table.hsn, builder: (column) => column);
 
   $$InvoicesTableAnnotationComposer get invoiceId {
     final $$InvoicesTableAnnotationComposer composer = $composerBuilder(
@@ -23280,6 +23343,7 @@ class $$InvoiceLinesTableTableManager
                 Value<int> lineTotalPaise = const Value.absent(),
                 Value<String?> coilId = const Value.absent(),
                 Value<String?> serial = const Value.absent(),
+                Value<String?> hsn = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => InvoiceLinesCompanion(
                 id: id,
@@ -23301,6 +23365,7 @@ class $$InvoiceLinesTableTableManager
                 lineTotalPaise: lineTotalPaise,
                 coilId: coilId,
                 serial: serial,
+                hsn: hsn,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -23324,6 +23389,7 @@ class $$InvoiceLinesTableTableManager
                 required int lineTotalPaise,
                 Value<String?> coilId = const Value.absent(),
                 Value<String?> serial = const Value.absent(),
+                Value<String?> hsn = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => InvoiceLinesCompanion.insert(
                 id: id,
@@ -23345,6 +23411,7 @@ class $$InvoiceLinesTableTableManager
                 lineTotalPaise: lineTotalPaise,
                 coilId: coilId,
                 serial: serial,
+                hsn: hsn,
                 rowid: rowid,
               ),
           withReferenceMapper:
