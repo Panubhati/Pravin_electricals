@@ -15,9 +15,13 @@ class Harness {
 
   /// Pumps [home] inside fresh app providers. The shop session is resolved
   /// first, as it is in the real app (the home screen waits for it).
-  Future<void> pump(WidgetTester tester, Widget home) async {
+  Future<void> pump(
+    WidgetTester tester,
+    Widget home, {
+    List<Override> overrides = const [],
+  }) async {
     final container = ProviderContainer(
-      overrides: [databaseProvider.overrideWithValue(db)],
+      overrides: [databaseProvider.overrideWithValue(db), ...overrides],
     );
     addTearDown(container.dispose);
     await tester.runAsync(() => container.read(sessionProvider.future));

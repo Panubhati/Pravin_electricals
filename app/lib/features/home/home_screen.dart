@@ -6,7 +6,11 @@ import '../../core/debug/sample_data.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import '../billing/bill_screen.dart';
+import '../import/import_screen.dart';
 import '../items/items_screen.dart';
+import '../parties/dues_screen.dart';
+import '../parties/parties_screen.dart';
+import '../purchase/purchases_screen.dart';
 import '../stock/stock_screen.dart';
 
 /// One tile on the home screen.
@@ -23,6 +27,16 @@ final _tiles = <_HomeTile>[
   _HomeTile('tile_bill', Icons.receipt_long, S.newBill, (_) => const BillScreen()),
   _HomeTile('tile_items', Icons.inventory_2_outlined, S.items, (_) => const ItemsScreen()),
   _HomeTile('tile_stock', Icons.warehouse_outlined, S.stock, (_) => const StockScreen()),
+  _HomeTile('tile_purchases', Icons.local_shipping_outlined, S.purchases,
+      (_) => const PurchasesScreen()),
+  _HomeTile('tile_customers', Icons.people_outline, S.customers,
+      (_) => const PartiesScreen(kind: 'customer')),
+  _HomeTile('tile_suppliers', Icons.business_outlined, S.suppliers,
+      (_) => const PartiesScreen(kind: 'supplier')),
+  _HomeTile('tile_dues', Icons.account_balance_wallet_outlined, S.dues,
+      (_) => const DuesScreen()),
+  _HomeTile('tile_import', Icons.upload_file_outlined, S.importData,
+      (_) => const ImportScreen()),
 ];
 
 class HomeScreen extends ConsumerWidget {
