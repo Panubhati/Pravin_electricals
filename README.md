@@ -3,7 +3,7 @@
 Offline-first Android app for an electrical shop: billing, stock, purchases and customer credit.
 The full build plan is in [AGENTS.md](AGENTS.md); design decisions are in [docs/decisions.md](docs/decisions.md); one document per finished milestone is in [docs/milestones/](docs/milestones/README.md).
 
-**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A3 (items, purchases, stock, parties) are done.
+**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A4 (items, purchases, stock, parties, dashboard, reports, PIN roles, alerts) are done.
 
 ## Requirements
 - Flutter 3.29 (Dart 3.7), Android Studio with Android SDK 36, a JDK from Android Studio.
@@ -39,6 +39,12 @@ walk-in, tap **Pay** (cash, UPI, credit or a mix), **Save bill**, then **Share P
 Everything works offline. Selling prices include GST; the total is rounded to the nearest rupee.
 In debug builds, **Load sample data** on the home screen adds sample items, prices, customers and
 stock for testing (or import `sample_data/*.csv` from the Import tile).
+
+## Logging in and roles (A4)
+First launch asks the owner for a 4 to 6 digit PIN. The owner adds counter staff (own PIN) under Settings,
+Staff and PINs. Counter staff see billing, items, stock, customers and receivables, never cost or profit.
+The owner home shows today's summary and Reports; Settings holds shop details, limits, the daily 9 PM
+summary notification and the audit log. Update the phone with `adb install -r` to keep data.
 
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.

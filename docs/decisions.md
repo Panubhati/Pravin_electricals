@@ -62,3 +62,13 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Screens read autoDispose providers and call `ref.invalidate` after writes (no streams).
 - CSV import: all-or-nothing transaction, per-row error preview, duplicates skipped (items by name+brand or barcode; parties by name+phone); handles BOM, CRLF, semicolon/tab; Excel files get a plain message. New packages: `file_picker`, `csv`.
 - Selling above stock only warns (owner's choice); stock location is the shop floor only.
+
+## 2026-11-12 A4 decisions
+- Schema v3: `app_settings(shop_id, key, value)` for opening cash, counter discount limit (5% default), auto-lock minutes, daily summary on/off and hour.
+- PINs: 4 to 6 digits, salted SHA-256 in `users.pin_hash` (the salted hash is synced like any other column, never the PIN). 5 wrong tries lock 30 s, doubling to 15 min (counters are in memory). Owner recovery via the phone's screen lock (`local_auth`, needs FlutterFragmentActivity, AppCompat themes, USE_BIOMETRIC).
+- `LockGate` wraps the app in `MaterialApp.builder` with its own Navigator for the lock screen; locking pops to the first route. A different user logging in starts with an empty bill; the same user keeps the cart.
+- Roles (UI-level in Stage A): counter cannot see cost, profit, reports, settings, audit, purchases, suppliers, payables or import, cannot add or edit items or prices, and may discount up to the limit per line; "nobody logged in" is the most restrictive. Counter stock adjust and count is allowed (the owner did not restrict it).
+- Profit uses the cost effective on the bill's date; unknown cost is listed apart, never guessed. Returns are not in reports yet. Stock value and cash in hand rules as in the A4 doc.
+- Daily summary: WorkManager periodic task (24 h, first run delayed to the chosen hour), opens the DB in its own isolate. Inexact timing accepted. Only the daily summary is a notification; low stock and dues are on the dashboard (owner's choice).
+- Audit log shows only changed fields in plain words; quantities use the item's selling unit.
+- Updating on the phone: `adb install -r` keeps data; `flutter install` wipes it.

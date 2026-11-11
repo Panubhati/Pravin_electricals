@@ -567,7 +567,7 @@ Manual (with the owner):
 - [x] A1 Data model and local database
 - [x] A2 Quick bill (offline)
 - [x] A3 Items, purchases, stock, parties
-- [ ] A4 Owner dashboard, reports, local alerts
+- [x] A4 Owner dashboard, reports, local alerts
 - [ ] A5 Printing and sharing
 - [ ] A6 Local backup and restore
 - [ ] A7 Testing gate and exit criteria
