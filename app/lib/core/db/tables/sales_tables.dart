@@ -5,6 +5,7 @@ import 'item_tables.dart';
 import 'party_tables.dart';
 
 /// Posted invoices are immutable. Corrections are returns or credit notes.
+@TableIndex(name: 'invoices_date', columns: {#date})
 class Invoices extends Table with BaseColumns {
   TextColumn get deviceId => text().references(Devices, #id)();
   TextColumn get series => text()();

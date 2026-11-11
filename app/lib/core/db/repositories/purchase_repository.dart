@@ -167,6 +167,17 @@ class PurchaseRepository {
             createdBy: input.createdBy,
             ts: input.supplierInvoiceDate,
           );
+          // The latest purchase price becomes the item's cost (ex-GST, paise
+          // per metre/piece). History is kept; unchanged prices add no row.
+          final latestCost = await _items.latestCost(l.itemId);
+          if (latestCost != l.ratePaise) {
+            await _items.setCost(
+              itemId: l.itemId,
+              variantId: l.variantId,
+              costPaise: l.ratePaise,
+              effectiveFrom: input.supplierInvoiceDate,
+            );
+          }
         }
 
         await _ledger.addEntry(
@@ -187,4 +198,78 @@ class PurchaseRepository {
     }
     return id;
   }
+
+  /// Purchases for the list screen, newest first, with the supplier name.
+  Future<List<PurchaseListEntry>> list({
+    DateTime? from,
+    DateTime? to,
+    String? supplierId,
+    int limit = 200,
+  }) async {
+    final p = ctx.db.purchases;
+    final q = ctx.db.select(p).join([
+      innerJoin(ctx.db.parties, ctx.db.parties.id.equalsExp(p.supplierId)),
+    ])
+      ..where(p.deletedAt.isNull())
+      ..orderBy([
+        OrderingTerm.desc(p.supplierInvoiceDate),
+        OrderingTerm.desc(p.createdAt),
+      ])
+      ..limit(limit);
+    if (from != null) q.where(p.supplierInvoiceDate.isBiggerOrEqualValue(from));
+    if (to != null) q.where(p.supplierInvoiceDate.isSmallerOrEqualValue(to));
+    if (supplierId != null) q.where(p.supplierId.equals(supplierId));
+    final rows = await q.get();
+    return [
+      for (final r in rows)
+        PurchaseListEntry(r.readTable(p), r.readTable(ctx.db.parties).name),
+    ];
+  }
+
+  /// A saved purchase with its lines, for the read-only detail screen.
+  Future<PurchaseDetails> details(String purchaseId) async {
+    final purchase = await (ctx.db.select(ctx.db.purchases)
+          ..where((t) => t.id.equals(purchaseId)))
+        .getSingleOrNull();
+    if (purchase == null) throw DomainException('Unknown purchase: $purchaseId');
+    final lines = await (ctx.db.select(ctx.db.purchaseLines)
+          ..where((t) => t.purchaseId.equals(purchaseId))
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .get();
+    final names = <String, String>{};
+    for (final l in lines) {
+      names[l.itemId] = (await _items.getItem(l.itemId)).name;
+    }
+    final supplier = await (ctx.db.select(ctx.db.parties)
+          ..where((t) => t.id.equals(purchase.supplierId)))
+        .getSingle();
+    return PurchaseDetails(
+      purchase: purchase,
+      lines: lines,
+      itemNames: names,
+      supplier: supplier,
+    );
+  }
+}
+
+class PurchaseListEntry {
+  const PurchaseListEntry(this.purchase, this.supplierName);
+  final Purchase purchase;
+  final String supplierName;
+}
+
+class PurchaseDetails {
+  const PurchaseDetails({
+    required this.purchase,
+    required this.lines,
+    required this.itemNames,
+    required this.supplier,
+  });
+
+  final Purchase purchase;
+  final List<PurchaseLine> lines;
+
+  /// itemId -> item name.
+  final Map<String, String> itemNames;
+  final Party supplier;
 }

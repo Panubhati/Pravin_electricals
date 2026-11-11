@@ -104,7 +104,7 @@ class BillNotifier extends Notifier<BillState> {
       }
     }
 
-    final name = r.variant == null
+    final name = (r.variant == null || r.variant!.label == kDefaultVariantLabel)
         ? r.item.name
         : '${r.item.name} (${r.variant!.label})';
     state = state.copyWith(cart: [

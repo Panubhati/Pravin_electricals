@@ -39,14 +39,22 @@ class AppDatabase extends _$AppDatabase {
   /// Bump on every schema change and add a step in [migration].
   /// Never edit a released schema version; add a new one.
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
         onCreate: (m) => m.createAll(),
         onUpgrade: (m, from, to) async {
-          // Version 1 is the first release. Future upgrades go here, e.g.:
-          // if (from < 2) { await m.addColumn(...); }
+          // v2 (A3): stock movement note, ledger payment mode, lookup indexes.
+          if (from < 2) {
+            await m.addColumn(stockMovements, stockMovements.note);
+            await m.addColumn(ledgerEntries, ledgerEntries.paymentMode);
+            await m.createIndex(stockMovementsItem);
+            await m.createIndex(ledgerEntriesParty);
+            await m.createIndex(itemsName);
+            await m.createIndex(itemVariantsBarcode);
+            await m.createIndex(invoicesDate);
+          }
         },
         beforeOpen: (details) async {
           await customStatement('PRAGMA foreign_keys = ON');

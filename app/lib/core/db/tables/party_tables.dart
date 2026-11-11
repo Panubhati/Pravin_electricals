@@ -16,6 +16,7 @@ class Parties extends Table with BaseColumns {
 }
 
 /// Append-only. Balance = sum(amountPaise). Corrections use reversing entries.
+@TableIndex(name: 'ledger_entries_party', columns: {#partyId})
 class LedgerEntries extends Table with BaseColumns {
   TextColumn get partyId => text().references(Parties, #id)();
 
@@ -27,5 +28,8 @@ class LedgerEntries extends Table with BaseColumns {
   TextColumn get refType => text().nullable()();
   TextColumn get refId => text().nullable()();
   TextColumn get note => text().nullable()();
+
+  /// cash | upi | bank, for payments (added in schema v2). Null for other entries.
+  TextColumn get paymentMode => text().nullable()();
   DateTimeColumn get ts => dateTime()();
 }

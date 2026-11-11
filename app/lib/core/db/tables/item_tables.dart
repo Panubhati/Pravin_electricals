@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 import 'base.dart';
 
+@TableIndex(name: 'items_name', columns: {#name})
 class Items extends Table with BaseColumns {
   TextColumn get name => text()();
   TextColumn get brand => text().nullable()();
@@ -28,6 +29,7 @@ class ItemUnits extends Table with BaseColumns {
   IntColumn get factorToBase => integer()();
 }
 
+@TableIndex(name: 'item_variants_barcode', columns: {#barcode})
 class ItemVariants extends Table with BaseColumns {
   TextColumn get itemId => text().references(Items, #id)();
   TextColumn get label => text()();

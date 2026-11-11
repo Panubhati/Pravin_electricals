@@ -6916,6 +6916,17 @@ class $LedgerEntriesTable extends LedgerEntries
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _paymentModeMeta = const VerificationMeta(
+    'paymentMode',
+  );
+  @override
+  late final GeneratedColumn<String> paymentMode = GeneratedColumn<String>(
+    'payment_mode',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   static const VerificationMeta _tsMeta = const VerificationMeta('ts');
   @override
   late final GeneratedColumn<DateTime> ts = GeneratedColumn<DateTime>(
@@ -6938,6 +6949,7 @@ class $LedgerEntriesTable extends LedgerEntries
     refType,
     refId,
     note,
+    paymentMode,
     ts,
   ];
   @override
@@ -7032,6 +7044,15 @@ class $LedgerEntriesTable extends LedgerEntries
         note.isAcceptableOrUnknown(data['note']!, _noteMeta),
       );
     }
+    if (data.containsKey('payment_mode')) {
+      context.handle(
+        _paymentModeMeta,
+        paymentMode.isAcceptableOrUnknown(
+          data['payment_mode']!,
+          _paymentModeMeta,
+        ),
+      );
+    }
     if (data.containsKey('ts')) {
       context.handle(_tsMeta, ts.isAcceptableOrUnknown(data['ts']!, _tsMeta));
     } else if (isInserting) {
@@ -7097,6 +7118,10 @@ class $LedgerEntriesTable extends LedgerEntries
         DriftSqlType.string,
         data['${effectivePrefix}note'],
       ),
+      paymentMode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}payment_mode'],
+      ),
       ts:
           attachedDatabase.typeMapping.read(
             DriftSqlType.dateTime,
@@ -7127,6 +7152,9 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
   final String? refType;
   final String? refId;
   final String? note;
+
+  /// cash | upi | bank, for payments (added in schema v2). Null for other entries.
+  final String? paymentMode;
   final DateTime ts;
   const LedgerEntry({
     required this.id,
@@ -7140,6 +7168,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
     this.refType,
     this.refId,
     this.note,
+    this.paymentMode,
     required this.ts,
   });
   @override
@@ -7163,6 +7192,9 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
     }
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
+    }
+    if (!nullToAbsent || paymentMode != null) {
+      map['payment_mode'] = Variable<String>(paymentMode);
     }
     map['ts'] = Variable<DateTime>(ts);
     return map;
@@ -7188,6 +7220,10 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
       refId:
           refId == null && nullToAbsent ? const Value.absent() : Value(refId),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
+      paymentMode:
+          paymentMode == null && nullToAbsent
+              ? const Value.absent()
+              : Value(paymentMode),
       ts: Value(ts),
     );
   }
@@ -7209,6 +7245,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
       refType: serializer.fromJson<String?>(json['refType']),
       refId: serializer.fromJson<String?>(json['refId']),
       note: serializer.fromJson<String?>(json['note']),
+      paymentMode: serializer.fromJson<String?>(json['paymentMode']),
       ts: serializer.fromJson<DateTime>(json['ts']),
     );
   }
@@ -7227,6 +7264,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
       'refType': serializer.toJson<String?>(refType),
       'refId': serializer.toJson<String?>(refId),
       'note': serializer.toJson<String?>(note),
+      'paymentMode': serializer.toJson<String?>(paymentMode),
       'ts': serializer.toJson<DateTime>(ts),
     };
   }
@@ -7243,6 +7281,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
     Value<String?> refType = const Value.absent(),
     Value<String?> refId = const Value.absent(),
     Value<String?> note = const Value.absent(),
+    Value<String?> paymentMode = const Value.absent(),
     DateTime? ts,
   }) => LedgerEntry(
     id: id ?? this.id,
@@ -7256,6 +7295,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
     refType: refType.present ? refType.value : this.refType,
     refId: refId.present ? refId.value : this.refId,
     note: note.present ? note.value : this.note,
+    paymentMode: paymentMode.present ? paymentMode.value : this.paymentMode,
     ts: ts ?? this.ts,
   );
   LedgerEntry copyWithCompanion(LedgerEntriesCompanion data) {
@@ -7272,6 +7312,8 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
       refType: data.refType.present ? data.refType.value : this.refType,
       refId: data.refId.present ? data.refId.value : this.refId,
       note: data.note.present ? data.note.value : this.note,
+      paymentMode:
+          data.paymentMode.present ? data.paymentMode.value : this.paymentMode,
       ts: data.ts.present ? data.ts.value : this.ts,
     );
   }
@@ -7290,6 +7332,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
           ..write('refType: $refType, ')
           ..write('refId: $refId, ')
           ..write('note: $note, ')
+          ..write('paymentMode: $paymentMode, ')
           ..write('ts: $ts')
           ..write(')'))
         .toString();
@@ -7308,6 +7351,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
     refType,
     refId,
     note,
+    paymentMode,
     ts,
   );
   @override
@@ -7325,6 +7369,7 @@ class LedgerEntry extends DataClass implements Insertable<LedgerEntry> {
           other.refType == this.refType &&
           other.refId == this.refId &&
           other.note == this.note &&
+          other.paymentMode == this.paymentMode &&
           other.ts == this.ts);
 }
 
@@ -7340,6 +7385,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
   final Value<String?> refType;
   final Value<String?> refId;
   final Value<String?> note;
+  final Value<String?> paymentMode;
   final Value<DateTime> ts;
   final Value<int> rowid;
   const LedgerEntriesCompanion({
@@ -7354,6 +7400,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
     this.refType = const Value.absent(),
     this.refId = const Value.absent(),
     this.note = const Value.absent(),
+    this.paymentMode = const Value.absent(),
     this.ts = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -7369,6 +7416,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
     this.refType = const Value.absent(),
     this.refId = const Value.absent(),
     this.note = const Value.absent(),
+    this.paymentMode = const Value.absent(),
     required DateTime ts,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -7391,6 +7439,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
     Expression<String>? refType,
     Expression<String>? refId,
     Expression<String>? note,
+    Expression<String>? paymentMode,
     Expression<DateTime>? ts,
     Expression<int>? rowid,
   }) {
@@ -7406,6 +7455,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
       if (refType != null) 'ref_type': refType,
       if (refId != null) 'ref_id': refId,
       if (note != null) 'note': note,
+      if (paymentMode != null) 'payment_mode': paymentMode,
       if (ts != null) 'ts': ts,
       if (rowid != null) 'rowid': rowid,
     });
@@ -7423,6 +7473,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
     Value<String?>? refType,
     Value<String?>? refId,
     Value<String?>? note,
+    Value<String?>? paymentMode,
     Value<DateTime>? ts,
     Value<int>? rowid,
   }) {
@@ -7438,6 +7489,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
       refType: refType ?? this.refType,
       refId: refId ?? this.refId,
       note: note ?? this.note,
+      paymentMode: paymentMode ?? this.paymentMode,
       ts: ts ?? this.ts,
       rowid: rowid ?? this.rowid,
     );
@@ -7479,6 +7531,9 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
+    if (paymentMode.present) {
+      map['payment_mode'] = Variable<String>(paymentMode.value);
+    }
     if (ts.present) {
       map['ts'] = Variable<DateTime>(ts.value);
     }
@@ -7502,6 +7557,7 @@ class LedgerEntriesCompanion extends UpdateCompanion<LedgerEntry> {
           ..write('refType: $refType, ')
           ..write('refId: $refId, ')
           ..write('note: $note, ')
+          ..write('paymentMode: $paymentMode, ')
           ..write('ts: $ts, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -13432,6 +13488,15 @@ class $StockMovementsTable extends StockMovements
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -13448,6 +13513,7 @@ class $StockMovementsTable extends StockMovements
     refId,
     ts,
     createdBy,
+    note,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -13560,6 +13626,12 @@ class $StockMovementsTable extends StockMovements
         createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
       );
     }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
     return context;
   }
 
@@ -13634,6 +13706,10 @@ class $StockMovementsTable extends StockMovements
         DriftSqlType.string,
         data['${effectivePrefix}created_by'],
       ),
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      ),
     );
   }
 
@@ -13663,6 +13739,9 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
   final String? refId;
   final DateTime ts;
   final String? createdBy;
+
+  /// Reason or remark, e.g. "Damaged", "Opening stock" (added in schema v2).
+  final String? note;
   const StockMovement({
     required this.id,
     required this.shopId,
@@ -13678,6 +13757,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
     this.refId,
     required this.ts,
     this.createdBy,
+    this.note,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -13705,6 +13785,9 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
     map['ts'] = Variable<DateTime>(ts);
     if (!nullToAbsent || createdBy != null) {
       map['created_by'] = Variable<String>(createdBy);
+    }
+    if (!nullToAbsent || note != null) {
+      map['note'] = Variable<String>(note);
     }
     return map;
   }
@@ -13738,6 +13821,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
           createdBy == null && nullToAbsent
               ? const Value.absent()
               : Value(createdBy),
+      note: note == null && nullToAbsent ? const Value.absent() : Value(note),
     );
   }
 
@@ -13761,6 +13845,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
       refId: serializer.fromJson<String?>(json['refId']),
       ts: serializer.fromJson<DateTime>(json['ts']),
       createdBy: serializer.fromJson<String?>(json['createdBy']),
+      note: serializer.fromJson<String?>(json['note']),
     );
   }
   @override
@@ -13781,6 +13866,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
       'refId': serializer.toJson<String?>(refId),
       'ts': serializer.toJson<DateTime>(ts),
       'createdBy': serializer.toJson<String?>(createdBy),
+      'note': serializer.toJson<String?>(note),
     };
   }
 
@@ -13799,6 +13885,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
     Value<String?> refId = const Value.absent(),
     DateTime? ts,
     Value<String?> createdBy = const Value.absent(),
+    Value<String?> note = const Value.absent(),
   }) => StockMovement(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -13814,6 +13901,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
     refId: refId.present ? refId.value : this.refId,
     ts: ts ?? this.ts,
     createdBy: createdBy.present ? createdBy.value : this.createdBy,
+    note: note.present ? note.value : this.note,
   );
   StockMovement copyWithCompanion(StockMovementsCompanion data) {
     return StockMovement(
@@ -13835,6 +13923,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
       refId: data.refId.present ? data.refId.value : this.refId,
       ts: data.ts.present ? data.ts.value : this.ts,
       createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      note: data.note.present ? data.note.value : this.note,
     );
   }
 
@@ -13854,7 +13943,8 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
           ..write('refType: $refType, ')
           ..write('refId: $refId, ')
           ..write('ts: $ts, ')
-          ..write('createdBy: $createdBy')
+          ..write('createdBy: $createdBy, ')
+          ..write('note: $note')
           ..write(')'))
         .toString();
   }
@@ -13875,6 +13965,7 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
     refId,
     ts,
     createdBy,
+    note,
   );
   @override
   bool operator ==(Object other) =>
@@ -13893,7 +13984,8 @@ class StockMovement extends DataClass implements Insertable<StockMovement> {
           other.refType == this.refType &&
           other.refId == this.refId &&
           other.ts == this.ts &&
-          other.createdBy == this.createdBy);
+          other.createdBy == this.createdBy &&
+          other.note == this.note);
 }
 
 class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
@@ -13911,6 +14003,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
   final Value<String?> refId;
   final Value<DateTime> ts;
   final Value<String?> createdBy;
+  final Value<String?> note;
   final Value<int> rowid;
   const StockMovementsCompanion({
     this.id = const Value.absent(),
@@ -13927,6 +14020,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
     this.refId = const Value.absent(),
     this.ts = const Value.absent(),
     this.createdBy = const Value.absent(),
+    this.note = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   StockMovementsCompanion.insert({
@@ -13944,6 +14038,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
     this.refId = const Value.absent(),
     required DateTime ts,
     this.createdBy = const Value.absent(),
+    this.note = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
@@ -13969,6 +14064,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
     Expression<String>? refId,
     Expression<DateTime>? ts,
     Expression<String>? createdBy,
+    Expression<String>? note,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -13986,6 +14082,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
       if (refId != null) 'ref_id': refId,
       if (ts != null) 'ts': ts,
       if (createdBy != null) 'created_by': createdBy,
+      if (note != null) 'note': note,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -14005,6 +14102,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
     Value<String?>? refId,
     Value<DateTime>? ts,
     Value<String?>? createdBy,
+    Value<String?>? note,
     Value<int>? rowid,
   }) {
     return StockMovementsCompanion(
@@ -14022,6 +14120,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
       refId: refId ?? this.refId,
       ts: ts ?? this.ts,
       createdBy: createdBy ?? this.createdBy,
+      note: note ?? this.note,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -14071,6 +14170,9 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
     if (createdBy.present) {
       map['created_by'] = Variable<String>(createdBy.value);
     }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -14094,6 +14196,7 @@ class StockMovementsCompanion extends UpdateCompanion<StockMovement> {
           ..write('refId: $refId, ')
           ..write('ts: $ts, ')
           ..write('createdBy: $createdBy, ')
+          ..write('note: $note, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -14836,6 +14939,26 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $PurchaseLinesTable purchaseLines = $PurchaseLinesTable(this);
   late final $StockMovementsTable stockMovements = $StockMovementsTable(this);
   late final $AuditLogTable auditLog = $AuditLogTable(this);
+  late final Index itemsName = Index(
+    'items_name',
+    'CREATE INDEX items_name ON items (name)',
+  );
+  late final Index itemVariantsBarcode = Index(
+    'item_variants_barcode',
+    'CREATE INDEX item_variants_barcode ON item_variants (barcode)',
+  );
+  late final Index ledgerEntriesParty = Index(
+    'ledger_entries_party',
+    'CREATE INDEX ledger_entries_party ON ledger_entries (party_id)',
+  );
+  late final Index invoicesDate = Index(
+    'invoices_date',
+    'CREATE INDEX invoices_date ON invoices (date)',
+  );
+  late final Index stockMovementsItem = Index(
+    'stock_movements_item',
+    'CREATE INDEX stock_movements_item ON stock_movements (item_id)',
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -14862,6 +14985,11 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     purchaseLines,
     stockMovements,
     auditLog,
+    itemsName,
+    itemVariantsBarcode,
+    ledgerEntriesParty,
+    invoicesDate,
+    stockMovementsItem,
   ];
 }
 
@@ -20531,6 +20659,7 @@ typedef $$LedgerEntriesTableCreateCompanionBuilder =
       Value<String?> refType,
       Value<String?> refId,
       Value<String?> note,
+      Value<String?> paymentMode,
       required DateTime ts,
       Value<int> rowid,
     });
@@ -20547,6 +20676,7 @@ typedef $$LedgerEntriesTableUpdateCompanionBuilder =
       Value<String?> refType,
       Value<String?> refId,
       Value<String?> note,
+      Value<String?> paymentMode,
       Value<DateTime> ts,
       Value<int> rowid,
     });
@@ -20638,6 +20768,11 @@ class $$LedgerEntriesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get paymentMode => $composableBuilder(
+    column: $table.paymentMode,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get ts => $composableBuilder(
     column: $table.ts,
     builder: (column) => ColumnFilters(column),
@@ -20726,6 +20861,11 @@ class $$LedgerEntriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get paymentMode => $composableBuilder(
+    column: $table.paymentMode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get ts => $composableBuilder(
     column: $table.ts,
     builder: (column) => ColumnOrderings(column),
@@ -20795,6 +20935,11 @@ class $$LedgerEntriesTableAnnotationComposer
 
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<String> get paymentMode => $composableBuilder(
+    column: $table.paymentMode,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get ts =>
       $composableBuilder(column: $table.ts, builder: (column) => column);
@@ -20866,6 +21011,7 @@ class $$LedgerEntriesTableTableManager
                 Value<String?> refType = const Value.absent(),
                 Value<String?> refId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String?> paymentMode = const Value.absent(),
                 Value<DateTime> ts = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => LedgerEntriesCompanion(
@@ -20880,6 +21026,7 @@ class $$LedgerEntriesTableTableManager
                 refType: refType,
                 refId: refId,
                 note: note,
+                paymentMode: paymentMode,
                 ts: ts,
                 rowid: rowid,
               ),
@@ -20896,6 +21043,7 @@ class $$LedgerEntriesTableTableManager
                 Value<String?> refType = const Value.absent(),
                 Value<String?> refId = const Value.absent(),
                 Value<String?> note = const Value.absent(),
+                Value<String?> paymentMode = const Value.absent(),
                 required DateTime ts,
                 Value<int> rowid = const Value.absent(),
               }) => LedgerEntriesCompanion.insert(
@@ -20910,6 +21058,7 @@ class $$LedgerEntriesTableTableManager
                 refType: refType,
                 refId: refId,
                 note: note,
+                paymentMode: paymentMode,
                 ts: ts,
                 rowid: rowid,
               ),
@@ -25739,6 +25888,7 @@ typedef $$StockMovementsTableCreateCompanionBuilder =
       Value<String?> refId,
       required DateTime ts,
       Value<String?> createdBy,
+      Value<String?> note,
       Value<int> rowid,
     });
 typedef $$StockMovementsTableUpdateCompanionBuilder =
@@ -25757,6 +25907,7 @@ typedef $$StockMovementsTableUpdateCompanionBuilder =
       Value<String?> refId,
       Value<DateTime> ts,
       Value<String?> createdBy,
+      Value<String?> note,
       Value<int> rowid,
     });
 
@@ -25886,6 +26037,11 @@ class $$StockMovementsTableFilterComposer
 
   ColumnFilters<String> get createdBy => $composableBuilder(
     column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -26023,6 +26179,11 @@ class $$StockMovementsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$ItemsTableOrderingComposer get itemId {
     final $$ItemsTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -26136,6 +26297,9 @@ class $$StockMovementsTableAnnotationComposer
 
   GeneratedColumn<String> get createdBy =>
       $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
 
   $$ItemsTableAnnotationComposer get itemId {
     final $$ItemsTableAnnotationComposer composer = $composerBuilder(
@@ -26255,6 +26419,7 @@ class $$StockMovementsTableTableManager
                 Value<String?> refId = const Value.absent(),
                 Value<DateTime> ts = const Value.absent(),
                 Value<String?> createdBy = const Value.absent(),
+                Value<String?> note = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockMovementsCompanion(
                 id: id,
@@ -26271,6 +26436,7 @@ class $$StockMovementsTableTableManager
                 refId: refId,
                 ts: ts,
                 createdBy: createdBy,
+                note: note,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -26289,6 +26455,7 @@ class $$StockMovementsTableTableManager
                 Value<String?> refId = const Value.absent(),
                 required DateTime ts,
                 Value<String?> createdBy = const Value.absent(),
+                Value<String?> note = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => StockMovementsCompanion.insert(
                 id: id,
@@ -26305,6 +26472,7 @@ class $$StockMovementsTableTableManager
                 refId: refId,
                 ts: ts,
                 createdBy: createdBy,
+                note: note,
                 rowid: rowid,
               ),
           withReferenceMapper:
