@@ -49,3 +49,15 @@ class Outbox extends Table {
   @override
   Set<Column> get primaryKey => {id};
 }
+
+/// Per-shop settings as key/value text (opening cash, discount limit, alerts...).
+/// One row per (shop, key).
+class AppSettings extends Table with BaseColumns {
+  TextColumn get key => text()();
+  TextColumn get value => text()();
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+        {shopId, key},
+      ];
+}

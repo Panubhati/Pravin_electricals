@@ -2,6 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'bootstrap.dart';
 import 'db/app_database.dart';
+import 'db/repositories/auth_repository.dart';
+import 'db/repositories/reports_repository.dart';
+import 'db/repositories/settings_repository.dart';
 import 'db/repositories/dues_repository.dart';
 import 'db/repositories/invoice_repository.dart';
 import 'db/repositories/item_repository.dart';
@@ -63,4 +66,16 @@ final stockBalancesProvider = FutureProvider.autoDispose<Map<String, int>>(
 /// Ledger balance per party in paise (positive: the party owes the shop).
 final partyBalancesProvider = FutureProvider.autoDispose<Map<String, int>>(
   (ref) => ref.watch(ledgerRepositoryProvider).balancesByParty(),
+);
+
+final settingsRepositoryProvider = Provider<SettingsRepository>(
+  (ref) => SettingsRepository(ref.watch(sessionProvider).requireValue.ctx),
+);
+
+final authRepositoryProvider = Provider<AuthRepository>(
+  (ref) => AuthRepository(ref.watch(sessionProvider).requireValue.ctx),
+);
+
+final reportsRepositoryProvider = Provider<ReportsRepository>(
+  (ref) => ReportsRepository(ref.watch(sessionProvider).requireValue.ctx),
 );

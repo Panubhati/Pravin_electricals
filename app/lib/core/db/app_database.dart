@@ -32,6 +32,7 @@ part 'app_database.g.dart';
   PurchaseLines,
   StockMovements,
   AuditLog,
+  AppSettings,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -39,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump on every schema change and add a step in [migration].
   /// Never edit a released schema version; add a new one.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -54,6 +55,10 @@ class AppDatabase extends _$AppDatabase {
             await m.createIndex(itemsName);
             await m.createIndex(itemVariantsBarcode);
             await m.createIndex(invoicesDate);
+          }
+          // v3 (A4): per-shop settings (opening cash, discount limit, alerts).
+          if (from < 3) {
+            await m.createTable(appSettings);
           }
         },
         beforeOpen: (details) async {

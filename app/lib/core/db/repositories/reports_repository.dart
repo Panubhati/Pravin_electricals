@@ -1,0 +1,389 @@
+import 'package:drift/drift.dart';
+
+import '../../money.dart';
+import '../app_database.dart';
+import 'dues_repository.dart';
+import 'repo_context.dart';
+import 'settings_repository.dart';
+import 'stock_repository.dart';
+
+/// Start of the local calendar day containing [d].
+DateTime startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
+
+/// One day's sales. Amounts are paise; [byMode] splits what customers paid by
+/// payment mode (cash, upi, card, credit) so it adds up to [totalPaise].
+class DailySales {
+  const DailySales({
+    required this.day,
+    required this.billCount,
+    required this.totalPaise,
+    required this.discountPaise,
+    required this.gstPaise,
+    required this.byMode,
+  });
+
+  final DateTime day;
+  final int billCount;
+  final int totalPaise;
+  final int discountPaise;
+
+  /// GST contained in the total (informational; prices include GST).
+  final int gstPaise;
+  final Map<String, int> byMode;
+
+  int mode(String m) => byMode[m] ?? 0;
+}
+
+/// Cash for one day and the running cash in hand at the end of it.
+class CashPosition {
+  const CashPosition({
+    required this.day,
+    required this.cashSalesPaise,
+    required this.cashReceiptsPaise,
+    required this.cashPaidOutPaise,
+    required this.openingPaise,
+  });
+
+  final DateTime day;
+
+  /// Cash taken on bills today.
+  final int cashSalesPaise;
+
+  /// Cash collected from customers against dues today.
+  final int cashReceiptsPaise;
+
+  /// Cash paid to suppliers today.
+  final int cashPaidOutPaise;
+
+  /// Cash in hand at the start of the day.
+  final int openingPaise;
+
+  int get netPaise => cashSalesPaise + cashReceiptsPaise - cashPaidOutPaise;
+  int get closingPaise => openingPaise + netPaise;
+}
+
+/// Profit for one item over a period. Only lines whose cost was known on the
+/// bill's date count towards [costPaise] and [profitPaise]; the rest are shown
+/// as [unknownCostSalesPaise] and never guessed.
+class ItemProfitRow {
+  const ItemProfitRow({
+    required this.item,
+    required this.qtyBase,
+    required this.taxableSalesPaise,
+    required this.costPaise,
+    required this.unknownCostSalesPaise,
+  });
+
+  final Item item;
+
+  /// Total quantity sold in base units (all lines).
+  final int qtyBase;
+
+  /// Sales ex-GST of lines with a known cost.
+  final int taxableSalesPaise;
+  final int costPaise;
+  final int unknownCostSalesPaise;
+
+  int get profitPaise => taxableSalesPaise - costPaise;
+}
+
+class ItemProfitReport {
+  const ItemProfitReport(this.rows);
+
+  /// Best profit first.
+  final List<ItemProfitRow> rows;
+
+  int get taxableSalesPaise => rows.fold(0, (a, r) => a + r.taxableSalesPaise);
+  int get costPaise => rows.fold(0, (a, r) => a + r.costPaise);
+  int get profitPaise => rows.fold(0, (a, r) => a + r.profitPaise);
+  int get unknownCostSalesPaise => rows.fold(0, (a, r) => a + r.unknownCostSalesPaise);
+}
+
+class StockValueRow {
+  const StockValueRow(this.item, this.balanceBase, this.costPaise);
+  final Item item;
+  final int balanceBase;
+
+  /// Latest cost per pricing unit (ex-GST), or null when never set.
+  final int? costPaise;
+
+  int get valuePaise => costPaise == null
+      ? 0
+      : Money.divRoundHalfUp(balanceBase * costPaise!, item.priceUnitFactor);
+}
+
+class StockValueReport {
+  const StockValueReport(this.rows);
+
+  /// Items on hand (positive balance), biggest value first; unknown cost last.
+  final List<StockValueRow> rows;
+
+  int get totalPaise => rows.fold(0, (a, r) => a + r.valuePaise);
+  List<StockValueRow> get unknownCost => [for (final r in rows) if (r.costPaise == null) r];
+}
+
+class LowStockEntry {
+  const LowStockEntry(this.item, this.balanceBase);
+  final Item item;
+  final int balanceBase;
+}
+
+/// What the owner sees on the home screen.
+class DashboardData {
+  const DashboardData({
+    required this.today,
+    required this.cash,
+    required this.lowStockCount,
+    required this.negativeStockCount,
+    required this.topDues,
+    required this.totalDuePaise,
+  });
+
+  final DailySales today;
+  final CashPosition cash;
+  final int lowStockCount;
+  final int negativeStockCount;
+  final List<PartyDues> topDues;
+  final int totalDuePaise;
+}
+
+/// Read-only numbers for the dashboard, reports and the daily summary. Money
+/// logic is reused from the other repositories, so every screen agrees.
+class ReportsRepository {
+  ReportsRepository(this.ctx)
+      : _dues = DuesRepository(ctx),
+        _stock = StockRepository(ctx),
+        _settings = SettingsRepository(ctx);
+
+  final RepoContext ctx;
+  final DuesRepository _dues;
+  final StockRepository _stock;
+  final SettingsRepository _settings;
+
+  Future<DailySales> dailySales(DateTime day) async {
+    final from = startOfDay(day);
+    final to = DateTime(from.year, from.month, from.day + 1);
+    final db = ctx.db;
+    final invoices = await (db.select(db.invoices)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              t.status.equals('posted') &
+              t.date.isBiggerOrEqualValue(from) &
+              t.date.isSmallerThanValue(to)))
+        .get();
+    final ids = invoices.map((i) => i.id).toList();
+    final byMode = <String, int>{};
+    if (ids.isNotEmpty) {
+      final payments = await (db.select(db.invoicePayments)
+            ..where((t) => t.deletedAt.isNull() & t.invoiceId.isIn(ids)))
+          .get();
+      for (final p in payments) {
+        byMode[p.mode] = (byMode[p.mode] ?? 0) + p.amountPaise;
+      }
+    }
+    return DailySales(
+      day: from,
+      billCount: invoices.length,
+      totalPaise: invoices.fold(0, (a, i) => a + i.totalPaise),
+      discountPaise: invoices.fold(0, (a, i) => a + i.discountPaise),
+      gstPaise: invoices.fold(0, (a, i) => a + i.taxPaise),
+      byMode: byMode,
+    );
+  }
+
+  /// Cash movements on [day], and the cash in hand at its start (the opening
+  /// cash from Settings plus the net cash of every earlier day).
+  Future<CashPosition> cashPosition(DateTime day) async {
+    final from = startOfDay(day);
+    final to = DateTime(from.year, from.month, from.day + 1);
+    // Customer payments are stored negative in the ledger (they reduce what the
+    // customer owes); supplier payments positive. Cash in hand wants both as
+    // positive amounts.
+    final sales = await _cashSales(from: from, to: to);
+    final receipts = -await _cashLedger('payment', from: from, to: to);
+    final paidOut = await _cashLedger('supplier_payment', from: from, to: to);
+    final beforeSales = await _cashSales(to: from);
+    final beforeReceipts = -await _cashLedger('payment', to: from);
+    final beforePaid = await _cashLedger('supplier_payment', to: from);
+    final opening = await _settings.openingCashPaise() +
+        beforeSales +
+        beforeReceipts -
+        beforePaid;
+    return CashPosition(
+      day: from,
+      cashSalesPaise: sales,
+      cashReceiptsPaise: receipts,
+      cashPaidOutPaise: paidOut,
+      openingPaise: opening,
+    );
+  }
+
+  Future<int> _cashSales({DateTime? from, required DateTime to}) async {
+    final db = ctx.db;
+    final p = db.invoicePayments;
+    final i = db.invoices;
+    final sum = p.amountPaise.sum();
+    final q = db.selectOnly(p).join([innerJoin(i, i.id.equalsExp(p.invoiceId))])
+      ..addColumns([sum])
+      ..where(p.deletedAt.isNull() &
+          i.deletedAt.isNull() &
+          i.status.equals('posted') &
+          p.mode.equals('cash') &
+          i.date.isSmallerThanValue(to));
+    if (from != null) q.where(i.date.isBiggerOrEqualValue(from));
+    return (await q.getSingle()).read(sum) ?? 0;
+  }
+
+  Future<int> _cashLedger(String entryType, {DateTime? from, required DateTime to}) async {
+    final l = ctx.db.ledgerEntries;
+    final sum = l.amountPaise.sum();
+    final q = ctx.db.selectOnly(l)
+      ..addColumns([sum])
+      ..where(l.deletedAt.isNull() &
+          l.entryType.equals(entryType) &
+          l.paymentMode.equals('cash') &
+          l.ts.isSmallerThanValue(to));
+    if (from != null) q.where(l.ts.isBiggerOrEqualValue(from));
+    return (await q.getSingle()).read(sum) ?? 0;
+  }
+
+  /// Profit per item for bills dated from [from] up to and including the day of [to].
+  Future<ItemProfitReport> itemProfit(DateTime from, DateTime to) async {
+    final db = ctx.db;
+    final start = startOfDay(from);
+    final end = DateTime(to.year, to.month, to.day + 1);
+    final rows = await (db.select(db.invoiceLines).join([
+      innerJoin(db.invoices, db.invoices.id.equalsExp(db.invoiceLines.invoiceId)),
+    ])
+          ..where(db.invoiceLines.deletedAt.isNull() &
+              db.invoices.deletedAt.isNull() &
+              db.invoices.status.equals('posted') &
+              db.invoices.date.isBiggerOrEqualValue(start) &
+              db.invoices.date.isSmallerThanValue(end)))
+        .get();
+    if (rows.isEmpty) return const ItemProfitReport([]);
+
+    final itemIds = {for (final r in rows) r.readTable(db.invoiceLines).itemId};
+    final costRows = await (db.select(db.itemCosts)
+          ..where((t) => t.deletedAt.isNull() & t.itemId.isIn(itemIds))
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.effectiveFrom),
+            (t) => OrderingTerm.asc(const CustomExpression<int>('rowid')),
+          ]))
+        .get();
+    final costs = <String, List<ItemCost>>{};
+    for (final c in costRows) {
+      (costs[c.itemId] ??= []).add(c);
+    }
+    final items = {
+      for (final it in await (db.select(db.items)..where((t) => t.id.isIn(itemIds))).get())
+        it.id: it
+    };
+
+    final acc = <String, _ProfitAcc>{};
+    for (final r in rows) {
+      final line = r.readTable(db.invoiceLines);
+      final inv = r.readTable(db.invoices);
+      final a = acc[line.itemId] ??= _ProfitAcc();
+      a.qty += line.qtyBase;
+      final taxable = line.lineTotalPaise - line.taxPaise;
+      int? cost;
+      for (final c in costs[line.itemId] ?? const <ItemCost>[]) {
+        if (c.effectiveFrom.isAfter(inv.date)) break;
+        cost = c.costPaise; // last one on or before the bill date wins
+      }
+      if (cost == null) {
+        a.unknown += taxable;
+      } else {
+        a.taxable += taxable;
+        a.cost += Money.divRoundHalfUp(line.qtyBase * cost, line.priceUnitFactor);
+      }
+    }
+    final out = [
+      for (final e in acc.entries)
+        ItemProfitRow(
+          item: items[e.key]!,
+          qtyBase: e.value.qty,
+          taxableSalesPaise: e.value.taxable,
+          costPaise: e.value.cost,
+          unknownCostSalesPaise: e.value.unknown,
+        )
+    ]..sort((a, b) => b.profitPaise.compareTo(a.profitPaise));
+    return ItemProfitReport(out);
+  }
+
+  /// Stock on hand valued at the latest cost (ex-GST).
+  Future<StockValueReport> stockValue() async {
+    final db = ctx.db;
+    final balances = await _stock.balancesByItem();
+    final items = await (db.select(db.items)
+          ..where((t) => t.deletedAt.isNull() & t.active.equals(true)))
+        .get();
+    final costRows = await (db.select(db.itemCosts)
+          ..where((t) => t.deletedAt.isNull())
+          ..orderBy([
+            (t) => OrderingTerm.asc(t.effectiveFrom),
+            (t) => OrderingTerm.asc(const CustomExpression<int>('rowid')),
+          ]))
+        .get();
+    final latest = <String, int>{for (final c in costRows) c.itemId: c.costPaise};
+    final rows = [
+      for (final it in items)
+        if ((balances[it.id] ?? 0) > 0)
+          StockValueRow(it, balances[it.id]!, latest[it.id]),
+    ]..sort((a, b) {
+        if ((a.costPaise == null) != (b.costPaise == null)) {
+          return a.costPaise == null ? 1 : -1;
+        }
+        return b.valuePaise.compareTo(a.valuePaise);
+      });
+    return StockValueReport(rows);
+  }
+
+  /// Items below their minimum (same rule as the Stock screen's Low filter),
+  /// emptiest first.
+  Future<List<LowStockEntry>> lowStock() async {
+    final balances = await _stock.balancesByItem();
+    final items = await (ctx.db.select(ctx.db.items)
+          ..where((t) => t.deletedAt.isNull() & t.active.equals(true)))
+        .get();
+    return [
+      for (final it in items)
+        if (it.minStockBase > 0 &&
+            (balances[it.id] ?? 0) >= 0 &&
+            (balances[it.id] ?? 0) < it.minStockBase)
+          LowStockEntry(it, balances[it.id] ?? 0),
+    ]..sort((a, b) => a.balanceBase.compareTo(b.balanceBase));
+  }
+
+  Future<int> negativeStockCount() async {
+    final balances = await _stock.balancesByItem();
+    final active = {
+      for (final it in await (ctx.db.select(ctx.db.items)
+            ..where((t) => t.deletedAt.isNull() & t.active.equals(true)))
+          .get())
+        it.id
+    };
+    return balances.entries.where((e) => active.contains(e.key) && e.value < 0).length;
+  }
+
+  Future<DashboardData> dashboard({DateTime? now, int topDues = 5}) async {
+    final when = now ?? ctx.clock();
+    final dues = await _dues.receivables(asOf: when);
+    return DashboardData(
+      today: await dailySales(when),
+      cash: await cashPosition(when),
+      lowStockCount: (await lowStock()).length,
+      negativeStockCount: await negativeStockCount(),
+      topDues: dues.take(topDues).toList(),
+      totalDuePaise: DuesRepository.total(dues).totalDue,
+    );
+  }
+}
+
+class _ProfitAcc {
+  int qty = 0;
+  int taxable = 0;
+  int cost = 0;
+  int unknown = 0;
+}
