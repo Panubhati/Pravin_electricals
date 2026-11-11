@@ -225,4 +225,96 @@ abstract final class S {
       'Staff can give up to $pct% discount. Ask the owner.';
   static String lockedWait(int seconds) =>
       'Too many wrong tries. Try again in $seconds seconds.';
+
+  // Dashboard and reports (A4)
+  static const reports = 'Reports';
+  static const reportsTitle = 'Reports';
+  static const dailySales = 'Daily sales';
+  static const itemProfit = 'Item profit';
+  static const stockValue = 'Stock value';
+  static const billsCount = 'Bills';
+  static const salesTotal = 'Sales';
+  static const paidBy = 'Paid by';
+  static const cashInHand = 'Cash in hand';
+  static const cashOpening = 'Cash at start of day';
+  static const cashSales = 'Cash sales';
+  static const cashReceived = 'Cash received from customers';
+  static const cashPaidOut = 'Cash paid to suppliers';
+  static const cashClosing = 'Cash in hand now';
+  static const cashNote =
+      'Counts cash only. Expenses are not recorded yet. Set the opening cash in Settings.';
+  static const noSalesInPeriod = 'No sales in this period';
+  static const salesExGst = 'Sales (without GST)';
+  static const costOfGoods = 'Cost of goods sold';
+  static const profit = 'Profit';
+  static const margin = 'Margin';
+  static const byItem = 'By item';
+  static const costUnknown = 'Cost price not known';
+  static const costUnknownHelp =
+      'These sales are not counted in profit because the item had no cost price '
+      'on the day of the bill. Enter a purchase or set a cost price to include future sales.';
+  static const costUnknownStockHelp =
+      'Not counted in the total: no cost price has been entered for these items.';
+  static const returnsNote = 'Sales returns are not included yet.';
+  static const noStockOnHand = 'No stock on hand';
+  static const stockValueTotal = 'Stock value';
+  static const stockValueNote = 'Quantity on hand x latest cost price, without GST.';
+  static const todaySales = "Today's sales";
+  static const dashboardCash = 'Cash in hand';
+  static const lowStockItems = 'Low stock';
+  static const totalDues = 'Customers owe';
+  static const biggestDues = 'Biggest dues';
+  static const noDuesYet = 'No customer dues';
+
+  // Settings, staff and audit (A4)
+  static const settings = 'Settings';
+  static const settingsTitle = 'Settings';
+  static const settingsShop = 'Shop';
+  static const settingsRules = 'Rules';
+  static const settingsRecords = 'Records';
+  static const settingSaved = 'Saved';
+  static const shopDetails = 'Shop details';
+  static const shopName = 'Shop name';
+  static const shopAddress = 'Address';
+  static const shopTerms = 'Terms printed on the bill';
+  static const shopSaved = 'Shop details saved';
+  static const staffAndPins = 'Staff and PINs';
+  static const addStaff = 'Add counter staff';
+  static const staffName = 'Name';
+  static const staffPin = 'PIN (4 to 6 digits)';
+  static const resetPin = 'Set new PIN';
+  static const changeMyPin = 'Change my PIN';
+  static const removeStaff = 'Remove';
+  static const removeStaffConfirm = 'Remove this person? Their old bills stay.';
+  static const staffAdded = 'Staff added';
+  static const pinChanged = 'PIN changed';
+  static const ownerRole = 'Owner';
+  static const counterRole = 'Counter';
+  static const removedLabel = 'Removed';
+  static const counterDiscountLimit = 'Counter discount limit';
+  static const counterDiscountHelp = 'Most discount staff can give on one bill line, as a percent.';
+  static const enterWholeNumber0to100 = 'Enter a whole number from 0 to 100';
+  static const enterWholeNumber0to120 = 'Enter a whole number from 0 to 120';
+  static const enterAmount = 'Enter an amount like 5000 or 5000.50';
+  static const openingCash = 'Opening cash';
+  static const openingCashHelp = 'Cash in the drawer when you started using the app.';
+  static const autoLock = 'Auto-lock after';
+  static const autoLockHelp = 'Minutes the app can be in the background before it asks for the PIN. 0 means always.';
+  static const auditLog = 'Audit log';
+  static const auditHelp = 'Who changed prices, gave discounts, adjusted stock or edited records';
+  static const auditEmpty = 'Nothing recorded yet';
+  static const auditPrices = 'Prices';
+  static const auditDiscounts = 'Discounts';
+  static const auditStock = 'Stock';
+  static const auditEdits = 'Edits';
+  static const auditUsers = 'Users and shop';
+  static const pickDates = 'Pick dates';
+  static const settingsAlerts = 'Alerts';
+  static const dailySummary = 'Daily summary';
+  static const dailySummaryHelp = "A phone notification each evening with today's sales, cash and dues.";
+  static const summaryTime = 'Summary time';
+  static const summaryTimeHelp = 'Hour of the day, 0 to 23 (21 means 9 PM). Android may send it a few minutes late.';
+  static const summaryTestNow = 'Send a test summary now';
+  static const notificationsBlocked = 'Allow notifications for this app in the phone settings first';
+  static const enterWholeNumber0to23 = 'Enter a whole number from 0 to 23';
 }

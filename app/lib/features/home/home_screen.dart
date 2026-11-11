@@ -8,11 +8,14 @@ import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import '../auth/lock_gate.dart';
 import '../billing/bill_screen.dart';
+import '../dashboard/dashboard_card.dart';
+import '../reports/reports_screens.dart';
 import '../import/import_screen.dart';
 import '../items/items_screen.dart';
 import '../parties/dues_screen.dart';
 import '../parties/parties_screen.dart';
 import '../purchase/purchases_screen.dart';
+import '../settings/settings_screen.dart';
 import '../stock/stock_screen.dart';
 
 /// One tile on the home screen.
@@ -40,6 +43,10 @@ final _tiles = <_HomeTile>[
       (_) => const PartiesScreen(kind: 'supplier'), (p) => p.canSeePurchases),
   _HomeTile('tile_dues', Icons.account_balance_wallet_outlined, S.dues,
       (_) => const DuesScreen()),
+  _HomeTile('tile_reports', Icons.bar_chart, S.reports,
+      (_) => const ReportsScreen(), (p) => p.canSeeReports),
+  _HomeTile('tile_settings', Icons.settings_outlined, S.settings,
+      (_) => const SettingsScreen(), (p) => p.canOpenSettings),
   _HomeTile('tile_import', Icons.upload_file_outlined, S.importData,
       (_) => const ImportScreen(), (p) => p.canImport),
 ];
@@ -70,6 +77,10 @@ class HomeScreen extends ConsumerWidget {
         data: (s) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (perms.canSeeReports) ...[
+              const DashboardCard(),
+              const SizedBox(height: 12),
+            ],
             GridView.count(
               crossAxisCount: 2,
               shrinkWrap: true,

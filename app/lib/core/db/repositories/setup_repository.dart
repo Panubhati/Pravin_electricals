@@ -1,6 +1,7 @@
 import 'package:drift/drift.dart';
 
 import '../app_database.dart';
+import 'audit_repository.dart';
 import 'repo_context.dart';
 
 /// Shop, users, devices and locations (first-run setup).
@@ -113,5 +114,51 @@ class SetupRepository {
           id,
         ));
     return id;
+  }
+
+  /// Edits the shop's details (name, GSTIN, address, state code, phone, terms).
+  /// Bills already saved keep the details they were printed with. Audited.
+  Future<void> updateShop({
+    required String name,
+    String? gstin,
+    String? address,
+    String? stateCode,
+    String? phone,
+    String? terms,
+    String? userId,
+  }) async {
+    String? clean(String? v) => (v == null || v.trim().isEmpty) ? null : v.trim();
+    final n = name.trim();
+    if (n.isEmpty) throw DomainException('Enter the shop name.');
+    final gst = clean(gstin)?.toUpperCase();
+    if (gst != null && !RegExp(r'^[0-9A-Z]{15}$').hasMatch(gst)) {
+      throw DomainException('GSTIN must be 15 letters and digits.');
+    }
+    final state = clean(stateCode);
+    if (state != null && !RegExp(r'^\d{2}$').hasMatch(state)) {
+      throw DomainException('State code must be 2 digits (for example 27 for Maharashtra).');
+    }
+    await ctx.db.transaction(() async {
+      final before = await (ctx.db.select(ctx.db.shops)..where((t) => t.id.equals(ctx.shopId))).getSingle();
+      await (ctx.db.update(ctx.db.shops)..where((t) => t.id.equals(ctx.shopId))).write(ShopsCompanion(
+        name: Value(n),
+        gstin: Value(gst),
+        address: Value(clean(address)),
+        stateCode: Value(state),
+        phone: Value(clean(phone)),
+        terms: Value(clean(terms)),
+        updatedAt: Value(ctx.clock()),
+      ));
+      final after = await (ctx.db.select(ctx.db.shops)..where((t) => t.id.equals(ctx.shopId))).getSingle();
+      await ctx.recordOutbox('shops', ctx.shopId, 'upsert', after.toJson());
+      await AuditRepository(ctx).record(
+        action: 'shop_updated',
+        entity: 'shop',
+        entityId: ctx.shopId,
+        userId: userId,
+        before: before.toJson(),
+        after: after.toJson(),
+      );
+    });
   }
 }

@@ -3,13 +3,16 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/db/app_database.dart';
 import 'core/db/connection.dart';
+import 'core/notifications/device_notifications.dart';
 import 'core/providers.dart';
 import 'features/auth/lock_gate.dart';
 import 'features/home/home_screen.dart';
 import 'shared/strings.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Lets Android run the daily summary when the app is closed.
+  await initBackgroundWork();
   runApp(
     ProviderScope(
       overrides: [

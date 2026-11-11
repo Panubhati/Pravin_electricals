@@ -391,10 +391,12 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
             'This item already has stock or bills.',
             style: Theme.of(context).textTheme.bodySmall,
           ),
-        Text(
-          'Cost today: ${d.costPaise == null || !ref.read(permissionsProvider).canSeeCost ? '-' : Money.format(d.costPaise!)}',
-          style: Theme.of(context).textTheme.bodySmall,
-        ),
+        // Cost is for the owner only: the line itself must not exist for staff.
+        if (ref.read(permissionsProvider).canSeeCost)
+          Text(
+            'Cost today: ${d.costPaise == null ? '-' : Money.format(d.costPaise!)}',
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
       ];
 }
 

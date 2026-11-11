@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'bootstrap.dart';
 import 'db/app_database.dart';
+import 'db/repositories/audit_repository.dart';
 import 'db/repositories/auth_repository.dart';
 import 'db/repositories/reports_repository.dart';
 import 'db/repositories/settings_repository.dart';
@@ -11,8 +12,11 @@ import 'db/repositories/item_repository.dart';
 import 'db/repositories/ledger_repository.dart';
 import 'db/repositories/party_repository.dart';
 import 'db/repositories/purchase_repository.dart';
+import 'db/repositories/setup_repository.dart';
 import 'db/repositories/stock_repository.dart';
 import 'import/item_import.dart';
+import 'notifications/daily_summary.dart';
+import 'notifications/device_notifications.dart';
 import 'import/party_import.dart';
 
 /// Overridden in main() with the on-phone database, and in tests with an
@@ -78,4 +82,21 @@ final authRepositoryProvider = Provider<AuthRepository>(
 
 final reportsRepositoryProvider = Provider<ReportsRepository>(
   (ref) => ReportsRepository(ref.watch(sessionProvider).requireValue.ctx),
+);
+
+final auditRepositoryProvider = Provider<AuditRepository>(
+  (ref) => AuditRepository(ref.watch(sessionProvider).requireValue.ctx),
+);
+
+final setupRepositoryProvider = Provider<SetupRepository>(
+  (ref) => SetupRepository(ref.watch(sessionProvider).requireValue.ctx),
+);
+
+/// Overridden in tests with fakes. The real ones talk to Android.
+final notificationServiceProvider = Provider<NotificationService>(
+  (ref) => DeviceNotificationService(),
+);
+
+final summarySchedulerProvider = Provider<SummaryScheduler>(
+  (ref) => WorkmanagerSummaryScheduler(),
 );

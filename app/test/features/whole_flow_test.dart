@@ -1,7 +1,10 @@
 import 'package:drift/native.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:drift/drift.dart' show OrderingTerm;
+import 'package:shop_app/core/auth/auth_providers.dart';
 import 'package:shop_app/core/db/app_database.dart';
+import 'package:shop_app/core/db/repositories/repo_context.dart';
 import 'package:shop_app/core/db/repositories/invoice_repository.dart';
 import 'package:shop_app/core/db/repositories/purchase_repository.dart';
 import 'package:shop_app/core/import/item_import.dart';
@@ -185,5 +188,45 @@ void main() {
     expect(await stock.balance(itemId: wire.id), before);
     expect((await db.select(db.stockMovements).get()).length, movements);
     expect(await db.select(db.purchases).get(), isEmpty);
+  });
+
+  test('bills are stamped with whoever was logged in, and a counter cannot overdiscount', () async {
+    final session = await c.read(sessionProvider.future);
+    await c.read(itemImportServiceProvider).apply(
+        await c.read(itemImportServiceProvider).preview(ItemImportService.templateCsv),
+        locationId: session.locationId);
+    final auth = c.read(authRepositoryProvider);
+    final counterId = await auth.createCounterUser(name: 'Suresh', pin: '2468');
+    final owner = await auth.owner();
+    final counter = await auth.getUser(counterId);
+    final items = c.read(itemRepositoryProvider);
+    final bill = c.read(billProvider.notifier);
+
+    // The counter sells a switch for cash.
+    c.read(currentUserProvider.notifier).login(counter);
+    await bill.addItem((await items.search('6A switch')).single);
+    bill.setQty(0, '2');
+    var total = c.read(billResultProvider).totals!.totalPaise;
+    await bill.save([PaymentInput('cash', total)]);
+
+    // Rs 3 off Rs 30 is 10%: over the 5% limit, so the counter is refused.
+    await bill.addItem((await items.search('6A switch')).single);
+    bill.setQty(0, '2');
+    bill.setDiscount(0, '3');
+    await expectLater(
+        bill.save([PaymentInput('cash', 2700)]), throwsA(isA<DomainException>()));
+
+    // The owner may give that discount.
+    c.read(currentUserProvider.notifier).login(owner);
+    total = c.read(billResultProvider).totals!.totalPaise;
+    await bill.save([PaymentInput('cash', total)]);
+
+    final invoices = await (db.select(db.invoices)..orderBy([(t) => OrderingTerm.asc(t.number)])).get();
+    expect(invoices.map((i) => i.createdBy), [counterId, owner.id]);
+    // Only the owner's discounted bill reached the audit log, under the owner's name.
+    final audit = await db.select(db.auditLog).get();
+    final discounts = audit.where((a) => a.action == 'discount').toList();
+    expect(discounts, hasLength(1));
+    expect(discounts.single.userId, owner.id);
   });
 }

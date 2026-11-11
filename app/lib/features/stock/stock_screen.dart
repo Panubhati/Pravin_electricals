@@ -12,7 +12,10 @@ enum StockFilter { all, low, negative }
 
 /// Stock on hand for every item, with Low and Negative filters.
 class StockScreen extends ConsumerStatefulWidget {
-  const StockScreen({super.key});
+  const StockScreen({super.key, this.initialFilter = StockFilter.all});
+
+  /// Which filter to open on (the dashboard opens it on Low).
+  final StockFilter initialFilter;
 
   @override
   ConsumerState<StockScreen> createState() => _StockScreenState();
@@ -20,7 +23,7 @@ class StockScreen extends ConsumerStatefulWidget {
 
 class _StockScreenState extends ConsumerState<StockScreen> {
   String _query = '';
-  StockFilter _filter = StockFilter.all;
+  late StockFilter _filter = widget.initialFilter;
 
   @override
   Widget build(BuildContext context) {
