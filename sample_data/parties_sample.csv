@@ -1,0 +1,10 @@
+kind,name,phone,gstin,state_code,tier,credit_limit,opening_balance
+customer,Ramesh Electricals,9800000001,,27,contractor,10000,2500
+customer,Suresh Wiring Works,9800000002,,27,contractor,15000,6200
+customer,Sunita Sharma,9800000003,,,retail,0,0
+customer,Patil Builders,9800000004,27AABCP1234F1Z5,27,contractor,50000,18400
+customer,Kiran Hardware,9800000005,,27,dealer,25000,0
+customer,Anil Kumar,9800000006,,,retail,2000,350
+supplier,Polycab Distributor,9811100001,27AAACP0001A1Z2,27,retail,0,15000
+supplier,Anchor Traders,9811100002,27AAACA0002B1Z3,27,retail,0,8200
+supplier,Havells Dealer Pune,9811100003,27AAACH0003C1Z4,27,retail,0,0

@@ -8,7 +8,7 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A0 Scaffold | done | [A0-scaffold.md](A0-scaffold.md) |
 | A1 Data model and local database | done | [A1-data-model.md](A1-data-model.md) |
 | A2 Quick bill (offline) | done | [A2-quick-bill.md](A2-quick-bill.md) |
-| A3 Items, purchases, stock, parties | next | |
+| A3 Items, purchases, stock, parties | done | [A3-items-purchases-stock-parties.md](A3-items-purchases-stock-parties.md) |
 | A4 Owner dashboard, reports, local alerts | planned | |
 | A5 Printing and sharing | planned | |
 | A6 Local backup and restore | planned | |

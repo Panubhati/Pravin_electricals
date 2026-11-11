@@ -51,3 +51,14 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Invoice PDF is built on the phone from saved data and handed to the Android share sheet; the app keeps no PDF. Noto Sans Regular/Bold (OFL, about 620 KB each) is bundled for the rupee sign.
 - First run creates shop "Pravin Electricals", an owner user, device series "A" and a 'shop' stock location; these are edited in Settings later.
 - A2 acceptance on the owner's phone (Samsung SM A356E): dual-unit bill totals matched the hand calculation (Rs 419.00) and billing worked.
+
+## 2026-11-12 A3 decisions
+- Schema v2 (first migration): `stock_movements.note`, `ledger_entries.payment_mode`, indexes on item name, barcode, stock item, ledger party, invoice date.
+- Ageing is FIFO: payments/credits settle the oldest debits first; the rest is bucketed by entry date (0-30, 31-60, 61-90, 90+); net credit is shown as advance. Suppliers use flipped signs (ledger sign convention unchanged).
+- Item unit type and price-unit factor are locked once any stock movement, invoice line or purchase line exists; the UI never changes item type after creation.
+- Count records the difference as a `count` movement; adjust is a signed `adjustment` with a reason; imported opening stock is an adjustment ("Opening stock").
+- Posting a purchase writes an `item_costs` row (ex-GST); latest cost wins, ties broken by effective date then rowid. Purchases are GST-exclusive, sales GST-inclusive.
+- `Permissions` provider stub (canSeeCost, canEditPrices) until roles in A4.
+- Screens read autoDispose providers and call `ref.invalidate` after writes (no streams).
+- CSV import: all-or-nothing transaction, per-row error preview, duplicates skipped (items by name+brand or barcode; parties by name+phone); handles BOM, CRLF, semicolon/tab; Excel files get a plain message. New packages: `file_picker`, `csv`.
+- Selling above stock only warns (owner's choice); stock location is the shop floor only.
