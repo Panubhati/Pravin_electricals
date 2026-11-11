@@ -72,3 +72,12 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Daily summary: WorkManager periodic task (24 h, first run delayed to the chosen hour), opens the DB in its own isolate. Inexact timing accepted. Only the daily summary is a notification; low stock and dues are on the dashboard (owner's choice).
 - Audit log shows only changed fields in plain words; quantities use the item's selling unit.
 - Updating on the phone: `adb install -r` keeps data; `flutter install` wipes it.
+
+## 2026-11-12 A5 decisions
+- Thermal printing deferred (the shop has no printer); will be A5b. The PDF can already be printed through the phone's share sheet.
+- UPI ID and payee name are in `app_settings` (`upi_id`, `upi_name`), validated as `name@bank`, owner-only, every change audited (`upi_changed`). No UPI ID means no QR anywhere.
+- QR rules: Pay screen shows a QR for the typed UPI amount; every PDF shows one QR for the balance due when there is credit, otherwise for the full total. Link uses only pa, pn, am, cu, tn.
+- Schema v4: `invoice_lines.hsn` snapshots the item's HSN at sale so reprints match the original; older lines fall back to the item's current HSN.
+- Printed content is built as plain text first (`InvoiceView`) and the PDF only draws it, so the content is testable.
+- WhatsApp to a customer's number uses a small Android channel (jid extra on a WhatsApp or WhatsApp Business share intent, FileProvider); it falls back to the share sheet when there is no phone number or no WhatsApp. The PDF is a temporary cache file, deleted after a day.
+- Bills history is open to counter staff too; it shows no cost. Posted bills are still never edited; cancel and return screens are not in A5.

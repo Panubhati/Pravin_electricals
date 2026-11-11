@@ -550,7 +550,7 @@ Manual (with the owner):
 ## 15. Open decisions (ask the owner/developer; record answers in `docs/decisions.md`)
 
 - [ ] Keep supplier invoice photos after posting? (Recommended: yes, compressed. Confirm retention rules with the shop's accountant.)
-- [ ] Thermal printer model and paper width the shop uses.
+- [ ] Thermal printer model and paper width the shop uses. (Owner has no printer yet; printing deferred to A5b.)
 - [ ] Supplier bills: mostly clean printed GST invoices, or many handwritten? (Decides how often photos are rejected.)
 - [ ] Staff use their own phones or shop devices?
 - [ ] Quantity representation for cable length (millimetres as integer vs fixed decimal).
@@ -568,7 +568,7 @@ Manual (with the owner):
 - [x] A2 Quick bill (offline)
 - [x] A3 Items, purchases, stock, parties
 - [x] A4 Owner dashboard, reports, local alerts
-- [ ] A5 Printing and sharing
+- [x] A5 Printing and sharing (sharing, UPI QR, bills history done; thermal printing deferred to A5b)
 - [ ] A6 Local backup and restore
 - [ ] A7 Testing gate and exit criteria
 - [ ] A8 OCR feasibility prototype (optional)

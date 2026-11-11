@@ -10,7 +10,7 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A2 Quick bill (offline) | done | [A2-quick-bill.md](A2-quick-bill.md) |
 | A3 Items, purchases, stock, parties | done | [A3-items-purchases-stock-parties.md](A3-items-purchases-stock-parties.md) |
 | A4 Owner dashboard, reports, local alerts, PIN roles | done | [A4-dashboard-reports-roles.md](A4-dashboard-reports-roles.md) |
-| A5 Printing and sharing | planned | |
+| A5 Sharing, UPI QR, PDF polish, bills history (printing deferred) | done | [A5-sharing-upi-bills.md](A5-sharing-upi-bills.md) |
 | A6 Local backup and restore | planned | |
 | A7 Testing gate and exit criteria | planned | |
 | A8 OCR feasibility prototype (optional) | planned | |
