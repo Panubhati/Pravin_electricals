@@ -356,7 +356,11 @@ class ItemRepository {
   Future<int?> latestCost(String itemId) async {
     final row = await (_db.select(_db.itemCosts)
           ..where((t) => t.itemId.equals(itemId) & t.deletedAt.isNull())
-          ..orderBy([(t) => OrderingTerm.desc(t.effectiveFrom)])
+          ..orderBy([
+            (t) => OrderingTerm.desc(t.effectiveFrom),
+            // Same date: the row saved last wins.
+            (t) => OrderingTerm.desc(const CustomExpression<int>('rowid')),
+          ])
           ..limit(1))
         .getSingleOrNull();
     return row?.costPaise;

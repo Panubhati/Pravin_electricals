@@ -5,6 +5,8 @@ import '../../core/db/app_database.dart';
 import '../../core/db/repositories/item_repository.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
+import '../../core/units.dart';
+import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import 'bill_controller.dart';
 import 'bill_done_screen.dart';
@@ -158,19 +160,30 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     if (_results.isEmpty) {
       return const Center(child: Text(S.noResults));
     }
+    final balances = ref.watch(stockBalancesProvider).valueOrNull;
     return ListView.separated(
       itemCount: _results.length,
       separatorBuilder: (_, __) => const Divider(height: 1),
       itemBuilder: (_, i) {
         final r = _results[i];
+        final qty = balances?[r.item.id] ?? 0;
         final subtitle = [
           if (r.item.brand != null) r.item.brand,
-          if (r.variant != null) r.variant!.label,
+          if (r.variant != null && r.variant!.label != kDefaultVariantLabel)
+            r.variant!.label,
+          if (balances != null) '${S.stock}: ${formatStock(r.item, qty)}',
         ].join('  •  ');
         return ListTile(
           key: Key('result_$i'),
           title: Text(r.item.name),
-          subtitle: subtitle.isEmpty ? null : Text(subtitle),
+          subtitle: subtitle.isEmpty
+              ? null
+              : Text(
+                  subtitle,
+                  style: balances != null && qty <= 0
+                      ? const TextStyle(color: Colors.deepOrange)
+                      : null,
+                ),
           onTap: () => _add(r),
         );
       },
@@ -186,13 +199,28 @@ class _BillScreenState extends ConsumerState<BillScreen> {
         ),
       );
     }
+    // Total asked for per item (an item can be on two lines), against stock.
+    final balances = ref.watch(stockBalancesProvider).valueOrNull;
+    final calc = ref.watch(billResultProvider).totals;
+    final requested = <String, int>{};
+    if (calc != null) {
+      for (final l in calc.lines) {
+        requested[l.cart.itemId] = (requested[l.cart.itemId] ?? 0) + l.qtyBase;
+      }
+    }
     return ListView.builder(
       itemCount: bill.cart.length,
-      itemBuilder: (_, i) => _CartTile(
-        key: ValueKey('${bill.cart[i].line.itemId}/${bill.cart[i].line.variantId}/$i'),
-        index: i,
-        entry: bill.cart[i],
-      ),
+      itemBuilder: (_, i) {
+        final id = bill.cart[i].line.itemId;
+        return _CartTile(
+          key: ValueKey('$id/${bill.cart[i].line.variantId}/$i'),
+          index: i,
+          entry: bill.cart[i],
+          requestedBase: requested[id] ?? 0,
+          // Null while stock is still loading: no warning until it is known.
+          availableBase: balances == null ? null : (balances[id] ?? 0),
+        );
+      },
     );
   }
 
@@ -264,9 +292,21 @@ class _BillScreenState extends ConsumerState<BillScreen> {
 }
 
 class _CartTile extends ConsumerStatefulWidget {
-  const _CartTile({super.key, required this.index, required this.entry});
+  const _CartTile({
+    super.key,
+    required this.index,
+    required this.entry,
+    required this.requestedBase,
+    required this.availableBase,
+  });
   final int index;
   final CartEntry entry;
+
+  /// Total of this item on the bill, in base units.
+  final int requestedBase;
+
+  /// Stock on hand in base units, or null while unknown.
+  final int? availableBase;
 
   @override
   ConsumerState<_CartTile> createState() => _CartTileState();
@@ -337,6 +377,20 @@ class _CartTileState extends ConsumerState<_CartTile> {
               '${_pricingUnit(units, line.priceUnitFactor)}  (GST incl.)',
               style: Theme.of(context).textTheme.bodySmall,
             ),
+            if (widget.availableBase != null &&
+                widget.requestedBase > widget.availableBase!)
+              Padding(
+                key: Key('stockWarning_${widget.index}'),
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  widget.availableBase! <= 0
+                      ? S.outOfStock
+                      : '${S.onlyInStock} '
+                          '${Units.formatQty(widget.availableBase!, line.priceUnitFactor)} '
+                          '${_pricingUnit(units, line.priceUnitFactor)} ${S.inStockSuffix}',
+                  style: const TextStyle(color: Colors.deepOrange),
+                ),
+              ),
             const SizedBox(height: 8),
             Row(
               children: [

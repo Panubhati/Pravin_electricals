@@ -221,6 +221,9 @@ class BillNotifier extends Notifier<BillState> {
       }
     }
     clear();
+    // Stock and dues changed: lists that show them must read again.
+    ref.invalidate(stockBalancesProvider);
+    ref.invalidate(partyBalancesProvider);
     return id!;
   }
 }
