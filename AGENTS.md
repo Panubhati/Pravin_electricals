@@ -564,7 +564,7 @@ Manual (with the owner):
 **Stage A (local, SQLite)**
 - [x] A0 Scaffold
 - [x] A1 Data model and local database
-- [ ] A2 Quick bill (offline)
+- [x] A2 Quick bill (offline)
 - [ ] A3 Items, purchases, stock, parties
 - [ ] A4 Owner dashboard, reports, local alerts
 - [ ] A5 Printing and sharing

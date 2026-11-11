@@ -9,6 +9,13 @@ class ItemUnitInput {
   final int factorToBase;
 }
 
+/// An item (optionally a specific variant) found by search or barcode scan.
+class ItemSearchResult {
+  const ItemSearchResult(this.item, this.variant);
+  final Item item;
+  final ItemVariant? variant;
+}
+
 /// Item master: items, units, variants, prices and costs.
 ///
 /// Prices and costs are paise per *pricing unit* (per metre for cable, per piece
@@ -137,6 +144,54 @@ class ItemRepository {
           id,
         ));
     return id;
+  }
+
+  /// Units defined for the item, base unit first.
+  Future<List<ItemUnit>> unitsOf(String itemId) => (_db.select(_db.itemUnits)
+        ..where((t) => t.itemId.equals(itemId) & t.deletedAt.isNull())
+        ..orderBy([(t) => OrderingTerm.asc(t.factorToBase)]))
+      .get();
+
+  /// Search by item name or brand, and by variant barcode, SKU or label.
+  /// An exact barcode match is returned alone. Newest-first is not needed;
+  /// results are ordered by name.
+  Future<List<ItemSearchResult>> search(String query, {int limit = 20}) async {
+    final q = query.trim();
+    if (q.isEmpty) return const [];
+
+    final exact = await findVariantByBarcode(q);
+    if (exact != null) {
+      return [ItemSearchResult(await getItem(exact.itemId), exact)];
+    }
+
+    final like = '%${q.replaceAll('%', '').replaceAll('_', '')}%';
+    final byName = await (_db.select(_db.items)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              t.active.equals(true) &
+              (t.name.like(like) | t.brand.like(like)))
+          ..orderBy([(t) => OrderingTerm.asc(t.name)])
+          ..limit(limit))
+        .get();
+    final byVariant = await (_db.select(_db.itemVariants)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              (t.sku.like(like) | t.label.like(like) | t.barcode.like(like)))
+          ..limit(limit))
+        .get();
+
+    final out = <ItemSearchResult>[];
+    final seen = <String>{};
+    for (final v in byVariant) {
+      final item = await getItem(v.itemId);
+      if (item.active && seen.add('${item.id}/${v.id}')) {
+        out.add(ItemSearchResult(item, v));
+      }
+    }
+    for (final item in byName) {
+      if (seen.add('${item.id}/')) out.add(ItemSearchResult(item, null));
+    }
+    return out.take(limit).toList();
   }
 
   Future<ItemVariant?> findVariantByBarcode(String barcode) =>

@@ -17,9 +17,18 @@ abstract final class Money {
   static int mulDivRoundHalfUp(int a, int b, int c) =>
       divRoundHalfUp(a * b, c);
 
-  /// Tax on [taxablePaise] at [rateBp] basis points (1800 = 18%), rounded per line.
+  /// Tax added on top of [taxablePaise] at [rateBp] basis points (1800 = 18%),
+  /// rounded per line. Used for tax-exclusive amounts (supplier purchases).
   static int taxPaise(int taxablePaise, int rateBp) =>
       divRoundHalfUp(taxablePaise * rateBp, 10000);
+
+  /// GST contained in a GST-inclusive [grossPaise] at [rateBp], rounded per line.
+  /// Shop selling prices include GST: tax = gross x rate / (100% + rate).
+  static int taxIncluded(int grossPaise, int rateBp) =>
+      divRoundHalfUp(grossPaise * rateBp, 10000 + rateBp);
+
+  /// Rounds [paise] to the nearest whole rupee (half up).
+  static int roundToRupee(int paise) => divRoundHalfUp(paise, 100) * 100;
 
   /// Parses "12.50", "12.5", "12", "-3.05", "₹1,234.00" into paise.
   /// Throws [FormatException] for more than 2 decimals or invalid text.

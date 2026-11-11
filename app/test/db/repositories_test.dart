@@ -89,7 +89,8 @@ void main() {
     final qtyBase = Units.toBaseUnits(qty, factors[unit]!);
     final amount = Units.lineAmountPaise(
         qtyBase: qtyBase, ratePaise: rate, priceUnitFactor: priceUnitFactor);
-    final tax = Money.taxPaise(amount - discount, gst);
+    final gross = amount - discount;
+    final tax = Money.taxIncluded(gross, gst); // prices include GST
     return InvoiceLineInput(
       itemId: itemId,
       unitName: unit,
@@ -100,7 +101,7 @@ void main() {
       discountPaise: discount,
       gstRateBp: gst,
       taxPaise: tax,
-      lineTotalPaise: amount - discount + tax,
+      lineTotalPaise: gross,
     );
   }
 
@@ -121,7 +122,7 @@ void main() {
       discount += l.discountPaise;
       tax += l.taxPaise;
     }
-    final total = subtotal - discount + tax + roundOff;
+    final total = subtotal - discount + roundOff;
     return PostInvoiceInput(
       deviceId: deviceId,
       series: 'A',
@@ -245,16 +246,18 @@ void main() {
 
     test('cash sale of 2.5 m: totals, stock and outbox', () async {
       final line = lineFor(cableId, 'm', '2.5', rate: 4750, priceUnitFactor: 1000);
-      // 2.5 m x Rs 47.50 = 118.75; GST 18% = 21.375 -> 21.38 (per line half up)
-      expect(line.lineTotalPaise, 11875 + 2138);
-      final input = invoiceFrom([line], roundOff: -13);
-      expect(input.totalPaise, 14000);
+      // 2.5 m x Rs 47.50 = 118.75 (GST included); GST inside = 118.75 x 18/118
+      // = 18.11 (per line, half up). Round to the nearest rupee: 119.00.
+      expect(line.lineTotalPaise, 11875);
+      expect(line.taxPaise, 1811);
+      final input = invoiceFrom([line], roundOff: 25);
+      expect(input.totalPaise, 11900);
 
       final id = await invoices.postInvoice(input);
       final inv = await (db.select(db.invoices)..where((t) => t.id.equals(id))).getSingle();
       expect(inv.invoiceNoText, 'A-0001');
-      expect(inv.totalPaise, 14000);
-      expect(inv.paidPaise, 14000);
+      expect(inv.totalPaise, 11900);
+      expect(inv.paidPaise, 11900);
       // 180000 - 2500
       expect(await stock.balance(itemId: cableId), 177500);
       expect(await outboxCount('invoices'), 1);
@@ -264,18 +267,18 @@ void main() {
 
     test('credit sale creates a receivable; payment reduces it', () async {
       final line = lineFor(switchId, 'box', '2', rate: 1500, priceUnitFactor: 1);
-      // 2 boxes = 20 pcs x Rs 15 = 300.00; GST 54.00 -> 354.00
+      // 2 boxes = 20 pcs x Rs 15 = 300.00 (GST included)
       final input = invoiceFrom(
         [line],
         partyId: customerId,
         payments: (t) => [PaymentInput('cash', 10000), PaymentInput('credit', t - 10000)],
       );
-      expect(input.totalPaise, 35400);
+      expect(input.totalPaise, 30000);
       await invoices.postInvoice(input);
 
-      expect(await ledger.balance(customerId), 25400);
-      await ledger.recordCustomerPayment(customerId, 5400);
       expect(await ledger.balance(customerId), 20000);
+      await ledger.recordCustomerPayment(customerId, 5400);
+      expect(await ledger.balance(customerId), 14600);
     });
 
     test('invariants: balances equal the sum of their rows', () async {
@@ -356,6 +359,41 @@ void main() {
       );
       await expectLater(
           invoices.postInvoice(bad), throwsA(isA<DomainException>()));
+      expect(await rows(db.invoices), 0);
+    });
+
+    test('a discount is written to the audit log', () async {
+      final line = lineFor(switchId, 'pcs', '10',
+          rate: 1500, priceUnitFactor: 1, discount: 500);
+      await invoices.postInvoice(invoiceFrom([line]));
+      final audit = await db.select(db.auditLog).get();
+      expect(audit, hasLength(1));
+      expect(audit.single.action, 'discount');
+      expect(audit.single.afterJson, contains('"discountPaise":500'));
+      expect(await outboxCount('audit_log'), 1);
+    });
+
+    test('no discount means no audit row', () async {
+      final line = lineFor(switchId, 'pcs', '1', rate: 1500, priceUnitFactor: 1);
+      await invoices.postInvoice(invoiceFrom([line]));
+      expect(await rows(db.auditLog), 0);
+    });
+
+    test('tax that does not match the inclusive formula is rejected', () async {
+      final l = lineFor(switchId, 'pcs', '1', rate: 1500, priceUnitFactor: 1);
+      final badLine = InvoiceLineInput(
+        itemId: l.itemId,
+        unitName: l.unitName,
+        qtyEntered: l.qtyEntered,
+        qtyBase: l.qtyBase,
+        ratePaise: l.ratePaise,
+        priceUnitFactor: l.priceUnitFactor,
+        gstRateBp: l.gstRateBp,
+        taxPaise: l.taxPaise + 1,
+        lineTotalPaise: l.lineTotalPaise,
+      );
+      await expectLater(invoices.postInvoice(invoiceFrom([badLine])),
+          throwsA(isA<DomainException>()));
       expect(await rows(db.invoices), 0);
     });
 

@@ -55,4 +55,20 @@ class PartyRepository {
     if (row == null) throw DomainException('Unknown party: $partyId');
     return row;
   }
+
+  /// Customers (kind customer or both) whose name or phone contains [query].
+  Future<List<Party>> searchCustomers(String query, {int limit = 20}) {
+    final q = query.trim().replaceAll('%', '').replaceAll('_', '');
+    final like = '%$q%';
+    return (ctx.db.select(ctx.db.parties)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              t.kind.isIn(const ['customer', 'both']) &
+              (q.isEmpty
+                  ? const Constant(true)
+                  : (t.name.like(like) | t.phone.like(like))))
+          ..orderBy([(t) => OrderingTerm.asc(t.name)])
+          ..limit(limit))
+        .get();
+  }
 }

@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import 'tables/audit_tables.dart';
 import 'tables/core_tables.dart';
 import 'tables/item_tables.dart';
 import 'tables/party_tables.dart';
@@ -30,6 +31,7 @@ part 'app_database.g.dart';
   Purchases,
   PurchaseLines,
   StockMovements,
+  AuditLog,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);

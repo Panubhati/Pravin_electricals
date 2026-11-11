@@ -1,7 +1,9 @@
 import 'package:drift/drift.dart';
 
+import '../../money.dart';
 import '../../units.dart';
 import '../app_database.dart';
+import 'audit_repository.dart';
 import 'item_repository.dart';
 import 'ledger_repository.dart';
 import 'repo_context.dart';
@@ -35,9 +37,13 @@ class InvoiceLineInput {
   final int priceUnitFactor;
   final int discountPaise;
   final int gstRateBp;
+
+  /// GST contained in [lineTotalPaise] (informational, not added on top).
   final int taxPaise;
 
-  /// amount - discount + tax, where amount = qtyBase x rate / priceUnitFactor.
+  /// What the customer pays for the line, GST included: amount - discount,
+  /// where amount = qtyBase x rate / priceUnitFactor. [taxPaise] is the GST
+  /// contained in this figure (prices include GST).
   final int lineTotalPaise;
 }
 
@@ -80,15 +86,17 @@ class PostInvoiceInput {
   /// Null for a walk-in customer (then everything must be paid, no credit).
   final String? partyId;
 
-  /// Sum of line amounts, before discount and tax.
+  /// Sum of line amounts (GST-inclusive), before discount.
   final int subtotalPaise;
 
   /// Sum of line discounts.
   final int discountPaise;
+
+  /// GST contained in the total (sum of line taxes). Not added on top.
   final int taxPaise;
   final int roundOffPaise;
 
-  /// subtotal - discount + tax + roundOff.
+  /// subtotal - discount + roundOff.
   final int totalPaise;
   final List<InvoiceLineInput> lines;
 
@@ -104,12 +112,14 @@ class InvoiceRepository {
   InvoiceRepository(this.ctx)
       : _items = ItemRepository(ctx),
         _stock = StockRepository(ctx),
-        _ledger = LedgerRepository(ctx);
+        _ledger = LedgerRepository(ctx),
+        _audit = AuditRepository(ctx);
 
   final RepoContext ctx;
   final ItemRepository _items;
   final StockRepository _stock;
   final LedgerRepository _ledger;
+  final AuditRepository _audit;
 
   static String formatNumber(String series, int number) =>
       '$series-${number.toString().padLeft(4, '0')}';
@@ -236,6 +246,24 @@ class InvoiceRepository {
             ts: input.date,
           );
         }
+
+        if (input.discountPaise > 0) {
+          await _audit.record(
+            action: 'discount',
+            entity: 'invoice',
+            entityId: id,
+            userId: input.createdBy,
+            after: {
+              'invoice': noText,
+              'discountPaise': input.discountPaise,
+              'lines': [
+                for (final l in input.lines)
+                  if (l.discountPaise > 0)
+                    {'itemId': l.itemId, 'discountPaise': l.discountPaise},
+              ],
+            },
+          );
+        }
       });
     } catch (e) {
       if (RepoContext.isUniqueViolation(e)) {
@@ -244,6 +272,39 @@ class InvoiceRepository {
       rethrow;
     }
     return id;
+  }
+
+  /// Everything needed to print or review a saved invoice.
+  Future<InvoiceDetails> details(String invoiceId) async {
+    final db = ctx.db;
+    final invoice = await (db.select(db.invoices)
+          ..where((t) => t.id.equals(invoiceId)))
+        .getSingleOrNull();
+    if (invoice == null) throw DomainException('Unknown invoice: $invoiceId');
+    final lines = await (db.select(db.invoiceLines)
+          ..where((t) => t.invoiceId.equals(invoiceId))
+          ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
+        .get();
+    final names = <String, String>{};
+    for (final l in lines) {
+      names[l.itemId] = (await _items.getItem(l.itemId)).name;
+    }
+    final payments = await (db.select(db.invoicePayments)
+          ..where((t) => t.invoiceId.equals(invoiceId)))
+        .get();
+    Party? party;
+    if (invoice.partyId != null) {
+      party = await (db.select(db.parties)
+            ..where((t) => t.id.equals(invoice.partyId!)))
+          .getSingleOrNull();
+    }
+    return InvoiceDetails(
+      invoice: invoice,
+      lines: lines,
+      itemNames: names,
+      payments: payments,
+      party: party,
+    );
   }
 
   int _paid(PostInvoiceInput i) => i.payments
@@ -280,10 +341,15 @@ class InvoiceRepository {
       if (l.discountPaise < 0 || l.discountPaise > amount) {
         throw DomainException('Line for ${item.name}: bad discount');
       }
-      if (l.lineTotalPaise != amount - l.discountPaise + l.taxPaise) {
+      final gross = amount - l.discountPaise;
+      if (l.lineTotalPaise != gross) {
         throw DomainException(
-            'Line for ${item.name}: line total does not match amount - '
-            'discount + tax');
+            'Line for ${item.name}: line total must equal amount - discount '
+            '(prices include GST)');
+      }
+      if (l.taxPaise != Money.taxIncluded(gross, l.gstRateBp)) {
+        throw DomainException(
+            'Line for ${item.name}: GST does not match the rate');
       }
       subtotal += amount;
       discount += l.discountPaise;
@@ -298,10 +364,8 @@ class InvoiceRepository {
     if (i.taxPaise != tax) {
       throw DomainException('Tax does not match the sum of lines');
     }
-    if (i.totalPaise !=
-        i.subtotalPaise - i.discountPaise + i.taxPaise + i.roundOffPaise) {
-      throw DomainException(
-          'Total must equal subtotal - discount + tax + round-off');
+    if (i.totalPaise != i.subtotalPaise - i.discountPaise + i.roundOffPaise) {
+      throw DomainException('Total must equal subtotal - discount + round-off');
     }
     for (final p in i.payments) {
       if (p.amountPaise <= 0) throw DomainException('Payment must be > 0');
@@ -317,4 +381,23 @@ class InvoiceRepository {
       throw DomainException('Credit sale needs a customer');
     }
   }
+}
+
+/// A saved invoice with its lines, payments and customer, for printing.
+class InvoiceDetails {
+  const InvoiceDetails({
+    required this.invoice,
+    required this.lines,
+    required this.itemNames,
+    required this.payments,
+    this.party,
+  });
+
+  final Invoice invoice;
+  final List<InvoiceLine> lines;
+
+  /// itemId -> item name.
+  final Map<String, String> itemNames;
+  final List<InvoicePayment> payments;
+  final Party? party;
 }

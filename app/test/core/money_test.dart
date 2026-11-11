@@ -53,5 +53,19 @@ void main() {
       expect(Money.taxPaise(5, 1800), 1); // 0.9 -> 1
       expect(Money.taxPaise(2, 1800), 0); // 0.36 -> 0
     });
+    test('taxIncluded extracts GST from a GST-inclusive amount', () {
+      expect(Money.taxIncluded(11800, 1800), 1800); // 118.00 incl 18% -> 18.00
+      expect(Money.taxIncluded(11875, 1800), 1811); // 18.114
+      expect(Money.taxIncluded(30000, 1800), 4576); // 45.762
+      expect(Money.taxIncluded(10000, 0), 0);
+      expect(Money.taxIncluded(10500, 500), 500); // 105 incl 5% -> 5
+    });
+    test('roundToRupee rounds half up to a whole rupee', () {
+      expect(Money.roundToRupee(11875), 11900);
+      expect(Money.roundToRupee(11849), 11800);
+      expect(Money.roundToRupee(11850), 11900);
+      expect(Money.roundToRupee(100), 100);
+      expect(Money.roundToRupee(0), 0);
+    });
   });
 }
