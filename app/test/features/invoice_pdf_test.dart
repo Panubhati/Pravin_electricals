@@ -10,6 +10,7 @@ import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/db/repositories/invoice_repository.dart';
 import 'package:shop_app/core/debug/sample_data.dart';
 import 'package:shop_app/core/printing/invoice_pdf.dart';
+import 'package:shop_app/core/auth/auth_providers.dart';
 import 'package:shop_app/core/providers.dart';
 import 'package:shop_app/features/billing/bill_controller.dart';
 
@@ -24,6 +25,9 @@ void main() {
     db = AppDatabase(NativeDatabase.memory());
     c = ProviderContainer(overrides: [databaseProvider.overrideWithValue(db)]);
     final s = await c.read(sessionProvider.future);
+    // The owner is logged in (nobody logged in means no discounts at all).
+    c.read(currentUserProvider.notifier).login(
+        await (db.select(db.users)..where((t) => t.role.equals('owner'))).getSingle());
     await SampleData.load(s.ctx, locationId: s.locationId);
   });
 

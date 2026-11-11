@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/repositories/item_repository.dart';
 import '../../core/money.dart';
+import '../../core/permissions.dart';
 import '../../core/providers.dart';
 import '../../core/units.dart';
 import '../../shared/format.dart';
@@ -225,6 +226,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
   }
 
   Widget _totalsBar(BillResult result, BillTotals? totals) {
+    final discountError = discountProblem(totals, ref.watch(permissionsProvider));
     return Material(
       elevation: 8,
       child: Padding(
@@ -236,6 +238,10 @@ class _BillScreenState extends ConsumerState<BillScreen> {
             children: [
               if (result.error != null)
                 Text(result.error!, style: const TextStyle(color: Colors.red)),
+              if (discountError != null)
+                Text(discountError,
+                    key: const Key('discountError'),
+                    style: const TextStyle(color: Colors.red)),
               if (totals != null && !totals.isEmpty) ...[
                 _row(S.subtotal, Money.format(totals.subtotalPaise)),
                 if (totals.discountPaise > 0)
@@ -264,8 +270,12 @@ class _BillScreenState extends ConsumerState<BillScreen> {
                   ),
                   FilledButton(
                     key: const Key('payButton'),
-                    onPressed:
-                        (totals == null || totals.isEmpty || _saving) ? null : _pay,
+                    onPressed: (totals == null ||
+                            totals.isEmpty ||
+                            _saving ||
+                            discountError != null)
+                        ? null
+                        : _pay,
                     child: const Text(S.pay, style: TextStyle(fontSize: 18)),
                   ),
                 ],

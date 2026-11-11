@@ -7,6 +7,8 @@ import '../../core/db/repositories/invoice_repository.dart';
 import '../../core/db/repositories/item_repository.dart';
 import '../../core/db/repositories/repo_context.dart';
 import '../../core/money.dart';
+import '../../core/permissions.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import 'domain/bill_calculator.dart';
@@ -66,6 +68,19 @@ BillResult computeBill(BillState bill, String? shopStateCode) {
   } on ArgumentError {
     return const BillResult(error: 'Discount is more than the line amount');
   }
+}
+
+/// A message when a line's discount is above what [perms] allows (counter
+/// staff have a limit), otherwise null.
+String? discountProblem(BillTotals? totals, Permissions perms) {
+  if (totals == null) return null;
+  for (final l in totals.lines) {
+    final discount = l.amountPaise - l.grossPaise;
+    if (!perms.discountAllowed(discount, l.amountPaise)) {
+      return S.discountTooHigh(perms.maxDiscountPercent ?? 0);
+    }
+  }
+  return null;
 }
 
 class BillNotifier extends Notifier<BillState> {
@@ -190,6 +205,8 @@ class BillNotifier extends Notifier<BillState> {
     if (totals == null || totals.isEmpty) {
       throw DomainException(result.error ?? 'The bill is empty');
     }
+    final tooMuch = discountProblem(totals, ref.read(permissionsProvider));
+    if (tooMuch != null) throw DomainException(tooMuch);
     final invoices = ref.read(invoiceRepositoryProvider);
     final shop = session.shop;
     final snapshot = jsonEncode({
@@ -213,7 +230,7 @@ class BillNotifier extends Notifier<BillState> {
           locationId: session.locationId,
           payments: payments,
           partyId: state.customer?.id,
-          createdBy: session.userId,
+          createdBy: ref.read(actingUserIdProvider),
           shopSnapshotJson: snapshot,
         ));
       } on DuplicateInvoiceNumberException {

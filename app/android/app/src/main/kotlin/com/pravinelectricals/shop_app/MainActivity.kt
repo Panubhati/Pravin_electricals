@@ -1,5 +1,7 @@
 package com.pravinelectricals.shop_app
 
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.FlutterFragmentActivity
 
-class MainActivity : FlutterActivity()
+// FlutterFragmentActivity is needed so the phone's screen-lock prompt
+// (local_auth) can be shown, used to recover a forgotten owner PIN.
+class MainActivity : FlutterFragmentActivity()

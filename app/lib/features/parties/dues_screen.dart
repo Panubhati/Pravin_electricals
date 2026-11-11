@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/db/repositories/dues_repository.dart';
 import '../../core/dues/ageing.dart';
 import '../../core/money.dart';
+import '../../core/permissions.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
@@ -17,6 +18,14 @@ class DuesScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    // What the shop owes suppliers reveals its buying cost: owner only.
+    final showPayables = ref.watch(permissionsProvider).canSeePurchases;
+    if (!showPayables) {
+      return Scaffold(
+        appBar: AppBar(title: const Text(S.duesTitle)),
+        body: const _DuesList(payable: false),
+      );
+    }
     return DefaultTabController(
       length: 2,
       child: Scaffold(

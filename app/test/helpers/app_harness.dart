@@ -2,10 +2,14 @@ import 'package:drift/native.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shop_app/core/auth/auth_providers.dart';
 import 'package:shop_app/core/bootstrap.dart';
 import 'package:shop_app/core/db/app_database.dart';
+import 'package:shop_app/core/db/repositories/auth_repository.dart';
 import 'package:shop_app/core/debug/sample_data.dart';
 import 'package:shop_app/core/providers.dart';
+import 'package:shop_app/features/auth/lock_gate.dart';
+import 'package:shop_app/features/home/home_screen.dart';
 
 /// An in-memory database with the shop set up, for widget tests.
 class Harness {
@@ -15,9 +19,35 @@ class Harness {
 
   /// Pumps [home] inside fresh app providers. The shop session is resolved
   /// first, as it is in the real app (the home screen waits for it).
-  Future<void> pump(
+  Future<ProviderContainer> pump(
     WidgetTester tester,
     Widget home, {
+    List<Override> overrides = const [],
+    User? user,
+  }) async {
+    // Everyone is logged in as the owner unless a test says otherwise.
+    final who = user ?? (await tester.runAsync(() => ownerUser()))!;
+    final container = ProviderContainer(
+      overrides: [
+        databaseProvider.overrideWithValue(db),
+        currentUserProvider.overrideWith((ref) => SessionUserNotifier(who)),
+        ...overrides,
+      ],
+    );
+    addTearDown(container.dispose);
+    await tester.runAsync(() => container.read(sessionProvider.future));
+    await tester.pumpWidget(UncontrolledProviderScope(
+      container: container,
+      child: MaterialApp(home: home),
+    ));
+    await settle(tester);
+    return container;
+  }
+
+  /// Pumps the whole app shell (lock gate and home screen), nobody logged in.
+  /// Returns the container so a test can read providers.
+  Future<ProviderContainer> pumpApp(
+    WidgetTester tester, {
     List<Override> overrides = const [],
   }) async {
     final container = ProviderContainer(
@@ -27,9 +57,25 @@ class Harness {
     await tester.runAsync(() => container.read(sessionProvider.future));
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(home: home),
+      child: MaterialApp(
+        navigatorKey: appNavigatorKey,
+        builder: (context, child) => LockGate(child: child ?? const SizedBox.shrink()),
+        home: const HomeScreen(),
+      ),
     ));
     await settle(tester);
+    return container;
+  }
+
+  /// The owner account created at first run.
+  Future<User> ownerUser() => (db.select(db.users)..where((t) => t.role.equals('owner'))).getSingle();
+
+  /// Adds a counter-staff user (PIN 2468) and returns it.
+  Future<User> addCounterUser(WidgetTester tester, {String name = 'Suresh'}) async {
+    final id = await tester.runAsync(
+        () => AuthRepository(session.ctx).createCounterUser(name: name, pin: '2468'));
+    return (await tester.runAsync(
+        () => (db.select(db.users)..where((t) => t.id.equals(id!))).getSingle()))!;
   }
 
   Future<void> close(WidgetTester tester) => tester.runAsync(db.close).then((_) {});

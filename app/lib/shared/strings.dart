@@ -203,4 +203,26 @@ abstract final class S {
   static const importHelp =
       'Save your Excel sheet as CSV first (File > Save As > CSV). '
       'Download the template to see the columns.';
+
+  // Login and roles (A4)
+  static const lockTitle = 'Who is using the app?';
+  static const enterPin = 'Enter PIN';
+  static const wrongPin = 'Wrong PIN, try again';
+  static const forgotPin = 'Forgot PIN?';
+  static const forgotPinReason = 'Confirm it is you to set a new owner PIN';
+  static const forgotPinFailed = 'Could not confirm with the phone lock';
+  static const setupPinTitle = 'Set the owner PIN';
+  static const setupPinHelp =
+      'Choose a 4 to 6 digit PIN. You will use it to open the app. Staff get their own PIN.';
+  static const newPin = 'New PIN';
+  static const confirmPin = 'Enter the PIN again to confirm';
+  static const pinMismatch = 'The two PINs did not match. Start again.';
+  static const pinRules = 'PIN must be 4 to 6 digits';
+  static const lockNow = 'Lock';
+  static const unlock = 'Unlock';
+  static const askOwner = 'Ask the owner';
+  static String discountTooHigh(int pct) =>
+      'Staff can give up to $pct% discount. Ask the owner.';
+  static String lockedWait(int seconds) =>
+      'Too many wrong tries. Try again in $seconds seconds.';
 }

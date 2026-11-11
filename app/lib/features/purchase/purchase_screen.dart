@@ -5,6 +5,7 @@ import '../../core/db/app_database.dart';
 import '../../core/db/repositories/item_repository.dart';
 import '../../core/import/value_parsers.dart';
 import '../../core/money.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
@@ -173,7 +174,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
               supplierInvoiceNo: _invoiceNo.text.trim(),
               date: _date,
               locationId: session.locationId,
-              createdBy: session.userId,
+              createdBy: ref.read(actingUserIdProvider),
             ),
           );
       ref.invalidate(stockBalancesProvider);

@@ -7,6 +7,7 @@ import '../../core/db/repositories/repo_context.dart';
 import '../../core/import/value_parsers.dart';
 import '../../core/money.dart';
 import '../../core/permissions.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../core/units.dart';
 import '../../shared/format.dart';
@@ -133,7 +134,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
       await ref.read(itemFormServiceProvider).save(
             data,
             locationId: session.locationId,
-            userId: session.userId,
+            userId: ref.read(actingUserIdProvider),
             canSeeCost: perms.canSeeCost,
           );
       ref.invalidate(itemListProvider);
@@ -157,7 +158,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
     }
     try {
       await ref.read(itemRepositoryProvider).setActive(widget.itemId!, value,
-          userId: ref.read(sessionProvider).requireValue.userId);
+          userId: ref.read(actingUserIdProvider));
       await _load();
     } catch (e) {
       if (mounted) toastError(context, e);
@@ -172,13 +173,13 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
         onRemove: variant == null
             ? null
             : () => ref.read(itemRepositoryProvider).removeVariant(variant.id,
-                userId: ref.read(sessionProvider).requireValue.userId),
+                userId: ref.read(actingUserIdProvider)),
       ),
     );
     if (result == null || !mounted) return;
     if (!result.removed) {
       final repo = ref.read(itemRepositoryProvider);
-      final userId = ref.read(sessionProvider).requireValue.userId;
+      final userId = ref.read(actingUserIdProvider);
       try {
         if (variant == null) {
           await repo.addVariant(

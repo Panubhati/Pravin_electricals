@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/db/repositories/repo_context.dart';
 import '../../core/import/value_parsers.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
@@ -99,7 +100,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
           gstin: gstin,
           address: _blank(_address),
           stateCode: state,
-          userId: session.userId,
+          userId: ref.read(actingUserIdProvider),
         );
       } else {
         final opening = _opening.text.trim().isEmpty ? 0 : parseRupees(_opening.text);

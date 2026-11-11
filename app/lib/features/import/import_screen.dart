@@ -5,6 +5,7 @@ import '../../core/import/file_service.dart';
 import '../../core/import/import_models.dart';
 import '../../core/import/item_import.dart';
 import '../../core/import/party_import.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
@@ -131,7 +132,7 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
       final session = ref.read(sessionProvider).requireValue;
       final result = _isItems
           ? await ref.read(itemImportServiceProvider).apply(_items!,
-              locationId: session.locationId, userId: session.userId)
+              locationId: session.locationId, userId: ref.read(actingUserIdProvider))
           : await ref.read(partyImportServiceProvider).apply(_parties!);
       ref.invalidate(itemListProvider);
       ref.invalidate(stockBalancesProvider);

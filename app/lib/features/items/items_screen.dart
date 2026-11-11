@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/permissions.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
@@ -54,12 +55,14 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
           ),
         ],
       ),
-      floatingActionButton: FloatingActionButton.extended(
-        key: const Key('addItem'),
-        onPressed: () => _open(),
-        icon: const Icon(Icons.add),
-        label: const Text(S.addItem),
-      ),
+      floatingActionButton: ref.watch(permissionsProvider).canEditPrices
+          ? FloatingActionButton.extended(
+              key: const Key('addItem'),
+              onPressed: () => _open(),
+              icon: const Icon(Icons.add),
+              label: const Text(S.addItem),
+            )
+          : null,
       body: Column(
         children: [
           Padding(

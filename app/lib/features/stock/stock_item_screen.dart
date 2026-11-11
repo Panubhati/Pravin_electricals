@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/repositories/repo_context.dart';
 import '../../core/import/value_parsers.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../core/units.dart';
 import '../../shared/format.dart';
@@ -64,7 +65,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
             locationId: session.locationId,
             deltaBase: result.adding ? base : -base,
             reason: result.note.isEmpty ? result.reason : '${result.reason}: ${result.note}',
-            userId: session.userId,
+            userId: ref.read(actingUserIdProvider),
           );
       ref.invalidate(stockBalancesProvider);
       if (mounted) toast(context, S.stockSaved);
@@ -88,7 +89,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
             itemId: item.id,
             locationId: session.locationId,
             countedBase: _toBase(text),
-            userId: session.userId,
+            userId: ref.read(actingUserIdProvider),
           );
       ref.invalidate(stockBalancesProvider);
       if (mounted) toast(context, S.stockSaved);

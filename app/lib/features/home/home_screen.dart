@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/debug/sample_data.dart';
+import '../../core/permissions.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
+import '../auth/lock_gate.dart';
 import '../billing/bill_screen.dart';
 import '../import/import_screen.dart';
 import '../items/items_screen.dart';
@@ -15,11 +17,14 @@ import '../stock/stock_screen.dart';
 
 /// One tile on the home screen.
 class _HomeTile {
-  const _HomeTile(this.keyName, this.icon, this.label, this.builder);
+  const _HomeTile(this.keyName, this.icon, this.label, this.builder, [this.allowed]);
   final String keyName;
   final IconData icon;
   final String label;
   final WidgetBuilder builder;
+
+  /// Who may see this tile; null means everyone who is logged in.
+  final bool Function(Permissions p)? allowed;
 }
 
 /// All home tiles in one place; later milestones add theirs here.
@@ -28,15 +33,15 @@ final _tiles = <_HomeTile>[
   _HomeTile('tile_items', Icons.inventory_2_outlined, S.items, (_) => const ItemsScreen()),
   _HomeTile('tile_stock', Icons.warehouse_outlined, S.stock, (_) => const StockScreen()),
   _HomeTile('tile_purchases', Icons.local_shipping_outlined, S.purchases,
-      (_) => const PurchasesScreen()),
+      (_) => const PurchasesScreen(), (p) => p.canSeePurchases),
   _HomeTile('tile_customers', Icons.people_outline, S.customers,
       (_) => const PartiesScreen(kind: 'customer')),
   _HomeTile('tile_suppliers', Icons.business_outlined, S.suppliers,
-      (_) => const PartiesScreen(kind: 'supplier')),
+      (_) => const PartiesScreen(kind: 'supplier'), (p) => p.canSeePurchases),
   _HomeTile('tile_dues', Icons.account_balance_wallet_outlined, S.dues,
       (_) => const DuesScreen()),
   _HomeTile('tile_import', Icons.upload_file_outlined, S.importData,
-      (_) => const ImportScreen()),
+      (_) => const ImportScreen(), (p) => p.canImport),
 ];
 
 class HomeScreen extends ConsumerWidget {
@@ -45,8 +50,20 @@ class HomeScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final session = ref.watch(sessionProvider);
+    final perms = ref.watch(permissionsProvider);
+    final tiles = [for (final t in _tiles) if (t.allowed?.call(perms) ?? true) t];
     return Scaffold(
-      appBar: AppBar(title: Text(session.valueOrNull?.shop.name ?? S.appTitle)),
+      appBar: AppBar(
+        title: Text(session.valueOrNull?.shop.name ?? S.appTitle),
+        actions: [
+          IconButton(
+            key: const Key('lockNow'),
+            icon: const Icon(Icons.lock_outline),
+            tooltip: S.lockNow,
+            onPressed: () => lockApp(ProviderScope.containerOf(context)),
+          ),
+        ],
+      ),
       body: session.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => Center(child: Text('Could not open the database: $e')),
@@ -61,7 +78,7 @@ class HomeScreen extends ConsumerWidget {
               crossAxisSpacing: 12,
               childAspectRatio: 1.35,
               children: [
-                for (final t in _tiles)
+                for (final t in tiles)
                   Card(
                     clipBehavior: Clip.antiAlias,
                     child: InkWell(
