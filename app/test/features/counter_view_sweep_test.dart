@@ -122,6 +122,17 @@ void main() {
     });
 
     await visit('tile_dues', 'dues');
+
+    await visit('tile_bills', 'bills list', inside: () async {
+      final tile = find.byWidgetPredicate((w) => w.key.toString().startsWith("[<'bill_"));
+      expect(tile, findsWidgets);
+      await tester.tap(tile.first);
+      await settle(tester);
+      expectClean(tester, 'bill detail');
+      expect(find.byKey(const Key('detailShare')), findsOneWidget);
+      await tester.pageBack();
+      await settle(tester);
+    });
   }, sample: false);
 
   harnessTest('the same screens do show cost to the owner (so the sweep is meaningful)', (tester, h) async {

@@ -109,6 +109,34 @@ class SettingsScreen extends ConsumerWidget {
                   MaterialPageRoute(builder: (_) => const ShopDetailsScreen())),
             ),
             ListTile(
+              key: const Key('settingUpi'),
+              leading: const Icon(Icons.qr_code_2),
+              title: const Text(S.upiSetting),
+              subtitle: const Text(S.upiHelp),
+              trailing: Text(ref.watch(upiPayeeProvider).valueOrNull?.vpa ?? S.upiNotSet),
+              onTap: () async {
+                final current = ref.read(upiPayeeProvider).valueOrNull;
+                final r = await showDialog<({String vpa, String name})>(
+                  context: context,
+                  builder: (_) => _UpiDialog(vpa: current?.vpa ?? '', name: current?.name ?? ''),
+                );
+                if (r == null) return;
+                try {
+                  final shopName = ref.read(sessionProvider).requireValue.shop.name;
+                  // The payee name defaults to the shop name; do not store it when unchanged.
+                  await settings.setUpi(
+                    vpa: r.vpa,
+                    name: r.name.trim() == shopName ? '' : r.name,
+                    userId: ref.read(actingUserIdProvider),
+                  );
+                  ref.invalidate(upiPayeeProvider);
+                  if (context.mounted) toast(context, S.upiSaved);
+                } catch (e) {
+                  if (context.mounted) toastError(context, e);
+                }
+              },
+            ),
+            ListTile(
               key: const Key('settingStaff'),
               leading: const Icon(Icons.badge_outlined),
               title: const Text(S.staffAndPins),
@@ -342,4 +370,60 @@ class _ValueDialogState extends State<ValueDialog> {
       ],
     );
   }
+}
+
+class _UpiDialog extends StatefulWidget {
+  const _UpiDialog({required this.vpa, required this.name});
+  final String vpa;
+  final String name;
+
+  @override
+  State<_UpiDialog> createState() => _UpiDialogState();
+}
+
+class _UpiDialogState extends State<_UpiDialog> {
+  late final TextEditingController _vpa = TextEditingController(text: widget.vpa);
+  late final TextEditingController _name = TextEditingController(text: widget.name);
+
+  @override
+  void dispose() {
+    _vpa.dispose();
+    _name.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: const Text(S.upiSetting),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(S.upiHelp),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('upiIdField'),
+              controller: _vpa,
+              autofocus: true,
+              autocorrect: false,
+              keyboardType: TextInputType.emailAddress,
+              decoration: const InputDecoration(labelText: S.upiId, border: OutlineInputBorder()),
+            ),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('upiNameField'),
+              controller: _name,
+              decoration: const InputDecoration(labelText: S.upiName, border: OutlineInputBorder()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+          FilledButton(
+            key: const Key('upiSave'),
+            onPressed: () => Navigator.pop(context, (vpa: _vpa.text, name: _name.text)),
+            child: const Text(S.save),
+          ),
+        ],
+      );
 }

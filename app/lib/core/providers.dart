@@ -16,6 +16,8 @@ import 'db/repositories/setup_repository.dart';
 import 'db/repositories/stock_repository.dart';
 import 'import/item_import.dart';
 import 'notifications/daily_summary.dart';
+import 'printing/upi_link.dart';
+import 'sharing/bill_sharer.dart';
 import 'notifications/device_notifications.dart';
 import 'import/party_import.dart';
 
@@ -100,3 +102,13 @@ final notificationServiceProvider = Provider<NotificationService>(
 final summarySchedulerProvider = Provider<SummaryScheduler>(
   (ref) => WorkmanagerSummaryScheduler(),
 );
+
+/// Where customers' UPI payments go (the QR code on the Pay screen and on every
+/// PDF), or null when no UPI ID has been set in Settings.
+final upiPayeeProvider = FutureProvider.autoDispose<UpiPayee?>((ref) {
+  final session = ref.watch(sessionProvider).requireValue;
+  return ref.watch(settingsRepositoryProvider).upiPayee(session.shop.name);
+});
+
+/// Hands bill PDFs to WhatsApp or the share sheet. Overridden in tests.
+final billSharerProvider = Provider<BillSharer>((ref) => DeviceBillSharer());

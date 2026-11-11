@@ -5,6 +5,7 @@ import '../../core/db/repositories/invoice_repository.dart';
 import '../../core/money.dart';
 import '../../shared/strings.dart';
 import 'bill_controller.dart';
+import 'upi_qr_card.dart';
 
 /// Asks how the customer pays (cash, UPI, credit or a mix) and returns the
 /// payments, which always add up to the bill total. Null if cancelled.
@@ -156,6 +157,8 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
           field(S.cash, _cash),
           field(S.upi, _upi),
           field(S.credit, _credit),
+          // A QR for the UPI part, so the customer can pay before the bill is saved.
+          if (!invalid) UpiQrCard(amountPaise: upi),
           if (needsCustomer)
             const Padding(
               padding: EdgeInsets.only(bottom: 8),

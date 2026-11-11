@@ -324,8 +324,11 @@ class InvoiceRepository {
           ..orderBy([(t) => OrderingTerm.asc(t.createdAt)]))
         .get();
     final names = <String, String>{};
+    final hsns = <String, String>{};
     for (final l in lines) {
-      names[l.itemId] = (await _items.getItem(l.itemId)).name;
+      final item = await _items.getItem(l.itemId);
+      names[l.itemId] = item.name;
+      if (item.hsn != null && item.hsn!.isNotEmpty) hsns[l.itemId] = item.hsn!;
     }
     final payments = await (db.select(db.invoicePayments)
           ..where((t) => t.invoiceId.equals(invoiceId)))
@@ -340,6 +343,7 @@ class InvoiceRepository {
       invoice: invoice,
       lines: lines,
       itemNames: names,
+      itemHsn: hsns,
       payments: payments,
       party: party,
     );
@@ -440,6 +444,7 @@ class InvoiceDetails {
     required this.lines,
     required this.itemNames,
     required this.payments,
+    this.itemHsn = const {},
     this.party,
   });
 
@@ -448,6 +453,9 @@ class InvoiceDetails {
 
   /// itemId -> item name.
   final Map<String, String> itemNames;
+
+  /// itemId -> the item's current HSN, used only for lines saved before schema v4.
+  final Map<String, String> itemHsn;
   final List<InvoicePayment> payments;
   final Party? party;
 }

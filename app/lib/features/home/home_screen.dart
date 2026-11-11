@@ -8,6 +8,7 @@ import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import '../auth/lock_gate.dart';
 import '../billing/bill_screen.dart';
+import '../bills/bills_screens.dart';
 import '../dashboard/dashboard_card.dart';
 import '../reports/reports_screens.dart';
 import '../import/import_screen.dart';
@@ -33,6 +34,7 @@ class _HomeTile {
 /// All home tiles in one place; later milestones add theirs here.
 final _tiles = <_HomeTile>[
   _HomeTile('tile_bill', Icons.receipt_long, S.newBill, (_) => const BillScreen()),
+  _HomeTile('tile_bills', Icons.history, S.bills, (_) => const BillsScreen()),
   _HomeTile('tile_items', Icons.inventory_2_outlined, S.items, (_) => const ItemsScreen()),
   _HomeTile('tile_stock', Icons.warehouse_outlined, S.stock, (_) => const StockScreen()),
   _HomeTile('tile_purchases', Icons.local_shipping_outlined, S.purchases,

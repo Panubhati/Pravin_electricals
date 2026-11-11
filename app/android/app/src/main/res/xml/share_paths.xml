@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<paths>
+    <!-- Temporary bill PDFs handed to WhatsApp; cleaned up daily. -->
+    <cache-path name="shared_bills" path="shared_bills/" />
+</paths>

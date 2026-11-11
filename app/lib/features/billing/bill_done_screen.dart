@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:printing/printing.dart';
 
 import '../../core/money.dart';
-import '../../core/printing/invoice_pdf.dart';
 import '../../core/providers.dart';
+import '../../shared/format.dart';
 import '../../shared/strings.dart';
+import '../../shared/widgets.dart';
+import '../bills/bill_sharing.dart';
 import 'bill_screen.dart';
 
 /// Shown after a bill is saved: share the PDF or start the next bill.
@@ -20,18 +21,14 @@ class BillDoneScreen extends ConsumerStatefulWidget {
 class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
   bool _sharing = false;
 
-  Future<void> _share() async {
+  Future<void> _share({required bool whatsapp}) async {
     setState(() => _sharing = true);
-    final messenger = ScaffoldMessenger.of(context);
     try {
-      final d =
-          await ref.read(invoiceRepositoryProvider).details(widget.invoiceId);
-      final bytes = await buildInvoicePdf(d, await InvoiceFonts.load());
-      // The PDF is built from data each time and handed straight to the share
-      // sheet; the app never keeps it.
-      await Printing.sharePdf(bytes: bytes, filename: '${d.invoice.invoiceNoText}.pdf');
+      final outcome = await shareBill(ref, widget.invoiceId, whatsapp: whatsapp);
+      final msg = shareOutcomeMessage(outcome);
+      if (msg != null && mounted) toast(context, msg);
     } catch (e) {
-      messenger.showSnackBar(SnackBar(content: Text('Could not share: $e')));
+      if (mounted) toast(context, '${S.shareFailed}: ${errorMessage(e)}');
     } finally {
       if (mounted) setState(() => _sharing = false);
     }
@@ -68,9 +65,16 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
                 const SizedBox(height: 24),
                 FilledButton.icon(
                   key: const Key('sharePdf'),
-                  onPressed: _sharing ? null : _share,
+                  onPressed: _sharing ? null : () => _share(whatsapp: false),
                   icon: const Icon(Icons.share),
                   label: const Text(S.sharePdf),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('whatsappPdf'),
+                  onPressed: _sharing ? null : () => _share(whatsapp: true),
+                  icon: const Icon(Icons.chat_outlined),
+                  label: const Text(S.whatsapp),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(

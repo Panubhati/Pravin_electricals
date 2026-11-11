@@ -317,4 +317,26 @@ abstract final class S {
   static const summaryTestNow = 'Send a test summary now';
   static const notificationsBlocked = 'Allow notifications for this app in the phone settings first';
   static const enterWholeNumber0to23 = 'Enter a whole number from 0 to 23';
+
+  // UPI, bills history and sharing (A5)
+  static const upiSetting = 'UPI ID for QR codes';
+  static const upiNotSet = 'Not set';
+  static const upiHelp =
+      'Customers scan a QR code to pay this UPI ID. It appears on the Pay screen and on every bill PDF. Leave empty to turn QR codes off.';
+  static const upiId = 'UPI ID (for example shop@okhdfc)';
+  static const upiName = 'Name customers see (optional)';
+  static const upiSaved = 'UPI ID saved';
+  static const upiOwnerHint = 'Add your UPI ID in Settings to show a payment QR here.';
+  static String upiScanToPay(String amount) => 'Customer scans to pay $amount';
+  static const bills = 'Bills';
+  static const billsTitle = 'Bills';
+  static const searchBills = 'Search bill number or customer';
+  static const noBills = 'No bills yet';
+  static const billDetail = 'Bill';
+  static const whatsapp = 'WhatsApp';
+  static const sharedViaSheet = 'WhatsApp is not available for this customer, so the share sheet opened';
+  static const dueLabel = 'due';
+  static const sharedNoPhone = 'This customer has no phone number saved, so the share sheet opened instead';
+  static const sharedNoWhatsApp = 'WhatsApp could not be opened, so the share sheet opened instead';
+  static const shareFailed = 'Could not share the bill';
 }
