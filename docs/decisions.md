@@ -26,3 +26,15 @@ Plugins require NDK 27.0.12077973 and flutter_local_notifications requires core 
 
 ## 2026-11-11 minSdk 23
 mobile_scanner requires minSdk 23 (Android 6.0). App will not install on older phones.
+
+## 2026-11-11 Prices are paise per pricing unit (changes AGENTS.md section 7)
+Cable is stored in millimetres, so a price of Rs 47.50 per metre would be 4.75 paise per mm, which is not an integer. Prices and costs (item_prices, item_costs, invoice_lines, purchase_lines) are therefore stored as integer paise per *pricing unit* (per metre for cable, per piece otherwise). Each item stores `price_unit_factor` (base units per pricing unit: 1000 for cable, 1 for pieces). Line amount = round_half_up(qty_base x rate_paise / price_unit_factor), rounded per line. Columns are named `rate_paise` / `cost_paise` rather than `rate_paise_per_base_unit`.
+
+## 2026-11-11 Invoice total arithmetic (A1)
+Per line: amount = qty_base x rate / price_unit_factor (half up); line_total = amount - line discount + line tax. Per invoice: subtotal = sum of line amounts; discount = sum of line discounts; tax = sum of line taxes; total = subtotal - discount + tax + round_off. Payments must add up to the total; the 'credit' part becomes the receivable. Invoice-level discounts, if needed, are allocated to lines in A2. OPEN for A2: whether shelf prices include GST (tax-inclusive) or exclude it. A1 only checks that the sums are consistent and does not recompute tax.
+
+## 2026-11-11 Ledger sign convention
+Positive = the party owes the shop; negative = the shop owes the party, for customers and suppliers alike. Credit sale +, customer payment -, purchase on credit -, payment to supplier +.
+
+## 2026-11-11 A1 scope notes
+audit_log, sales return posting (tables exist, no repository yet), stock adjustment/transfer/count and CSV import are not in A1; they come in the milestones that need them (A2/A3/A4). Immutability is by API design (repositories expose no update/delete for invoices, purchases, stock movements or ledger entries), not by database triggers.
