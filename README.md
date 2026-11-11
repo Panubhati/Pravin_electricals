@@ -1,7 +1,7 @@
 # Shop App (Pravin Electricals)
 
 Offline-first Android app for an electrical shop: billing, stock, purchases and customer credit.
-The full build plan is in [AGENTS.md](AGENTS.md); design decisions are in [docs/decisions.md](docs/decisions.md).
+The full build plan is in [AGENTS.md](AGENTS.md); design decisions are in [docs/decisions.md](docs/decisions.md); one document per finished milestone is in [docs/milestones/](docs/milestones/README.md).
 
 **Current stage:** Stage A (local SQLite only, no server). Milestones A0, A1 and A2 (quick bill) are done.
 

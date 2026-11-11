@@ -540,6 +540,7 @@ Manual (with the owner):
 4. Do not change the schema without writing a migration and updating the Drift tables to match.
 5. Never delete or rewrite posted financial records in code paths. Use reversing entries.
 6. After each milestone, update `README.md` with how to run and test, and tick off the milestone in a checklist at the end of this file.
+   Also write `docs/milestones/<milestone>.md` (purpose, what was built, how it works, rules, tests, decisions, limits) and add it to `docs/milestones/README.md`.
 7. Flag anything you could not verify (for example a package setup step or an OCR accuracy claim) instead of stating it as fact.
 8. **Do not start Stage B until the Stage A exit criteria in section 12 are met.** In Stage A, do not create backend code, Docker services or network sync. Do follow "Design for cloud from day one".
 9. Each milestone ends with tests written and passing. If a milestone cannot be tested, say why instead of marking it done.
