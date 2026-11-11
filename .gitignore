@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+.env
+*.pyc
+docs/sample_invoices/
+backend/uploads/
+app/build/
