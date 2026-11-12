@@ -100,3 +100,16 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Storage errors (disk full, I/O error, database busy) map to plain messages; a save is all or nothing, proven by failing every write step on a real file database.
 - The demo shop and speed check are debug-only; loading it is refused unless a backup was made in the last hour.
 - A7 closes only after the owner's week of parallel use (docs/stage-a-exit.md).
+
+## 2026-11-12 A8 decisions (shop Wi-Fi sync)
+- The owner chose no paid server and no remote view; instead the shop's phones sync with each other over the shop Wi-Fi (replaces the cloud part of Stage B for now). Normally one phone bills, two in a rush, so it is built and tested for two phones.
+- Built and used during the A7 parallel week (owner's choice). On two-phone days the Day check on either phone covers both, since both hold all data.
+- Peer to peer, no hub: each phone runs a small HTTP server while the app is open and pulls from the other every 5 seconds and right after a nudge. No background sync.
+- Security: a random 32-byte shop key shared only through the pairing QR; AES-256-GCM on every request and reply, bound to the request name, refused if older than 10 minutes. Pairing tokens are one-time and last 10 minutes. A removed phone is refused.
+- Schema v6: outbox origin, per-phone seq and change time in milliseconds (table times are stored to the second, which was not enough to order two quick edits); phone-only `sync_peers` and `sync_state`; purchases' unique supplier bill key becomes an index.
+- Conflict rule: the later change wins (same phone: later seq; otherwise later millisecond time; exact tie: higher device id). Clashes (an edit the other phone had not seen) are kept in the audit log. Prices and units made separately on both phones for the same thing: the later one stays, the other is soft-deleted, by the same rule on both phones.
+- This phone's identity is a file outside the database. After a restore on an unpaired phone the restored data decides (phone A again); on a paired phone the app asks which phone it is if the data does not know it.
+- The same supplier bill entered on both phones: both kept (data stays identical), flagged on Home, in Purchases and in Check my data; the owner cancels one with the new Cancel purchase (reversing stock movement as `purchase_return`, reversing supplier ledger `adjustment`, status cancelled). The same phone still refuses a duplicate while one stands.
+- Two phones selling the last unit: both bills stand; stock shows negative and the existing warning flags it.
+- Phone-only settings that never travel: last backup time, last data check, backup reminder, auto-lock minutes, daily summary on/hour.
+- The optional OCR prototype is renumbered A9 in AGENTS.md.

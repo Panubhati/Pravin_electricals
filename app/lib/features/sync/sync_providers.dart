@@ -54,6 +54,8 @@ void refreshAfterSync(Ref ref) {
     billsProvider,
     invoiceDetailsProvider,
     purchasesProvider,
+    purchaseDetailsProvider,
+    duplicatePurchasesProvider,
     dashboardProvider,
     itemProfitProvider,
     stockValueProvider,

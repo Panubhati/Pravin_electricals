@@ -59,6 +59,8 @@ class DataCheckRepository {
     await check('credit note ledger', _returnLedger);
     await check('purchase totals', _purchaseTotals);
     await check('purchase ledger', _purchaseLedger);
+    await check('cancelled purchases', _purchaseCancels);
+    await check('supplier bill twice', _purchaseDuplicates);
     await check('items', _items);
     await check('users', _users);
     await check('sqlite integrity', _sqliteIntegrity);
@@ -604,6 +606,42 @@ WHERE p.deleted_at IS NULL AND (COALESCE(e.n, 0) != 1 OR COALESCE(e.amt, 0) != -
       for (final r in rows)
         _err('purchase_ledger',
             'Purchase ${_s(r, 'no')}: ${_m(_i(r, 'total'))} should be owed to the supplier, but their account shows ${_m(-_i(r, 'amt'))} in ${_i(r, 'n')} entries.',
+            IssueRef.purchase, _s(r, 'id')),
+    ];
+  }
+
+  /// A cancelled purchase took back all its stock and its supplier due.
+  Future<List<DataIssue>> _purchaseCancels() async {
+    final rows = await _q('''
+SELECT p.id, p.supplier_invoice_no AS no, p.total_paise AS total,
+       COALESCE((SELECT SUM(qty_base) FROM stock_movements m WHERE m.ref_type = 'purchase' AND m.ref_id = p.id
+                 AND m.movement_type = 'purchase_return' AND m.deleted_at IS NULL), 0) AS back,
+       COALESCE((SELECT SUM(qty_base) FROM purchase_lines l WHERE l.purchase_id = p.id AND l.deleted_at IS NULL), 0) AS bought,
+       COALESCE((SELECT SUM(amount_paise) FROM ledger_entries e WHERE e.ref_type = 'purchase' AND e.ref_id = p.id
+                 AND e.entry_type = 'adjustment' AND e.deleted_at IS NULL), 0) AS undone
+FROM purchases p
+WHERE p.deleted_at IS NULL AND p.status = 'cancelled' ''');
+    return [
+      for (final r in rows)
+        if (_i(r, 'back') != -_i(r, 'bought') || _i(r, 'undone') != _i(r, 'total'))
+          _err('purchase_cancel',
+              'Cancelled purchase ${_s(r, 'no')} was not fully reversed (stock or the supplier account).',
+              IssueRef.purchase, _s(r, 'id')),
+    ];
+  }
+
+  /// The same supplier bill entered twice and both still standing (usually once
+  /// on each phone). Cancel one of them.
+  Future<List<DataIssue>> _purchaseDuplicates() async {
+    final rows = await _q('''
+SELECT MIN(p.id) AS id, p.supplier_invoice_no AS no, s.name AS supplier, COUNT(*) AS n
+FROM purchases p JOIN parties s ON s.id = p.supplier_id
+WHERE p.deleted_at IS NULL AND p.status != 'cancelled'
+GROUP BY p.supplier_id, p.supplier_invoice_no HAVING COUNT(*) > 1''');
+    return [
+      for (final r in rows)
+        _warn('purchase_duplicate',
+            'Supplier bill ${_s(r, 'no')} from ${_s(r, 'supplier')} was entered ${_i(r, 'n')} times. Cancel the extra one.',
             IssueRef.purchase, _s(r, 'id')),
     ];
   }

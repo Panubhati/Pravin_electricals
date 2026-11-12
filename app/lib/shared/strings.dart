@@ -568,4 +568,18 @@ abstract final class S {
   static const joining = "Copying the shop's data from the owner's phone...";
   static const joinDone = 'This phone has joined the shop. Log in with your PIN.';
   static const joinReplaceWarn = "Anything already saved on this phone will be replaced by the shop's data (a safety copy is kept).";
+
+  // A8 cancel purchase, supplier bill entered twice
+  static const purchaseCancel = 'Cancel this purchase';
+  static const purchaseCancelHelp =
+      'Use this when the purchase was entered by mistake, for example the same supplier bill entered on both phones. The stock comes back out and the supplier is no longer owed this amount.';
+  static String purchaseCancelConfirm(String no, String total) =>
+      'Cancel purchase $no ($total)? Its stock comes back out and the supplier’s account is reduced by $total. This cannot be undone.';
+  static const purchaseCancelReason = 'Reason (optional)';
+  static const purchaseCancelled = 'Purchase cancelled';
+  static String purchaseCancelWhat(String no) => 'cancel supplier bill $no';
+  static const purchaseTwiceBadge = 'Entered twice';
+  static String purchaseTwiceNote(int n) =>
+      n == 1 ? 'A supplier bill was entered twice' : '$n supplier bills were entered twice';
+  static const purchaseTwiceHelp = 'Usually once on each phone. Open it and cancel the extra copy.';
 }

@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../money.dart';
 import '../../units.dart';
 import '../app_database.dart';
+import 'audit_repository.dart';
 import 'item_repository.dart';
 import 'ledger_repository.dart';
 import 'repo_context.dart';
@@ -209,6 +210,90 @@ class PurchaseRepository {
       rethrow;
     }
     return id;
+  }
+
+  /// Cancels a purchase entered by mistake (for example the same supplier bill
+  /// entered on both phones). Nothing posted is edited: the stock goes back out
+  /// as a purchase return, the supplier's account gets a reversing adjustment
+  /// for the full total, and the purchase is marked cancelled. Audited.
+  Future<void> cancelPurchase(
+    String purchaseId, {
+    String? reason,
+    String? createdBy,
+    String? approvedBy,
+  }) async {
+    await ctx.db.transaction(() async {
+      final purchase = await (ctx.db.select(ctx.db.purchases)..where((t) => t.id.equals(purchaseId))).getSingleOrNull();
+      if (purchase == null) throw DomainException('Unknown purchase: $purchaseId');
+      if (purchase.status == 'cancelled') {
+        throw DomainException('Purchase ${purchase.supplierInvoiceNo} is already cancelled.');
+      }
+      final now = ctx.clock();
+      // Take back exactly what each line added, from where it was added.
+      final added = await (ctx.db.select(ctx.db.stockMovements)
+            ..where((t) =>
+                t.refType.equals('purchase') &
+                t.refId.equals(purchaseId) &
+                t.movementType.equals('purchase') &
+                t.deletedAt.isNull()))
+          .get();
+      for (final m in added) {
+        await _stock.record(
+          itemId: m.itemId,
+          variantId: m.variantId,
+          locationId: m.locationId,
+          qtyBase: -m.qtyBase,
+          movementType: 'purchase_return',
+          refType: 'purchase',
+          refId: purchaseId,
+          createdBy: createdBy,
+          note: 'Cancelled purchase ${purchase.supplierInvoiceNo}',
+          ts: now,
+        );
+      }
+      await _ledger.addEntry(
+        partyId: purchase.supplierId,
+        entryType: 'adjustment',
+        amountPaise: purchase.totalPaise,
+        refType: 'purchase',
+        refId: purchaseId,
+        note: 'Cancelled purchase ${purchase.supplierInvoiceNo}',
+        ts: now,
+      );
+      await (ctx.db.update(ctx.db.purchases)..where((t) => t.id.equals(purchaseId)))
+          .write(PurchasesCompanion(status: const Value('cancelled'), updatedAt: Value(now)));
+      final after = await (ctx.db.select(ctx.db.purchases)..where((t) => t.id.equals(purchaseId))).getSingle();
+      await ctx.recordOutbox('purchases', purchaseId, 'upsert', after.toJson());
+      await AuditRepository(ctx).record(
+        action: 'purchase_cancelled',
+        entity: 'purchase',
+        entityId: purchaseId,
+        userId: createdBy,
+        before: {'status': purchase.status},
+        after: {
+          'status': 'cancelled',
+          'supplierInvoiceNo': purchase.supplierInvoiceNo,
+          'totalPaise': purchase.totalPaise,
+          if (reason != null && reason.trim().isNotEmpty) 'reason': reason.trim(),
+          if (approvedBy != null && approvedBy != createdBy) 'approvedBy': approvedBy,
+        },
+      );
+    });
+  }
+
+  /// Purchases of the same supplier bill (supplier and number) that are both
+  /// still standing: entered twice, usually once on each phone.
+  Future<Set<String>> duplicatedPurchaseIds() async {
+    final rows = await ctx.db.customSelect(
+      'SELECT p.id FROM purchases p JOIN ('
+      '  SELECT supplier_id, supplier_invoice_no FROM purchases'
+      "  WHERE deleted_at IS NULL AND status != 'cancelled'"
+      '  GROUP BY supplier_id, supplier_invoice_no HAVING COUNT(*) > 1) d'
+      ' ON d.supplier_id = p.supplier_id AND d.supplier_invoice_no = p.supplier_invoice_no'
+      " WHERE p.deleted_at IS NULL AND p.status != 'cancelled'",
+      readsFrom: {ctx.db.purchases},
+    ).get();
+    return {for (final r in rows) r.data['id'] as String};
   }
 
   /// Purchases for the list screen, newest first, with the supplier name.

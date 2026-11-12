@@ -110,6 +110,7 @@ class HomeScreen extends ConsumerWidget {
             const SizedBox(height: 16),
             if (perms.canOpenSettings) const DataCheckNote(),
             if (perms.canOpenSettings) const BackupBanner(),
+            if (perms.canOpenSettings) const DuplicatePurchaseNote(),
             if (perms.canSeeReports) ...[
               const DashboardCard(),
               const SizedBox(height: 4),

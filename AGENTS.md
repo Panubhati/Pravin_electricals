@@ -34,7 +34,7 @@ Stage A must be built so that moving to the cloud is **an addition, not a rewrit
 4. **Money is stored as integer paise.** Never use float or double for money, quantity-times-rate, tax or totals.
 5. **Stock is movements.** Never store a mutable "current stock" number as the source of truth. Balance = sum of `stock_movements`. A cached balance is allowed only as a derived value.
 6. **Every table has `shop_id`.** (Single shop now, multi-shop ready.)
-7. **Offline first.** Billing, stock lookup and customer ledger must work with no internet. The phone writes to local SQLite first. In Stage A nothing syncs anywhere; in Stage B the phone syncs to the server in the background.
+7. **Offline first.** Billing, stock lookup and customer ledger must work with no internet. The phone writes to local SQLite first. In Stage A nothing syncs to any server; from A8 the shop's phones sync with each other over the shop Wi-Fi (no internet, no server), and a phone always bills on its own data even when the other phone is away. In Stage B the phone would sync to a server in the background.
 8. **Posted invoices and purchases are immutable.** Corrections happen through returns, credit notes or reversing entries, never by editing posted records.
 9. **Never update stock from OCR without human confirmation.**
 10. **Cost price is hidden** from the `counter` role (enforce on the server, not only in the UI).
@@ -476,7 +476,12 @@ Manual (with the owner):
 4. The owner confirms the screens and flows are what they need.
 5. Open decisions in section 15 that affect the schema are answered.
 
-#### A8 (optional, can run in parallel): OCR feasibility prototype
+#### A8: Shop Wi-Fi sync between two phones (no server)
+- Added at the owner's request (no paid server, no remote view): the shop's phones sync directly over the shop Wi-Fi while the app is open.
+- Pairing by QR from the owner's phone; the new phone gets a copy of the shop and its own bill series. Latest change wins, clashes go to the audit log. Cancel purchase for a supplier bill entered twice.
+- **Done when:** two phones bill at the same time in the shop, both show the same bills, stock and dues, and the Day check matches on both. See docs/milestones/A8-wifi-sync.md.
+
+#### A9 (optional, can run in parallel): OCR feasibility prototype
 - A standalone Python script on the laptop (no app, no backend): runs the photo quality checks and PaddleOCR on the collected sample invoices and records pass/fail, confidence and parsing accuracy in `docs/decisions.md`.
 - **Done when:** there is a measured answer to "is free OCR good enough for this shop's bills?" and starting thresholds are tuned. This decides how much effort Stage B's photo feature needs.
 
@@ -542,7 +547,7 @@ Manual (with the owner):
 6. After each milestone, update `README.md` with how to run and test, and tick off the milestone in a checklist at the end of this file.
    Also write `docs/milestones/<milestone>.md` (purpose, what was built, how it works, rules, tests, decisions, limits) and add it to `docs/milestones/README.md`.
 7. Flag anything you could not verify (for example a package setup step or an OCR accuracy claim) instead of stating it as fact.
-8. **Do not start Stage B until the Stage A exit criteria in section 12 are met.** In Stage A, do not create backend code, Docker services or network sync. Do follow "Design for cloud from day one".
+8. **Do not start Stage B until the Stage A exit criteria in section 12 are met.** In Stage A, do not create backend code or Docker services. The only network code allowed is A8's shop Wi-Fi sync between the shop's own phones, kept in `lib/core/sync/` (the owner asked for it on 2026-11-12, see docs/decisions.md). Do follow "Design for cloud from day one".
 9. Each milestone ends with tests written and passing. If a milestone cannot be tested, say why instead of marking it done.
 
 ---
@@ -552,7 +557,7 @@ Manual (with the owner):
 - [ ] Keep supplier invoice photos after posting? (Recommended: yes, compressed. Confirm retention rules with the shop's accountant.)
 - [ ] Thermal printer model and paper width the shop uses. (Owner has no printer yet; printing deferred to A5b.)
 - [ ] Supplier bills: mostly clean printed GST invoices, or many handwritten? (Decides how often photos are rejected.)
-- [ ] Staff use their own phones or shop devices?
+- [x] Staff use their own phones or shop devices? Either works: any Android phone joins by scanning the owner's QR and gets its own bill series (A8, 2026-11-12). The second phone is an Android phone, model to be confirmed.
 - [ ] Quantity representation for cable length (millimetres as integer vs fixed decimal).
 - [ ] Rounding rule for GST (per line or per invoice).
 - [ ] Below-cost selling: block, or allow with owner approval?
@@ -571,7 +576,8 @@ Manual (with the owner):
 - [x] A5 Printing and sharing (sharing, UPI QR, bills history done; thermal printing deferred to A5b)
 - [x] A6 Local backup and restore
 - [ ] A7 Testing gate and exit criteria (tools and automated checks done; owner's week of parallel use in progress, see docs/stage-a-exit.md)
-- [ ] A8 OCR feasibility prototype (optional)
+- [ ] A8 Shop Wi-Fi sync between two phones (built and tested on the laptop; two-phone test in the shop pending)
+- [ ] A9 OCR feasibility prototype (optional)
 
 **Stage B (cloud)**
 - [ ] B1 Backend, database and auth

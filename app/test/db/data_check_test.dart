@@ -38,7 +38,7 @@ void main() {
       final r = await run();
       expect(r.issues, isEmpty, reason: r.issues.join('\n'));
       expect(r.passed, isTrue);
-      expect(r.checksRun, 20);
+      expect(r.checksRun, 22); // A8 added: cancelled purchases, supplier bill twice
       expect(r.records, greaterThan(20));
       expect(r.errorCount, 0);
       expect(r.warningCount, 0);
@@ -405,7 +405,7 @@ void main() {
       final summary = (await run()).summary;
       final back = DataCheckSummary.fromJson(summary.toJson())!;
       expect(back.errors, summary.errors);
-      expect(back.checks, 20);
+      expect(back.checks, 22);
       expect(back.passed, isFalse);
       expect(DataCheckSummary.fromJson('garbage'), isNull);
       expect(DataCheckSummary.fromJson(null), isNull);

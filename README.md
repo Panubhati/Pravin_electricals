@@ -3,7 +3,7 @@
 Offline-first Android app for an electrical shop: billing, stock, purchases and customer credit.
 The full build plan is in [AGENTS.md](AGENTS.md); design decisions are in [docs/decisions.md](docs/decisions.md); one document per finished milestone is in [docs/milestones/](docs/milestones/README.md).
 
-**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A6 are done; A7 (testing gate: Check my data, returns and cancel, Day check, speed and failure tests) has its tools finished and the owner's week of parallel use in progress. Thermal printing waits for a printer.
+**Current stage:** Stage A (local SQLite, no server). Milestones A0 to A6 are done; A7 (testing gate) has its tools finished and the owner's week of parallel use in progress; A8 (two phones syncing over the shop Wi-Fi, no server) is built and tested on the laptop, with the two-phone test in the shop pending. Thermal printing waits for a printer.
 
 ## Requirements
 - Flutter 3.29 (Dart 3.7), Android Studio with Android SDK 36, a JDK from Android Studio.
@@ -58,6 +58,13 @@ Settings, **Restore from a backup**; then log in with the PIN you had. `flutter 
 ## Testing gate (A7)
 **Settings, Check my data** proves stock, balances and bill totals agree (it also runs before each backup and after each restore). In Bills, open a bill to **Return items** or **Cancel bill**
 (a counter user needs the owner's PIN). **Reports, Day check** is the evening screen to compare with the paper book; the week's log is in `docs/stage-a-exit.md`.
+
+## Two phones on the shop Wi-Fi (A8)
+Owner: **Settings, Phones and Wi-Fi sync, Add a phone** shows a QR. Second phone: install the app, connect to the shop Wi-Fi, tap
+**Join a shop (second phone)** on the first screen and scan. It gets a copy of the shop and its own bill numbers (B-0001...). While the
+app is open on both phones on the same Wi-Fi they share bills, stock, dues and edits within seconds; a dot on Home shows the state.
+The same supplier bill entered on both phones is flagged; open it in Purchases and **Cancel this purchase**. Details:
+`docs/milestones/A8-wifi-sync.md`.
 
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.

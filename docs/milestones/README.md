@@ -13,6 +13,7 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A5 Sharing, UPI QR, PDF polish, bills history (printing deferred) | done | [A5-sharing-upi-bills.md](A5-sharing-upi-bills.md) |
 | A6 Local backup and restore | done | [A6-backup-restore.md](A6-backup-restore.md) |
 | A7 Testing gate and exit criteria | tools done, parallel week in progress | [A7-testing-gate.md](A7-testing-gate.md), [../stage-a-exit.md](../stage-a-exit.md) |
-| A8 OCR feasibility prototype (optional) | planned | |
+| A8 Shop Wi-Fi sync between two phones (no server) | built; two-phone test in the shop pending | [A8-wifi-sync.md](A8-wifi-sync.md) |
+| A9 OCR feasibility prototype (optional) | planned | |
 
 Related: [decisions.md](../decisions.md) (every non-obvious decision, with date and reason).

@@ -541,6 +541,7 @@ class ReportsRepository {
     final purchases = await (db.select(db.purchases)
           ..where((t) =>
               t.deletedAt.isNull() &
+              t.status.equals('cancelled').not() &
               t.supplierInvoiceDate.isBiggerOrEqualValue(from) &
               t.supplierInvoiceDate.isSmallerThanValue(to)))
         .get();
