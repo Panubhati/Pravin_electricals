@@ -11,6 +11,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../audit/audit_screen.dart';
 import '../backup/backup_section.dart';
+import '../datacheck/data_check_screen.dart';
 import '../reports/reports_providers.dart';
 import 'shop_details_screen.dart';
 import 'staff_screen.dart';
@@ -292,6 +293,16 @@ class SettingsScreen extends ConsumerWidget {
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: SectionTitle(S.settingsRecords),
+            ),
+            ListTile(
+              key: const Key('settingDataCheck'),
+              leading: const Icon(Icons.fact_check_outlined),
+              title: const Text(S.dataCheckTitle),
+              subtitle: Text(dataCheckSubtitle(ref.watch(dataCheckSummaryProvider).valueOrNull),
+                  key: const Key('dataCheckSubtitle')),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context)
+                  .push<void>(MaterialPageRoute(builder: (_) => const DataCheckScreen())),
             ),
             ListTile(
               key: const Key('settingAudit'),

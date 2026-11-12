@@ -10,6 +10,7 @@ import 'db/repositories/audit_repository.dart';
 import 'db/repositories/auth_repository.dart';
 import 'db/repositories/reports_repository.dart';
 import 'db/repositories/settings_repository.dart';
+import 'db/repositories/data_check_repository.dart';
 import 'db/repositories/dues_repository.dart';
 import 'db/repositories/invoice_repository.dart';
 import 'db/repositories/item_repository.dart';
@@ -134,4 +135,8 @@ final backupSharerProvider = Provider<BackupSharer>((ref) => DeviceBackupSharer(
 /// When the last backup was made or restored, or null if never.
 final lastBackupProvider = FutureProvider.autoDispose<DateTime?>(
   (ref) => ref.watch(settingsRepositoryProvider).lastBackupAt(),
+);
+
+final dataCheckRepositoryProvider = Provider<DataCheckRepository>(
+  (ref) => DataCheckRepository(ref.watch(sessionProvider).requireValue.ctx),
 );

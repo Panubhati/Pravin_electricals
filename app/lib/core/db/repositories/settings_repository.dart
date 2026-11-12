@@ -3,6 +3,7 @@ import 'package:drift/drift.dart';
 import '../../printing/upi_link.dart';
 import '../app_database.dart';
 import 'audit_repository.dart';
+import 'data_check_models.dart';
 import 'repo_context.dart';
 
 /// Well-known setting keys.
@@ -12,6 +13,7 @@ class SettingKeys {
   static const autoLockMinutes = 'auto_lock_minutes';
   static const dailySummaryOn = 'daily_summary_on';
   static const dailySummaryHour = 'daily_summary_hour';
+  static const dataCheckLast = 'data_check_last';
   static const lastBackupAt = 'last_backup_at';
   static const backupReminderOn = 'backup_reminder_on';
   static const upiId = 'upi_id';
@@ -125,4 +127,11 @@ class SettingsRepository {
 
   /// The backup reminder is on unless the owner turned it off.
   Future<bool> backupReminderOn() async => (await get(SettingKeys.backupReminderOn)) != '0';
+
+  /// What the last "Check my data" found, or null if it was never run.
+  Future<DataCheckSummary?> dataCheckSummary() async =>
+      DataCheckSummary.fromJson(await get(SettingKeys.dataCheckLast));
+
+  Future<void> setDataCheckSummary(DataCheckSummary summary) =>
+      set(SettingKeys.dataCheckLast, summary.toJson());
 }

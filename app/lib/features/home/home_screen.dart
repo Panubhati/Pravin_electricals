@@ -9,6 +9,7 @@ import '../../shared/strings.dart';
 import '../auth/lock_gate.dart';
 import '../backup/backup_banner.dart';
 import '../billing/bill_screen.dart';
+import '../datacheck/data_check_screen.dart';
 import '../bills/bills_screens.dart';
 import '../dashboard/dashboard_card.dart';
 import '../reports/reports_screens.dart';
@@ -18,6 +19,7 @@ import '../parties/dues_screen.dart';
 import '../parties/parties_screen.dart';
 import '../purchase/purchases_screen.dart';
 import '../settings/settings_screen.dart';
+import '../speed/speed_screen.dart';
 import '../stock/stock_screen.dart';
 
 /// One tile on the home screen.
@@ -80,6 +82,7 @@ class HomeScreen extends ConsumerWidget {
         data: (s) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (perms.canOpenSettings) const DataCheckNote(),
             if (perms.canOpenSettings) const BackupBanner(),
             if (perms.canSeeReports) ...[
               const DashboardCard(),
@@ -114,6 +117,13 @@ class HomeScreen extends ConsumerWidget {
             ),
             if (kDebugMode) ...[
               const SizedBox(height: 16),
+              if (perms.canOpenSettings)
+                OutlinedButton(
+                  key: const Key('speedTools'),
+                  onPressed: () => Navigator.of(context)
+                      .push<void>(MaterialPageRoute(builder: (_) => const SpeedScreen())),
+                  child: const Text(S.speedTools),
+                ),
               OutlinedButton(
                 onPressed: () async {
                   final messenger = ScaffoldMessenger.of(context);

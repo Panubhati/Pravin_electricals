@@ -378,4 +378,54 @@ abstract final class S {
   static const backupNowShort = 'Back up';
   static const ok = 'OK';
   static const sendTestReminder = 'Send a test reminder now';
+
+  // Check my data (A7)
+  static const dataCheckTitle = 'Check my data';
+  static const dataCheckNeverRun = 'Never run. Checks that stock, balances and bill totals all agree.';
+  static const dataCheckPassed = 'All your numbers agree';
+  static const dataCheckPassedShort = 'All numbers agree';
+  static String dataCheckProblems(int n) => 'Found $n problem${n == 1 ? '' : 's'} in your data';
+  static String dataCheckScope(int checks, int records) => '$checks checks over $records records';
+  static String dataCheckNotes(int n) => '$n note${n == 1 ? '' : 's'} to look at (not errors)';
+  static const dataCheckAdvice =
+      'Tap a problem to open it. Do not change anything yet: tell your developer, so the cause can be found. '
+      'Share the report to send it.';
+  static const dataCheckNoteHelp = 'Tap to see what does not add up.';
+  static const dataCheckFailed = 'Could not check the data';
+  static const problemsFound = 'Problems';
+  static const notesFound = 'Notes';
+  static String andMoreProblems(int n) => '...and $n more problems of the same kind';
+  static const shareReport = 'Share report';
+  static const runAgain = 'Check again';
+  static String restoredWithProblems(int n) =>
+      'The check found $n problem${n == 1 ? '' : 's'}. Open Settings, Check my data.';
+  static const backupProblemsTitle = 'Your data has problems';
+  static String backupProblemsBody(int n) =>
+      'The data check found $n problem${n == 1 ? '' : 's'}. A backup still keeps everything, '
+      'but it will contain the same problems. Back up anyway?';
+  static const backUpAnyway = 'Back up anyway';
+
+  // Speed tools, debug builds only (A7)
+  static const speedTools = 'Speed test tools (debug)';
+  static const speedTitle = 'Speed test';
+  static const speedIntro =
+      'Adds a big fake shop (about 400 items, 200 customers and 30 days of bills) on top of your data and times the '
+      'screens on this phone. Make a backup first, and afterwards restore it to remove the fake data.';
+  static const speedShopNow = 'In this phone now';
+  static const speedLoad = 'Load big demo shop';
+  static const speedRun = 'Run speed check';
+  static const speedNeedBackup =
+      'Make a backup first (Settings, Backup, Back up now) and check it is in your email or Drive. '
+      'Then come back within an hour.';
+  static const speedLoadWarning =
+      'This adds hundreds of fake items, customers and bills to this phone. Your real data stays, but you must '
+      'restore your backup afterwards to remove the fake data. Continue?';
+  static const speedLoadConfirm = 'Load demo shop';
+  static const speedLoaded = 'Demo shop loaded. Now run the speed check.';
+  static const speedRunning = 'Timing the screens...';
+  static const speedFailed = 'Did not finish';
+  static const speedResults = 'Results';
+  static const speedTarget = 'Aim: under';
+  static const speedAfter =
+      'When you are done: Settings, Restore from a backup, choose your backup, and the fake data is gone.';
 }

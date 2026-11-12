@@ -10,11 +10,13 @@ import '../../core/backup/restore_service.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/connection.dart';
 import '../../core/db/repositories/audit_repository.dart';
+import '../../core/db/repositories/data_check_models.dart';
 import '../../core/import/file_service.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../datacheck/data_check_screen.dart';
 
 /// A copy of the data replaced by the last restore, if one is still kept (so
 /// the owner can undo a wrong restore).
@@ -35,6 +37,13 @@ Future<bool> backUpNow(BuildContext context, WidgetRef ref) async {
   final db = ref.read(databaseProvider);
   final settings = ref.read(settingsRepositoryProvider);
   try {
+    // A backup of broken data is worth little: look first, warn, but still allow it.
+    final check = await runDataCheck(ref);
+    if (!check.passed) {
+      if (!context.mounted) return false;
+      final go = await _confirmBackupDespiteProblems(context, check.errorCount);
+      if (!go) return false;
+    }
     final backup = await BackupService(db, ref.read(databaseLocationProvider),
             clock: session.ctx.clock)
         .createBackup();
@@ -150,6 +159,7 @@ Future<void> _runRestore(
   );
 
   String? problem;
+  DataCheckSummary? checkOutcome;
   try {
     // Nothing may hold the database file open while it is swapped.
     await db.close();
@@ -159,6 +169,7 @@ Future<void> _runRestore(
     final restored = AppDatabase(openShopDatabase(location: loc));
     try {
       await finishRestore(restored, summary);
+      checkOutcome = await checkRestoredData(restored);
     } finally {
       await restored.close();
     }
@@ -173,7 +184,11 @@ Future<void> _runRestore(
   if (problem != null) {
     messenger.showSnackBar(SnackBar(content: Text(problem), duration: const Duration(seconds: 8)));
   } else {
-    messenger.showSnackBar(const SnackBar(content: Text(S.restoreDone)));
+    final bad = checkOutcome != null && !checkOutcome.passed;
+    messenger.showSnackBar(SnackBar(
+      content: Text(bad ? '${S.restoreDone} ${S.restoredWithProblems(checkOutcome.errors)}' : S.restoreDone),
+      duration: Duration(seconds: bad ? 10 : 4),
+    ));
   }
   // Either way the old database connection is closed, so start over from the
   // file on disk (the restored data, or the old data if the restore failed).
@@ -233,4 +248,27 @@ Future<bool> _confirmRestore(
     ),
   );
   return ok == true;
+}
+
+Future<bool> _confirmBackupDespiteProblems(BuildContext context, int problems) async {
+  final go = await showDialog<bool>(
+    context: context,
+    builder: (ctx) => AlertDialog(
+      title: const Text(S.backupProblemsTitle),
+      content: Text(S.backupProblemsBody(problems), key: const Key('backupProblemsBody')),
+      actions: [
+        TextButton(
+          key: const Key('backupProblemsCancel'),
+          onPressed: () => Navigator.pop(ctx, false),
+          child: const Text(S.cancel),
+        ),
+        FilledButton(
+          key: const Key('backupProblemsGo'),
+          onPressed: () => Navigator.pop(ctx, true),
+          child: const Text(S.backUpAnyway),
+        ),
+      ],
+    ),
+  );
+  return go == true;
 }

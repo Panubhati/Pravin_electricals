@@ -5,7 +5,9 @@ import 'package:path/path.dart' as p;
 import '../bootstrap.dart';
 import '../db/app_database.dart';
 import '../db/repositories/audit_repository.dart';
+import '../db/repositories/data_check_models.dart';
 import '../db/repositories/settings_repository.dart';
+import '../db/repositories/data_check_repository.dart';
 import 'backup_models.dart';
 import 'backup_service.dart';
 import 'database_location.dart';
@@ -173,4 +175,13 @@ Future<ShopSession> finishRestore(AppDatabase db, BackupSummary summary, {DateTi
     },
   );
   return session;
+}
+
+/// Runs "Check my data" on the freshly restored database and remembers the
+/// result (so Settings and Home show it after the app restarts).
+Future<DataCheckSummary> checkRestoredData(AppDatabase db) async {
+  final session = await ensureShopSession(db);
+  final result = await DataCheckRepository(session.ctx).run();
+  await SettingsRepository(session.ctx).setDataCheckSummary(result.summary);
+  return result.summary;
 }
