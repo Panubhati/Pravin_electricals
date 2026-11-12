@@ -118,16 +118,17 @@ class PurchaseDetailScreen extends ConsumerWidget {
                         : const StatusChip(S.purchaseTwiceBadge),
                   ),
                 ),
-              const Divider(height: 24),
-              for (final l in d.lines)
-                ListTile(
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(d.itemNames[l.itemId] ?? ''),
-                  subtitle: Text(
-                      '${l.qtyEntered} ${l.unitName} at ${Money.format(l.ratePaise)}  •  GST ${l.gstRateBp / 100}%'),
-                  trailing: Text(Money.format(l.lineTotalPaise)),
-                ),
-              const Divider(height: 24),
+              const SizedBox(height: 16),
+              CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                for (final l in d.lines)
+                  ListTile(
+                    title: Text(d.itemNames[l.itemId] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
+                    subtitle: Text(
+                        '${l.qtyEntered} ${l.unitName} at ${Money.format(l.ratePaise)}  •  GST ${l.gstRateBp ~/ 100}%'),
+                    trailing: Text(Money.format(l.lineTotalPaise)),
+                  ),
+              ]),
+              const SizedBox(height: 16),
               _row(S.taxableTotal, d.purchase.subtotalPaise),
               _row(S.gstAmount, d.purchase.taxPaise),
               _row(S.grandTotal, d.purchase.totalPaise, bold: true),

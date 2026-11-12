@@ -101,7 +101,7 @@ void main() {
       expect(tester.widget<Text>(find.byKey(const Key('detailTotal'))).data, '₹150.00');
       expect(tester.widget<Text>(find.byKey(const Key('detailDue'))).data, 'Balance due: ₹100.00');
       expect(find.text('Rupees One Hundred Fifty only'), findsOneWidget);
-      expect(find.text('10 pcs at 15.00'), findsOneWidget);
+      expect(find.text('10 pcs at ₹15.00'), findsOneWidget);
     }, sample: false);
 
     harnessTest('the counter can open Bills too', (tester, h) async {

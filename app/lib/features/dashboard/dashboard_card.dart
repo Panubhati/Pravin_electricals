@@ -60,6 +60,7 @@ class DashboardCard extends ConsumerWidget {
             );
 
         final low = d.lowStockCount + d.negativeStockCount;
+        final dueKeys = RowKeys();
         return Card(
           child: Padding(
             padding: const EdgeInsets.all(8),
@@ -115,7 +116,7 @@ class DashboardCard extends ConsumerWidget {
                 else
                   for (final p in d.topDues)
                     ListTile(
-                      key: Key('dashDue_${p.party.name}'),
+                      key: Key('dashDue_${dueKeys.of(p.party.name, p.party.id)}'),
                       dense: true,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                       title: Text(p.party.name),

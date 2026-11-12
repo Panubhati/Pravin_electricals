@@ -142,13 +142,24 @@ abstract final class AppTheme {
         color: AppPalette.card,
         elevation: 0,
         margin: EdgeInsets.zero,
+        // Rows inside a card follow its rounded corners.
+        clipBehavior: Clip.antiAlias,
         surfaceTintColor: Colors.transparent,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14), side: const BorderSide(color: AppPalette.line)),
       ),
-      listTileTheme: const ListTileThemeData(
+      listTileTheme: ListTileThemeData(
         iconColor: AppPalette.muted,
         tileColor: AppPalette.card,
-        contentPadding: EdgeInsets.symmetric(horizontal: 16),
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+        titleTextStyle: text.bodyLarge!.copyWith(color: AppPalette.text),
+        subtitleTextStyle: text.bodyMedium!.copyWith(color: AppPalette.muted, fontSize: 13.5),
+        // Amounts and quantities on the right: readable, not the tiny grey
+        // default, with digits that line up down a list.
+        leadingAndTrailingTextStyle: text.bodyMedium!.copyWith(
+          color: AppPalette.text,
+          fontWeight: FontWeight.w600,
+          fontFeatures: const [FontFeature.tabularFigures()],
+        ),
       ),
       filledButtonTheme: FilledButtonThemeData(
         style: FilledButton.styleFrom(

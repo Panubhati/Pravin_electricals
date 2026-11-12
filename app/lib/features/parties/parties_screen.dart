@@ -89,9 +89,17 @@ class _PartiesScreenState extends ConsumerState<PartiesScreen> {
                         if (p.phone != null) p.phone,
                         if (p.tier != 'retail') p.tier,
                       ].join('  •  ')),
-                      trailing: Text(
-                        label.text,
-                        style: TextStyle(color: label.color, fontWeight: FontWeight.bold),
+                      // A long balance shrinks to fit rather than pushing the name off.
+                      trailing: ConstrainedBox(
+                        constraints: BoxConstraints(maxWidth: MediaQuery.sizeOf(context).width * 0.45),
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerRight,
+                          child: Text(
+                            label.text,
+                            style: TextStyle(color: label.color, fontWeight: FontWeight.bold),
+                          ),
+                        ),
                       ),
                       onTap: () => _open(() => Navigator.of(context).push<void>(
                           MaterialPageRoute(builder: (_) => PartyDetailScreen(partyId: p.id)))),

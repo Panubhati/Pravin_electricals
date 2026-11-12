@@ -294,10 +294,10 @@ class SyncEngine {
         await _write(table, incoming, insert: false, keepId: localId);
         await _resolveDuplicates(c, incoming);
       }
-      if (clash) await _logConflict(c, local: local, incoming: incoming, kept: 'other_phone');
+      if (clash) await _logConflict(c, local: local, incoming: incoming, kept: "the other phone's change (it was later)");
       return (clash ? _Outcome.conflictTookIncoming : _Outcome.applied, localId);
     }
-    if (clash) await _logConflict(c, local: local, incoming: incoming, kept: 'this_phone');
+    if (clash) await _logConflict(c, local: local, incoming: incoming, kept: "this phone's change (it was later)");
     return (clash ? _Outcome.conflictKeptLocal : _Outcome.superseded, localId);
   }
 
@@ -327,7 +327,7 @@ class SyncEngine {
       );
       if (_differs(loser, winnerJson)) {
         clashed = true;
-        await _logConflict(c, local: loser, incoming: winnerJson, kept: 'latest');
+        await _logConflict(c, local: loser, incoming: winnerJson, kept: 'the later one');
       }
     }
     return clashed;

@@ -38,6 +38,7 @@ class ImportScreen extends StatelessWidget {
                   builder: (_) => const ImportFlowScreen(kind: ImportKind.items))),
             ),
           ),
+          const SizedBox(height: 12),
           Card(
             child: ListTile(
               key: const Key('importPartiesTile'),
@@ -204,6 +205,7 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
+                  tileColor: Colors.transparent,
                   leading: const Icon(Icons.error_outline, color: AppPalette.red),
                   title: Text(e.toString()),
                 ),

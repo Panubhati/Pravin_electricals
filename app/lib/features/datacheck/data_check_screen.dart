@@ -94,6 +94,7 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
   @override
   Widget build(BuildContext context) {
     final r = _result;
+    final issueKeys = RowKeys();
     return Scaffold(
       appBar: AppBar(
         title: const Text(S.dataCheckTitle),
@@ -151,14 +152,20 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
                       label: const Text(S.runAgain),
                     ),
                     if (r.errors.isNotEmpty) const SectionTitle(S.problemsFound),
-                    for (final i in r.errors) _IssueTile(i, onTap: () => _open(i)),
+                    if (r.errors.isNotEmpty)
+                      CardGroup(margin: EdgeInsets.zero, children: [
+                        for (final i in r.errors) _IssueTile(i, keyName: issueKeys.of(i.code, i.refId ?? i.message), onTap: () => _open(i)),
+                      ]),
                     if (r.moreIssues > 0)
                       Padding(
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(S.andMoreProblems(r.moreIssues), key: const Key('dataCheckMore')),
                       ),
                     if (r.warnings.isNotEmpty) const SectionTitle(S.notesFound),
-                    for (final i in r.warnings) _IssueTile(i, onTap: () => _open(i)),
+                    if (r.warnings.isNotEmpty)
+                      CardGroup(margin: EdgeInsets.zero, children: [
+                        for (final i in r.warnings) _IssueTile(i, keyName: issueKeys.of(i.code, i.refId ?? i.message), onTap: () => _open(i)),
+                      ]),
                     if (!r.passed) ...[
                       const SizedBox(height: 16),
                       const Text(S.dataCheckAdvice, style: TextStyle(color: AppPalette.muted)),
@@ -170,14 +177,14 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
 }
 
 class _IssueTile extends StatelessWidget {
-  const _IssueTile(this.issue, {required this.onTap});
+  const _IssueTile(this.issue, {required this.keyName, required this.onTap});
   final DataIssue issue;
+  final String keyName;
   final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) => ListTile(
-        key: Key('issue_${issue.code}'),
-        contentPadding: EdgeInsets.zero,
+        key: Key('issue_$keyName'),
         leading: Icon(issue.isError ? Icons.error_outline : Icons.info_outline,
             color: issue.isError ? AppPalette.red : AppPalette.amber),
         title: Text(issue.message),

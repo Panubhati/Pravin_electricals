@@ -203,19 +203,23 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
         children: [
           Expanded(
             child: ListView(
-              padding: const EdgeInsets.all(12),
+              padding: const EdgeInsets.all(16),
               children: [
-                ListTile(
-                  key: const Key('supplierTile'),
-                  contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.local_shipping_outlined),
-                  title: Text(_supplier?.name ?? S.chooseSupplier),
-                  subtitle: _supplier?.gstin == null ? null : Text(_supplier!.gstin!),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: _pickSupplier,
+                Card(
+                  clipBehavior: Clip.antiAlias,
+                  child: ListTile(
+                    key: const Key('supplierTile'),
+                    leading: const Icon(Icons.local_shipping_outlined),
+                    title: Text(_supplier?.name ?? S.chooseSupplier, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    subtitle: _supplier?.gstin == null ? null : Text(_supplier!.gstin!),
+                    trailing: const Icon(Icons.chevron_right),
+                    onTap: _pickSupplier,
+                  ),
                 ),
+                const SizedBox(height: 12),
                 Row(children: [
                   Expanded(
+                    flex: 3,
                     child: TextField(
                       key: const Key('purchaseNo'),
                       controller: _invoiceNo,
@@ -223,13 +227,14 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                           labelText: S.supplierInvoiceNo, border: OutlineInputBorder()),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Flexible(
+                  const SizedBox(width: 8),
+                  Expanded(
                     flex: 2,
                     child: OutlinedButton.icon(
                       key: const Key('purchaseDate'),
                       onPressed: _pickDate,
-                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 10)),
+                      style: OutlinedButton.styleFrom(
+                          minimumSize: const Size(0, 56), padding: const EdgeInsets.symmetric(horizontal: 8)),
                       icon: const Icon(Icons.calendar_today, size: 18),
                       label: Text(formatDate(_date), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis),
                     ),
@@ -282,7 +287,8 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
             ),
           ),
           Material(
-            elevation: 8,
+            color: AppPalette.card,
+            shape: const Border(top: BorderSide(color: AppPalette.line)),
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
               child: SafeArea(

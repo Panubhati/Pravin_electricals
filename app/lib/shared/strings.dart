@@ -10,14 +10,14 @@ abstract final class S {
 
   // Bill screen
   static const billTitle = 'New bill';
-  static const searchHint = 'Search item, brand, SKU or barcode';
+  static const searchHint = 'Search or scan an item';
   static const scanBarcode = 'Scan barcode';
   static const noResults = 'No items found';
   static const cartEmpty = 'Search or scan an item to start the bill';
   static const noPrice = 'No price set for this item. Add a price first.';
   static const qty = 'Qty';
   static const unit = 'Unit';
-  static const discount = 'Discount (Rs)';
+  static const discount = 'Less ₹';
   static const remove = 'Remove';
   static const walkIn = 'Walk-in customer';
   static const chooseCustomer = 'Choose customer';
@@ -83,16 +83,16 @@ abstract final class S {
   static const hsn = 'HSN code';
   static const gstRate = 'GST rate';
   static const itemType = 'How is it sold?';
-  static const typeLength = 'By the metre (cable, wire)';
+  static const typeLength = 'By the metre';
   static const typePiece = 'By the piece';
   static const typeFixed = 'The type cannot be changed after creation.';
   static const rollLength = 'Roll length (metres)';
   static const boxSize = 'Pieces in a box';
   static const prices = 'Prices (GST included)';
   static const retailPrice = 'Retail price';
-  static const contractorPrice = 'Contractor price (optional)';
-  static const dealerPrice = 'Dealer price (optional)';
-  static const costPrice = 'Cost price, without GST';
+  static const contractorPrice = 'Contractor price';
+  static const dealerPrice = 'Dealer price';
+  static const costPrice = 'Cost price (no GST)';
   static const minStock = 'Minimum stock (low stock alert)';
   static const openingStock = 'Stock on hand now (optional)';
   static const barcode = 'Barcode (optional)';

@@ -407,6 +407,7 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
               for (final l in v.lines)
                 ListTile(
                   contentPadding: EdgeInsets.zero,
+                  tileColor: Colors.transparent,
                   title: Text(l.name),
                   subtitle: Text(l.qty),
                   trailing: Text(l.amount),

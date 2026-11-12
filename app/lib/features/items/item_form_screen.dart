@@ -271,6 +271,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                 if (_editing)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
+                    tileColor: Colors.transparent,
                     title: Text(_isLength ? S.typeLength : S.typePiece),
                     subtitle: const Text(S.typeFixed),
                   )
@@ -301,17 +302,17 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                 ),
                 const SectionTitle(S.prices),
                 _moneyField(const Key('itemRetail'), _retail,
-                    '${S.retailPrice} (per $unit)', perms.canEditPrices),
+                    '${S.retailPrice} per $unit', perms.canEditPrices),
                 const SizedBox(height: 12),
                 _moneyField(const Key('itemContractor'), _contractor,
-                    '${S.contractorPrice} (per $unit)', perms.canEditPrices),
+                    '${S.contractorPrice} per $unit (optional)', perms.canEditPrices),
                 const SizedBox(height: 12),
                 _moneyField(const Key('itemDealer'), _dealer,
-                    '${S.dealerPrice} (per $unit)', perms.canEditPrices),
+                    '${S.dealerPrice} per $unit (optional)', perms.canEditPrices),
                 if (perms.canSeeCost) ...[
                   const SizedBox(height: 12),
                   _moneyField(const Key('itemCost'), _cost,
-                      '${S.costPrice} (per $unit)', perms.canEditPrices),
+                      '${S.costPrice} per $unit', perms.canEditPrices),
                 ],
                 const SectionTitle(S.stock),
                 TextField(
@@ -380,6 +381,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
         for (final v in d.variants)
           ListTile(
             contentPadding: EdgeInsets.zero,
+            tileColor: Colors.transparent,
             title: Text(v.label == kDefaultVariantLabel ? S.barcode.replaceAll(' (optional)', '') : v.label),
             subtitle: Text(v.barcode ?? ''),
             trailing: const Icon(Icons.edit_outlined),
@@ -395,6 +397,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
         SwitchListTile(
           key: const Key('activeSwitch'),
           contentPadding: EdgeInsets.zero,
+          tileColor: Colors.transparent,
           title: const Text(S.activeSwitch),
           value: d.item.active,
           onChanged: _toggleActive,

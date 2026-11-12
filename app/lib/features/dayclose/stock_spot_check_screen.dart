@@ -120,6 +120,7 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final resultKeys = RowKeys(), rowKeys = RowKeys();
     final diffs = _differing;
     return Scaffold(
       appBar: AppBar(title: const Text(S.stockSpotCheck)),
@@ -140,13 +141,14 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
           ),
           for (final i in _results)
             ListTile(
-              key: Key('spotResult_${i.name}'),
+              key: Key('spotResult_${resultKeys.of(i.name, i.id)}'),
               dense: true,
               title: Text(i.name),
+              subtitle: i.brand == null ? null : Text(i.brand!),
               onTap: () => _add(i),
             ),
           const SizedBox(height: 8),
-          for (final r in _rows) _rowTile(r),
+          for (final r in _rows) _rowTile(r, rowKeys.of(r.item.name, r.item.id)),
           if (_rows.isNotEmpty) ...[
             const SizedBox(height: 12),
             Text(
@@ -168,11 +170,11 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
     );
   }
 
-  Widget _rowTile(_SpotRow r) {
+  Widget _rowTile(_SpotRow r, String keyName) {
     final diff = r.difference;
     final bad = r.countedBase == -1;
     return Card(
-      key: Key('spotRow_${r.item.name}'),
+      key: Key('spotRow_$keyName'),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Column(

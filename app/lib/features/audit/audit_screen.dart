@@ -47,6 +47,12 @@ const _actionLabels = {
   'upi_changed': 'UPI ID changed',
   'backup_made': 'Backup made',
   'backup_restored': 'Backup restored',
+  'backup_made_with_problems': 'Backup made (check found problems)',
+  'sales_return': 'Items returned',
+  'bill_cancelled': 'Bill cancelled',
+  'purchase_cancelled': 'Purchase cancelled',
+  'sync_conflict': 'Changed on both phones',
+  'phone_removed': 'Phone removed',
 };
 
 String auditActionLabel(String action) => _actionLabels[action] ?? action;
@@ -59,7 +65,10 @@ const _hidden = {'id', 'shopId', 'createdAt', 'updatedAt', 'deletedAt', 'pinHash
 List<String> describeChange(Map<String, Object?>? before, Map<String, Object?>? after, {Item? item}) {
   final b = before ?? const {};
   final a = after ?? const {};
-  final keys = {...b.keys, ...a.keys}.where((k) => !_hidden.contains(k)).toList()..sort();
+  // Internal ids and lists (bill lines, whole rows) mean nothing to a person.
+  bool readable(String k) =>
+      !_hidden.contains(k) && !k.endsWith('Id') && b[k] is! Map && b[k] is! List && a[k] is! Map && a[k] is! List;
+  final keys = {...b.keys, ...a.keys}.where(readable).toList()..sort();
   final out = <String>[];
   for (final k in keys) {
     final from = b[k];

@@ -216,6 +216,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
         ListTile(
           key: Key('note_${n.noteNo}'),
           contentPadding: EdgeInsets.zero,
+          tileColor: Colors.transparent,
           leading: Icon(n.isCancel ? Icons.cancel_outlined : Icons.assignment_return_outlined),
           title: Text(n.noteNo),
           subtitle: Text(_time(n.date)),
@@ -258,17 +259,18 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
               const SizedBox(height: 8),
               Text(v.billToName, style: style.titleMedium),
               for (final l in v.billToLines) Text(l),
-              const Divider(height: 24),
-              for (final l in v.lines)
-                ListTile(
-                  key: Key('line_${l.no}'),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(l.name),
-                  subtitle: Text('${l.qty} at ${l.rate}${l.hsn.isEmpty ? '' : '  •  HSN ${l.hsn}'}'
-                      '${l.discount.isEmpty ? '' : '  •  discount ${l.discount}'}'),
-                  trailing: Text(l.amount),
-                ),
-              const Divider(height: 24),
+              const SizedBox(height: 16),
+              CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                for (final l in v.lines)
+                  ListTile(
+                    key: Key('line_${l.no}'),
+                    title: Text(l.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                    subtitle: Text('${l.qty} at ₹${l.rate}${l.hsn.isEmpty ? '' : '  •  HSN ${l.hsn}'}'
+                        '${l.discount.isEmpty ? '' : '  •  less ${l.discount}'}'),
+                    trailing: Text('₹${l.amount}'),
+                  ),
+              ]),
+              const SizedBox(height: 16),
               row('Subtotal', v.subtotal),
               if (v.discount != null) row('Discount', v.discount!),
               if (v.roundOff != null) row('Round off', v.roundOff!),

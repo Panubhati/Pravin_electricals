@@ -153,6 +153,7 @@ class _SpeedScreenState extends ConsumerState<SpeedScreen> {
                 key: Key('speed_${r.name}'),
                 dense: true,
                 contentPadding: EdgeInsets.zero,
+                tileColor: Colors.transparent,
                 leading: Icon(r.passes() ? Icons.check_circle : Icons.warning_amber_rounded,
                     color: r.passes() ? AppPalette.green : AppPalette.red),
                 title: Text(r.name),

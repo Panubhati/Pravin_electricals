@@ -16,30 +16,31 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tile(Key key, IconData icon, String title, String sub, Widget screen) => Card(
-          child: ListTile(
-            key: key,
-            leading: Icon(icon),
-            title: Text(title),
-            subtitle: Text(sub),
-            trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context)
-                .push<void>(MaterialPageRoute(builder: (_) => screen)),
-          ),
+    Widget tile(Key key, IconData icon, String title, String sub, Widget screen) => ListTile(
+          key: key,
+          leading: Icon(icon),
+          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
+          trailing: const Icon(Icons.chevron_right, color: AppPalette.muted),
+          onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => screen)),
         );
     return Scaffold(
       appBar: AppBar(title: const Text(S.reportsTitle)),
       body: ListView(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.only(bottom: 24),
         children: [
-          tile(const Key('reportDailySales'), Icons.today_outlined, S.dailySales,
-              'Bills, payment modes and cash in hand for a day', const DailySalesScreen()),
-          tile(const Key('reportDayCheck'), Icons.fact_check_outlined, S.dayCheckTitle,
-              'Everything to compare with your paper book', const DayCheckScreen()),
-          tile(const Key('reportItemProfit'), Icons.trending_up, S.itemProfit,
-              'What each item earned over a period', const ItemProfitScreen()),
-          tile(const Key('reportStockValue'), Icons.inventory_outlined, S.stockValue,
-              'Stock on hand at cost price', const StockValueScreen()),
+          CardGroup(children: [
+            tile(const Key('reportDailySales'), Icons.today_outlined, S.dailySales, 'Bills, payments and cash for a day',
+                const DailySalesScreen()),
+            tile(const Key('reportDayCheck'), Icons.fact_check_outlined, S.dayCheckTitle, 'Compare with your paper book',
+                const DayCheckScreen()),
+          ]),
+          CardGroup(children: [
+            tile(const Key('reportItemProfit'), Icons.trending_up, S.itemProfit, 'What each item earned',
+                const ItemProfitScreen()),
+            tile(const Key('reportStockValue'), Icons.inventory_outlined, S.stockValue, 'Stock on hand at cost price',
+                const StockValueScreen()),
+          ]),
         ],
       ),
     );
@@ -261,6 +262,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                   : r.profitPaise * 100 / r.taxableSalesPaise;
               final known = [for (final x in r.rows) if (x.taxableSalesPaise > 0 || x.costPaise > 0) x];
               final unknown = [for (final x in r.rows) if (x.unknownCostSalesPaise > 0) x];
+              final profitKeys = RowKeys(), unknownKeys = RowKeys();
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -279,29 +281,31 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                     ),
                   ),
                   const SectionTitle(S.byItem),
-                  for (final x in known)
-                    ListTile(
-                      key: Key('profitRow_${x.item.name}'),
-                      contentPadding: EdgeInsets.zero,
-                      title: Text(x.item.name),
-                      subtitle: Text('Sold ${formatStock(x.item, x.qtyBase)}  •  '
-                          'sales ${Money.format(x.taxableSalesPaise)}'),
-                      trailing: Text(Money.format(x.profitPaise),
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: x.profitPaise < 0 ? AppPalette.red : null,
-                          )),
-                    ),
+                  if (known.isNotEmpty)
+                    CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                      for (final x in known)
+                        ListTile(
+                          key: Key('profitRow_${profitKeys.of(x.item.name, x.item.id)}'),
+                          title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                          subtitle: Text('Sold ${formatStock(x.item, x.qtyBase)}  •  '
+                              'sales ${Money.format(x.taxableSalesPaise)}'),
+                          trailing: Text(Money.format(x.profitPaise),
+                              style: TextStyle(color: x.profitPaise < 0 ? AppPalette.red : null)),
+                        ),
+                    ]),
                   if (unknown.isNotEmpty) ...[
+                    const SizedBox(height: 8),
                     const SectionTitle(S.costUnknown),
                     const Text(S.costUnknownHelp, style: TextStyle(color: AppPalette.muted)),
-                    for (final x in unknown)
-                      ListTile(
-                        key: Key('unknownRow_${x.item.name}'),
-                        contentPadding: EdgeInsets.zero,
-                        title: Text(x.item.name),
-                        trailing: Text(Money.format(x.unknownCostSalesPaise)),
-                      ),
+                    const SizedBox(height: 8),
+                    CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                      for (final x in unknown)
+                        ListTile(
+                          key: Key('unknownRow_${unknownKeys.of(x.item.name, x.item.id)}'),
+                          title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                          trailing: Text(Money.format(x.unknownCostSalesPaise)),
+                        ),
+                    ]),
                   ],
                   const SizedBox(height: 12),
                   const Text(S.returnsNote, style: TextStyle(color: AppPalette.muted)),
@@ -332,6 +336,7 @@ class StockValueScreen extends ConsumerWidget {
           if (r.rows.isEmpty) return const EmptyState(S.noStockOnHand);
           final known = [for (final x in r.rows) if (x.costPaise != null) x];
           final unknown = r.unknownCost;
+          final valueKeys = RowKeys(), unknownValueKeys = RowKeys();
           return ListView(
             padding: const EdgeInsets.all(16),
             children: [
@@ -347,26 +352,30 @@ class StockValueScreen extends ConsumerWidget {
                 child: Text(S.stockValueNote, style: TextStyle(color: AppPalette.muted)),
               ),
               const SectionTitle(S.byItem),
-              for (final x in known)
-                ListTile(
-                  key: Key('valueRow_${x.item.name}'),
-                  contentPadding: EdgeInsets.zero,
-                  title: Text(x.item.name),
-                  subtitle: Text('${formatStock(x.item, x.balanceBase)} at '
-                      '${formatRate(x.item, x.costPaise!)}'),
-                  trailing: Text(Money.format(x.valuePaise),
-                      style: const TextStyle(fontWeight: FontWeight.bold)),
-                ),
+              if (known.isNotEmpty)
+                CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                  for (final x in known)
+                    ListTile(
+                      key: Key('valueRow_${valueKeys.of(x.item.name, x.item.id)}'),
+                      title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      subtitle: Text('${formatStock(x.item, x.balanceBase)} at '
+                          '${formatRate(x.item, x.costPaise!)}'),
+                      trailing: Text(Money.format(x.valuePaise)),
+                    ),
+                ]),
               if (unknown.isNotEmpty) ...[
+                const SizedBox(height: 8),
                 const SectionTitle(S.costUnknown),
                 const Text(S.costUnknownStockHelp, style: TextStyle(color: AppPalette.muted)),
-                for (final x in unknown)
-                  ListTile(
-                    key: Key('unknownValue_${x.item.name}'),
-                    contentPadding: EdgeInsets.zero,
-                    title: Text(x.item.name),
-                    trailing: Text(formatStock(x.item, x.balanceBase)),
-                  ),
+                const SizedBox(height: 8),
+                CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                  for (final x in unknown)
+                    ListTile(
+                      key: Key('unknownValue_${unknownValueKeys.of(x.item.name, x.item.id)}'),
+                      title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
+                      trailing: Text(formatStock(x.item, x.balanceBase)),
+                    ),
+                ]),
               ],
             ],
           );

@@ -195,3 +195,51 @@ class SuccessTick extends StatelessWidget {
         ),
       );
 }
+
+/// Names rows by what people see (item or customer name), but stays unique
+/// when two rows share a name (the same wire from two brands): the second one
+/// gets its id added. Flutter needs sibling keys to be unique.
+class RowKeys {
+  final _seen = <String>{};
+  String of(String name, String id) => _seen.add(name) ? name : '$name#$id';
+}
+
+/// A white rounded card holding rows with thin lines between them, with an
+/// optional section title above (the look used across Settings and lists).
+class CardGroup extends StatelessWidget {
+  const CardGroup({
+    super.key,
+    this.title,
+    required this.children,
+    this.margin = const EdgeInsets.fromLTRB(16, 16, 16, 0),
+    this.indent = 56,
+  });
+  final String? title;
+  final List<Widget> children;
+  final EdgeInsetsGeometry margin;
+
+  /// Where the divider starts (56 lines up with text after a leading icon).
+  final double indent;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+        padding: margin,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (title != null)
+              Padding(padding: const EdgeInsets.only(left: 4, bottom: 8), child: SectionTitle(title!)),
+            Card(
+              margin: EdgeInsets.zero,
+              clipBehavior: Clip.antiAlias,
+              child: Column(children: [
+                for (var i = 0; i < children.length; i++) ...[
+                  if (i > 0) Divider(height: 1, indent: indent),
+                  children[i],
+                ],
+              ]),
+            ),
+          ],
+        ),
+      );
+}
