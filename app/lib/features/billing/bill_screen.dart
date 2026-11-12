@@ -15,6 +15,7 @@ import 'domain/bill_calculator.dart';
 import 'customer_sheet.dart';
 import 'payment_sheet.dart';
 import 'scan_screen.dart';
+import '../../shared/theme.dart';
 
 class BillScreen extends ConsumerStatefulWidget {
   const BillScreen({super.key});
@@ -124,7 +125,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
             onPressed: _chooseCustomer,
             icon: const Icon(Icons.person),
             label: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 130),
+              constraints: const BoxConstraints(maxWidth: 170),
               child: Text(
                 bill.customer?.name ?? S.walkIn,
                 maxLines: 1,
@@ -186,7 +187,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
               : Text(
                   subtitle,
                   style: balances != null && qty <= 0
-                      ? const TextStyle(color: Colors.deepOrange)
+                      ? const TextStyle(color: AppPalette.amber)
                       : null,
                 ),
           onTap: () => _add(r),
@@ -232,7 +233,8 @@ class _BillScreenState extends ConsumerState<BillScreen> {
   Widget _totalsBar(BillResult result, BillTotals? totals) {
     final discountError = discountProblem(totals, ref.watch(permissionsProvider));
     return Material(
-      elevation: 8,
+      color: AppPalette.card,
+      shape: const Border(top: BorderSide(color: AppPalette.line)),
       child: Padding(
         padding: const EdgeInsets.fromLTRB(16, 10, 16, 12),
         child: SafeArea(
@@ -241,11 +243,11 @@ class _BillScreenState extends ConsumerState<BillScreen> {
             mainAxisSize: MainAxisSize.min,
             children: [
               if (result.error != null)
-                Text(result.error!, style: const TextStyle(color: Colors.red)),
+                Text(result.error!, style: const TextStyle(color: AppPalette.red)),
               if (discountError != null)
                 Text(discountError,
                     key: const Key('discountError'),
-                    style: const TextStyle(color: Colors.red)),
+                    style: const TextStyle(color: AppPalette.red)),
               if (totals != null && !totals.isEmpty) ...[
                 _row(S.subtotal, Money.format(totals.subtotalPaise)),
                 if (totals.discountPaise > 0)
@@ -406,14 +408,14 @@ class _CartTileState extends ConsumerState<_CartTile> {
                       : '${S.onlyInStock} '
                           '${Units.formatQty(widget.availableBase!, line.priceUnitFactor)} '
                           '${_pricingUnit(units, line.priceUnitFactor)} ${S.inStockSuffix}',
-                  style: const TextStyle(color: Colors.deepOrange),
+                  style: const TextStyle(color: AppPalette.amber),
                 ),
               ),
             const SizedBox(height: 8),
             Row(
               children: [
                 SizedBox(
-                  width: 90,
+                  width: 84,
                   child: TextField(
                     key: Key('qty_${widget.index}'),
                     controller: _qty,
@@ -449,7 +451,7 @@ class _CartTileState extends ConsumerState<_CartTile> {
                 ),
                 const SizedBox(width: 8),
                 SizedBox(
-                  width: 90,
+                  width: 112,
                   child: TextField(
                     key: Key('disc_${widget.index}'),
                     controller: _disc,

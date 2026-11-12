@@ -499,4 +499,13 @@ abstract final class S {
   static const spotApplyHelp = 'Apply sets the app\'s stock to what you counted and records it as a stock count.';
   static String spotApplyConfirm(int n) => 'Set the stock of $n item${n == 1 ? '' : 's'} to what you counted?';
   static const spotApplied = 'Stock updated to your counts';
+
+  // Home (design refresh)
+  static String homeHello(String name) => 'Hello, $name';
+  static const homeNewBillHint = 'Search, scan, pay, share';
+  static const homeGroupSell = 'Sales';
+  static const homeGroupStock = 'Stock and buying';
+  static const homeGroupPeople = 'People and money';
+  static const homeGroupShop = 'Shop';
+  static const homeToday = 'Today';
 }

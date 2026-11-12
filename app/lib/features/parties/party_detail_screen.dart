@@ -12,6 +12,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import 'parties_providers.dart';
 import 'party_form_screen.dart';
+import '../../shared/theme.dart';
 
 /// One customer or supplier: balance, ageing, payments and the full statement.
 class PartyDetailScreen extends ConsumerStatefulWidget {
@@ -134,13 +135,13 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                 const SizedBox(height: 8),
                 Wrap(spacing: 6, runSpacing: 4, children: [
                   if (a.days0to30 > 0)
-                    StatusChip('${S.bucket0}: ${Money.format(a.days0to30)}', color: Colors.green),
+                    StatusChip('${S.bucket0}: ${Money.format(a.days0to30)}', color: AppPalette.green),
                   if (a.days31to60 > 0)
                     StatusChip('${S.bucket31}: ${Money.format(a.days31to60)}'),
                   if (a.days61to90 > 0)
-                    StatusChip('${S.bucket61}: ${Money.format(a.days61to90)}', color: Colors.deepOrange),
+                    StatusChip('${S.bucket61}: ${Money.format(a.days61to90)}', color: AppPalette.amber),
                   if (a.over90 > 0)
-                    StatusChip('${S.bucket90}: ${Money.format(a.over90)}', color: Colors.red),
+                    StatusChip('${S.bucket90}: ${Money.format(a.over90)}', color: AppPalette.red),
                 ]),
               ],
               const SizedBox(height: 12),
@@ -193,7 +194,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                               '${plus ? '+' : '-'}${Money.format(e.amountPaise.abs())}',
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                color: plus ? Colors.red.shade700 : Colors.green.shade800,
+                                color: plus ? AppPalette.red : AppPalette.green,
                               ),
                             ),
                             Text(

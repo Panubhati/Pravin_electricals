@@ -8,6 +8,7 @@ import 'core/providers.dart';
 import 'features/auth/lock_gate.dart';
 import 'features/home/home_screen.dart';
 import 'shared/strings.dart';
+import 'shared/theme.dart';
 
 /// Holds the app's providers and the database. [restart] throws all of that
 /// away and starts again from a fresh database connection, which is how a
@@ -65,17 +66,7 @@ class ShopApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,
       builder: (context, child) => LockGate(child: child ?? const SizedBox.shrink()),
-      theme: ThemeData(
-        colorSchemeSeed: const Color(0xFF1F5FA8),
-        useMaterial3: true,
-        // Large touch targets for fast counter use on cheap phones.
-        filledButtonTheme: FilledButtonThemeData(
-          style: FilledButton.styleFrom(minimumSize: const Size(64, 52)),
-        ),
-        outlinedButtonTheme: OutlinedButtonThemeData(
-          style: OutlinedButton.styleFrom(minimumSize: const Size(64, 48)),
-        ),
-      ),
+      theme: AppTheme.light(),
       home: const HomeScreen(),
     );
   }

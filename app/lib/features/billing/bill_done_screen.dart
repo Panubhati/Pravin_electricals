@@ -49,7 +49,7 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                const Icon(Icons.check_circle, size: 72, color: Colors.green),
+                const Center(child: SuccessTick()),
                 const SizedBox(height: 12),
                 Text(
                   d.invoice.invoiceNoText,

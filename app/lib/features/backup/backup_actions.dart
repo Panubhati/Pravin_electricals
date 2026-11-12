@@ -17,6 +17,7 @@ import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../datacheck/data_check_screen.dart';
+import '../../shared/theme.dart';
 
 /// A copy of the data replaced by the last restore, if one is still kept (so
 /// the owner can undo a wrong restore).
@@ -229,7 +230,7 @@ Future<bool> _confirmRestore(
             const SizedBox(height: 12),
             Text(replacingData ? S.restoreReplacesWarning : S.restoreFreshNote),
             const SizedBox(height: 8),
-            const Text(S.restoreOnePhone, style: TextStyle(color: Colors.grey)),
+            const Text(S.restoreOnePhone, style: TextStyle(color: AppPalette.muted)),
           ],
         ),
       ),
@@ -240,7 +241,7 @@ Future<bool> _confirmRestore(
             child: const Text(S.cancel)),
         FilledButton(
           key: const Key('restoreConfirm'),
-          style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700),
+          style: FilledButton.styleFrom(backgroundColor: AppPalette.red),
           onPressed: () => Navigator.pop(ctx, true),
           child: Text(undo ? S.undoRestore : S.restoreNow),
         ),

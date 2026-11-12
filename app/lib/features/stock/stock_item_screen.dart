@@ -10,6 +10,7 @@ import '../../core/units.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../../shared/theme.dart';
 
 /// One item's stock: the balance, Adjust and Count actions, and the history of
 /// every movement that made up the balance.
@@ -127,7 +128,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
                       key: const Key('stockBalance'),
                       style: Theme.of(context).textTheme.headlineMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: _balance < 0 ? Colors.red : null,
+                            color: _balance < 0 ? AppPalette.red : null,
                           ),
                     ),
                     if (item.minStockBase > 0)
@@ -173,7 +174,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
                                 '${plus ? '+' : ''}${formatStock(item, m.qtyBase)}',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
-                                  color: plus ? Colors.green.shade800 : Colors.red.shade700,
+                                  color: plus ? AppPalette.green : AppPalette.red,
                                 ),
                               ),
                             );

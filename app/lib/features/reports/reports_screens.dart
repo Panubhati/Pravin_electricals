@@ -8,6 +8,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../dayclose/day_check_screen.dart';
 import 'reports_providers.dart';
+import '../../shared/theme.dart';
 
 /// Owner-only list of reports.
 class ReportsScreen extends StatelessWidget {
@@ -48,7 +49,7 @@ class ReportsScreen extends StatelessWidget {
 Widget _line(String label, String value, {bool bold = false, bool muted = false, Key? key}) {
   final style = bold
       ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-      : (muted ? const TextStyle(color: Colors.grey) : null);
+      : (muted ? const TextStyle(color: AppPalette.muted) : null);
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 3),
     child: Row(
@@ -157,7 +158,7 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                 const Divider(),
                 _line(S.cashClosing, Money.format(c.closingPaise), bold: true, key: const Key('cashClosing')),
                 const SizedBox(height: 8),
-                const Text(S.cashNote, style: TextStyle(color: Colors.grey)),
+                const Text(S.cashNote, style: TextStyle(color: AppPalette.muted)),
               ],
             ),
           ),
@@ -246,7 +247,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
           ),
           const SizedBox(height: 8),
           Text('${formatDate(range.from)} to ${formatDate(range.to)}',
-              style: const TextStyle(color: Colors.grey)),
+              style: const TextStyle(color: AppPalette.muted)),
           report.when(
             loading: () => const Padding(
               padding: EdgeInsets.all(24),
@@ -288,12 +289,12 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                       trailing: Text(Money.format(x.profitPaise),
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            color: x.profitPaise < 0 ? Colors.red : null,
+                            color: x.profitPaise < 0 ? AppPalette.red : null,
                           )),
                     ),
                   if (unknown.isNotEmpty) ...[
                     const SectionTitle(S.costUnknown),
-                    const Text(S.costUnknownHelp, style: TextStyle(color: Colors.grey)),
+                    const Text(S.costUnknownHelp, style: TextStyle(color: AppPalette.muted)),
                     for (final x in unknown)
                       ListTile(
                         key: Key('unknownRow_${x.item.name}'),
@@ -303,7 +304,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                       ),
                   ],
                   const SizedBox(height: 12),
-                  const Text(S.returnsNote, style: TextStyle(color: Colors.grey)),
+                  const Text(S.returnsNote, style: TextStyle(color: AppPalette.muted)),
                 ],
               );
             },
@@ -343,7 +344,7 @@ class StockValueScreen extends ConsumerWidget {
               ),
               const Padding(
                 padding: EdgeInsets.only(top: 8),
-                child: Text(S.stockValueNote, style: TextStyle(color: Colors.grey)),
+                child: Text(S.stockValueNote, style: TextStyle(color: AppPalette.muted)),
               ),
               const SectionTitle(S.byItem),
               for (final x in known)
@@ -358,7 +359,7 @@ class StockValueScreen extends ConsumerWidget {
                 ),
               if (unknown.isNotEmpty) ...[
                 const SectionTitle(S.costUnknown),
-                const Text(S.costUnknownStockHelp, style: TextStyle(color: Colors.grey)),
+                const Text(S.costUnknownStockHelp, style: TextStyle(color: AppPalette.muted)),
                 for (final x in unknown)
                   ListTile(
                     key: Key('unknownValue_${x.item.name}'),

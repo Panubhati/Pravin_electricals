@@ -7,6 +7,7 @@ import '../../core/permissions.dart';
 import '../../core/printing/upi_link.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
+import '../../shared/theme.dart';
 
 /// A QR code for the customer to scan and pay [amountPaise] by UPI. Shows
 /// nothing when the amount is zero. When the shop has no UPI ID yet, the owner
@@ -24,7 +25,7 @@ class UpiQrCard extends ConsumerWidget {
       if (!ref.watch(permissionsProvider).canOpenSettings) return const SizedBox.shrink();
       return const Padding(
         padding: EdgeInsets.only(bottom: 12),
-        child: Text(S.upiOwnerHint, key: Key('upiHint'), style: TextStyle(color: Colors.grey)),
+        child: Text(S.upiOwnerHint, key: Key('upiHint'), style: TextStyle(color: AppPalette.muted)),
       );
     }
     return Card(

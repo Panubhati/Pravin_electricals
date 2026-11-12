@@ -8,6 +8,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import 'item_form_screen.dart';
 import 'items_providers.dart';
+import '../../shared/theme.dart';
 
 /// The item master: search, add and edit items.
 class ItemsScreen extends ConsumerStatefulWidget {
@@ -103,11 +104,11 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
                         children: [
                           if (sub.isNotEmpty) Text(sub),
                           Wrap(spacing: 6, children: [
-                            if (!item.active) const StatusChip(S.inactive, color: Colors.grey),
+                            if (!item.active) const StatusChip(S.inactive, color: AppPalette.muted),
                             if (e.retailRatePaise == null)
-                              const StatusChip(S.noPriceChip, color: Colors.red),
+                              const StatusChip(S.noPriceChip, color: AppPalette.red),
                             if (item.active && qty < 0)
-                              const StatusChip(S.negativeStock, color: Colors.red)
+                              const StatusChip(S.negativeStock, color: AppPalette.red)
                             else if (item.active && item.minStockBase > 0 && qty < item.minStockBase)
                               const StatusChip(S.lowStock),
                           ]),

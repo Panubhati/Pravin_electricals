@@ -8,6 +8,7 @@ import '../../core/units.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../../shared/theme.dart';
 
 class _SpotRow {
   _SpotRow(this.item, this.systemBase);
@@ -151,7 +152,7 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
             Text(
               diffs.isEmpty ? S.spotAllMatch : S.spotDifferences(diffs.length),
               key: const Key('spotSummary'),
-              style: TextStyle(fontWeight: FontWeight.bold, color: diffs.isEmpty ? Colors.green.shade800 : Colors.orange.shade900),
+              style: TextStyle(fontWeight: FontWeight.bold, color: diffs.isEmpty ? AppPalette.green : AppPalette.amber),
             ),
             const SizedBox(height: 8),
             FilledButton(
@@ -160,7 +161,7 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
               child: const Text(S.spotApply),
             ),
             const SizedBox(height: 4),
-            const Text(S.spotApplyHelp, style: TextStyle(color: Colors.grey)),
+            const Text(S.spotApplyHelp, style: TextStyle(color: AppPalette.muted)),
           ],
         ],
       ),
@@ -206,7 +207,7 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
                       ? S.spotMatches
                       : '${S.spotDifference}: ${diff > 0 ? '+' : '-'}${formatStock(r.item, diff.abs())}',
                   key: Key('spotDiff_${r.item.name}'),
-                  style: TextStyle(color: diff == 0 ? Colors.green.shade800 : Colors.red, fontWeight: FontWeight.bold),
+                  style: TextStyle(color: diff == 0 ? AppPalette.green : AppPalette.red, fontWeight: FontWeight.bold),
                 ),
               ),
           ],

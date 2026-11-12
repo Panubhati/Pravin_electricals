@@ -11,6 +11,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../items/items_providers.dart';
 import '../parties/parties_providers.dart';
+import '../../shared/theme.dart';
 
 /// Choose what to import: items (with prices, cost and opening stock) or
 /// customers and suppliers (with opening balances).
@@ -203,7 +204,7 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
                 ListTile(
                   dense: true,
                   contentPadding: EdgeInsets.zero,
-                  leading: const Icon(Icons.error_outline, color: Colors.red),
+                  leading: const Icon(Icons.error_outline, color: AppPalette.red),
                   title: Text(e.toString()),
                 ),
               if (v.errors.length > 100) Text('...and ${v.errors.length - 100} more'),

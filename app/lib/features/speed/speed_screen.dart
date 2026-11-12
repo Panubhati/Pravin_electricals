@@ -7,6 +7,7 @@ import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../../shared/theme.dart';
 
 /// Debug builds only (the Home screen hides the entry in release builds).
 /// Fills the shop with a big fake shop and times the screens on this phone.
@@ -153,13 +154,13 @@ class _SpeedScreenState extends ConsumerState<SpeedScreen> {
                 dense: true,
                 contentPadding: EdgeInsets.zero,
                 leading: Icon(r.passes() ? Icons.check_circle : Icons.warning_amber_rounded,
-                    color: r.passes() ? Colors.green : Colors.red),
+                    color: r.passes() ? AppPalette.green : AppPalette.red),
                 title: Text(r.name),
                 subtitle: Text('${S.speedTarget} ${r.targetMillis} ms'),
                 trailing: Text('${r.millis} ms', style: const TextStyle(fontWeight: FontWeight.bold)),
               ),
             const SizedBox(height: 8),
-            Text(S.speedAfter, style: const TextStyle(color: Colors.grey)),
+            Text(S.speedAfter, style: const TextStyle(color: AppPalette.muted)),
           ],
         ],
       ),

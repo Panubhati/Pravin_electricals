@@ -14,6 +14,7 @@ import '../bills/bills_screens.dart';
 import '../items/item_form_screen.dart';
 import '../parties/party_detail_screen.dart';
 import '../purchase/purchases_screen.dart';
+import '../../shared/theme.dart';
 
 /// Runs "Check my data" and keeps the result so Settings and Home can show it.
 /// Returns the full result of this run.
@@ -114,13 +115,13 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
                   padding: const EdgeInsets.all(16),
                   children: [
                     Card(
-                      color: r.passed ? Colors.green.shade50 : Colors.red.shade50,
+                      color: r.passed ? AppPalette.greenTint : AppPalette.redTint,
                       child: Padding(
                         padding: const EdgeInsets.all(16),
                         child: Row(
                           children: [
                             Icon(r.passed ? Icons.verified_outlined : Icons.error_outline,
-                                size: 36, color: r.passed ? Colors.green.shade800 : Colors.red.shade800),
+                                size: 36, color: r.passed ? AppPalette.green : AppPalette.red),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(
@@ -160,7 +161,7 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
                     for (final i in r.warnings) _IssueTile(i, onTap: () => _open(i)),
                     if (!r.passed) ...[
                       const SizedBox(height: 16),
-                      const Text(S.dataCheckAdvice, style: TextStyle(color: Colors.grey)),
+                      const Text(S.dataCheckAdvice, style: TextStyle(color: AppPalette.muted)),
                     ],
                   ],
                 ),
@@ -178,7 +179,7 @@ class _IssueTile extends StatelessWidget {
         key: Key('issue_${issue.code}'),
         contentPadding: EdgeInsets.zero,
         leading: Icon(issue.isError ? Icons.error_outline : Icons.info_outline,
-            color: issue.isError ? Colors.red : Colors.orange.shade800),
+            color: issue.isError ? AppPalette.red : AppPalette.amber),
         title: Text(issue.message),
         trailing: issue.refId == null ? null : const Icon(Icons.chevron_right),
         onTap: issue.refId == null ? null : onTap,
@@ -200,10 +201,10 @@ class DataCheckNote extends ConsumerWidget {
     if (s == null || s.passed) return const SizedBox.shrink();
     return Card(
       key: const Key('dataCheckNote'),
-      color: Colors.red.shade50,
+      color: AppPalette.redTint,
       margin: const EdgeInsets.only(bottom: 12),
       child: ListTile(
-        leading: Icon(Icons.error_outline, color: Colors.red.shade800),
+        leading: Icon(Icons.error_outline, color: AppPalette.red),
         title: Text(S.dataCheckProblems(s.errors)),
         subtitle: const Text(S.dataCheckNoteHelp),
         trailing: const Icon(Icons.chevron_right),

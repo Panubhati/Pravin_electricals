@@ -6,6 +6,7 @@ import '../../core/money.dart';
 import '../../shared/strings.dart';
 import 'bill_controller.dart';
 import 'upi_qr_card.dart';
+import '../../shared/theme.dart';
 
 /// Asks how the customer pays (cash, UPI, credit or a mix) and returns the
 /// payments, which always add up to the bill total. Null if cancelled.
@@ -163,13 +164,13 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
             const Padding(
               padding: EdgeInsets.only(bottom: 8),
               child: Text(S.creditNeedsCustomer,
-                  style: TextStyle(color: Colors.red)),
+                  style: TextStyle(color: AppPalette.red)),
             ),
           Text(
             '${S.remaining}: ${Money.format(remaining)}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              color: remaining == 0 ? Colors.green.shade800 : Colors.red,
+              color: remaining == 0 ? AppPalette.green : AppPalette.red,
             ),
           ),
           const SizedBox(height: 12),

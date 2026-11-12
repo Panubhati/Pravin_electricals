@@ -7,6 +7,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../items/items_providers.dart';
 import 'stock_item_screen.dart';
+import '../../shared/theme.dart';
 
 enum StockFilter { all, low, negative }
 
@@ -91,13 +92,13 @@ class _StockScreenState extends ConsumerState<StockScreen> {
                       title: Text(item.name),
                       subtitle: Wrap(spacing: 6, children: [
                         if (item.brand != null) Text(item.brand!),
-                        if (negative) const StatusChip(S.negativeStock, color: Colors.red),
+                        if (negative) const StatusChip(S.negativeStock, color: AppPalette.red),
                         if (low) const StatusChip(S.lowStock),
                       ]),
                       trailing: Text(
                         formatStock(item, qty),
                         style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                              color: negative ? Colors.red : (low ? Colors.orange.shade800 : null),
+                              color: negative ? AppPalette.red : (low ? AppPalette.amber : null),
                               fontWeight: FontWeight.bold,
                             ),
                       ),

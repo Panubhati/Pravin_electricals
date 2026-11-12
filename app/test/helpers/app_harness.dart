@@ -10,6 +10,7 @@ import 'package:shop_app/core/debug/sample_data.dart';
 import 'package:shop_app/core/providers.dart';
 import 'package:shop_app/features/auth/lock_gate.dart';
 import 'package:shop_app/features/home/home_screen.dart';
+import 'package:shop_app/shared/theme.dart';
 
 /// An in-memory database with the shop set up, for widget tests.
 class Harness {
@@ -38,7 +39,7 @@ class Harness {
     await tester.runAsync(() => container.read(sessionProvider.future));
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
-      child: MaterialApp(home: home),
+      child: MaterialApp(theme: AppTheme.light(), home: home),
     ));
     await settle(tester);
     return container;
@@ -58,6 +59,7 @@ class Harness {
     await tester.pumpWidget(UncontrolledProviderScope(
       container: container,
       child: MaterialApp(
+        theme: AppTheme.light(),
         navigatorKey: appNavigatorKey,
         builder: (context, child) => LockGate(child: child ?? const SizedBox.shrink()),
         home: const HomeScreen(),
@@ -128,10 +130,11 @@ void harnessTest(
   String description,
   Future<void> Function(WidgetTester tester, Harness h) body, {
   bool sample = true,
+  bool skip = false,
 }) {
   testWidgets(description, (tester) async {
     final h = await setupHarness(tester, sample: sample);
     await body(tester, h);
     await endTest(tester);
-  });
+  }, skip: skip);
 }

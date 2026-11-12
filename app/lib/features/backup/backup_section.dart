@@ -7,6 +7,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import 'backup_actions.dart';
 import 'backup_reminder.dart';
+import '../../shared/theme.dart';
 
 /// Back up, restore, undo a restore, and the reminder switch (owner only; it
 /// lives inside Settings).
@@ -48,7 +49,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
                 ? '${S.lastBackupLabel}: ${S.neverBackedUp}'
                 : '${S.lastBackupLabel}: ${backupTime(lastAt)}',
             key: const Key('lastBackupText'),
-            style: lastAt == null ? const TextStyle(color: Colors.red) : null,
+            style: lastAt == null ? const TextStyle(color: AppPalette.red) : null,
           ),
           trailing: _busy ? const SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)) : null,
           onTap: _busy ? null : () => _run(() => backUpNow(context, ref)),
@@ -57,7 +58,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           padding: EdgeInsets.symmetric(horizontal: 16),
           child: Align(
             alignment: Alignment.centerLeft,
-            child: Text('${S.backUpNowHelp}\n${S.backupFileWarning}', style: TextStyle(color: Colors.grey)),
+            child: Text('${S.backUpNowHelp}\n${S.backupFileWarning}', style: TextStyle(color: AppPalette.muted)),
           ),
         ),
         ListTile(

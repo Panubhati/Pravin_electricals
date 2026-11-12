@@ -6,6 +6,7 @@ import '../../core/db/repositories/dues_repository.dart';
 import '../../core/money.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
+import '../../shared/theme.dart';
 
 /// Parties for a list screen. The key is (kind 'customer' | 'supplier', search text).
 final partyListProvider = FutureProvider.autoDispose
@@ -49,10 +50,10 @@ BalanceLabel balanceLabel(int balancePaise, {required bool supplierView}) {
   final abs = Money.format(balancePaise.abs());
   if (supplierView) {
     return owedToShop
-        ? BalanceLabel('${S.advancePaid} $abs', Colors.green.shade800)
-        : BalanceLabel('${S.youOwe} $abs', Colors.red.shade700);
+        ? BalanceLabel('${S.advancePaid} $abs', AppPalette.green)
+        : BalanceLabel('${S.youOwe} $abs', AppPalette.red);
   }
   return owedToShop
-      ? BalanceLabel('${S.owes} $abs', Colors.red.shade700)
-      : BalanceLabel('${S.advancePaid} $abs', Colors.green.shade800);
+      ? BalanceLabel('${S.owes} $abs', AppPalette.red)
+      : BalanceLabel('${S.advancePaid} $abs', AppPalette.green);
 }

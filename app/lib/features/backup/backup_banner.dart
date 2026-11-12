@@ -6,6 +6,7 @@ import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import 'backup_actions.dart';
 import 'backup_reminder.dart';
+import '../../shared/theme.dart';
 
 /// What the banner and the reminder need to know right now. It re-reads when
 /// the last-backup time or the reminder switch changes.
@@ -33,13 +34,17 @@ class _BackupBannerState extends ConsumerState<BackupBanner> {
     if (state == null || !state.shouldRemind) return const SizedBox.shrink();
     return Card(
       key: const Key('backupBanner'),
-      color: Colors.amber.shade100,
+      color: AppPalette.amberTint,
       margin: const EdgeInsets.only(bottom: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(14),
+        side: BorderSide(color: AppPalette.amber.withValues(alpha: 0.25)),
+      ),
       child: Padding(
-        padding: const EdgeInsets.all(12),
+        padding: const EdgeInsets.all(14),
         child: Row(
           children: [
-            Icon(Icons.warning_amber_rounded, color: Colors.amber.shade900),
+            const Icon(Icons.warning_amber_rounded, color: AppPalette.amber),
             const SizedBox(width: 12),
             Expanded(
               child: Column(

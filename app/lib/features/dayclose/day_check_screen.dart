@@ -11,6 +11,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../backup/backup_actions.dart' show backupTime;
 import 'stock_spot_check_screen.dart';
+import '../../shared/theme.dart';
 
 final dayCloseProvider = FutureProvider.autoDispose.family<DayClose, DateTime>(
   (ref, day) => ref.watch(reportsRepositoryProvider).dayClose(day),
@@ -59,7 +60,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
   Widget _line(String label, int paise, {bool bold = false, bool muted = false, Key? key, String? prefix}) {
     final style = bold
         ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-        : (muted ? const TextStyle(color: Colors.grey) : null);
+        : (muted ? const TextStyle(color: AppPalette.muted) : null);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 3),
       child: Row(
@@ -78,6 +79,14 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [Flexible(child: Text(label)), const SizedBox(width: 8), Text('$n', key: key)],
+        ),
+      );
+
+  /// One white card holding a group of rows.
+  Widget _group(List<Widget> rows) => Card(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Column(children: rows),
         ),
       );
 
@@ -132,35 +141,45 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const SectionTitle(S.dcSales),
-                  _count(S.billsCount, s.billCount, key: const Key('dcBills')),
-                  if (s.cancelCount > 0) _count(S.dcCancelled, s.cancelCount, key: const Key('dcCancelled')),
-                  _line(S.dcSalesGross, s.grossPaise, key: const Key('dcGross')),
-                  if (s.returnsPaise > 0) _line(S.dcReturns, s.returnsPaise, prefix: '- ', key: const Key('dcReturns')),
-                  _line(S.dcNetSales, s.totalPaise, bold: true, key: const Key('dcNet')),
+                  _group([
+                    _count(S.billsCount, s.billCount, key: const Key('dcBills')),
+                    if (s.cancelCount > 0) _count(S.dcCancelled, s.cancelCount, key: const Key('dcCancelled')),
+                    _line(S.dcSalesGross, s.grossPaise, key: const Key('dcGross')),
+                    if (s.returnsPaise > 0) _line(S.dcReturns, s.returnsPaise, prefix: '- ', key: const Key('dcReturns')),
+                    _line(S.dcNetSales, s.totalPaise, bold: true, key: const Key('dcNet')),
+                  ]),
                   const SectionTitle(S.dcHowPaid),
-                  _line(S.cash, s.mode('cash'), key: const Key('dcCash')),
-                  _line('UPI', s.mode('upi'), key: const Key('dcUpi')),
-                  if (s.mode('card') != 0) _line('Card', s.mode('card')),
-                  _line(S.credit, s.mode('credit'), key: const Key('dcCredit')),
+                  _group([
+                    _line(S.cash, s.mode('cash'), key: const Key('dcCash')),
+                    _line('UPI', s.mode('upi'), key: const Key('dcUpi')),
+                    if (s.mode('card') != 0) _line('Card', s.mode('card')),
+                    _line(S.credit, s.mode('credit'), key: const Key('dcCredit')),
+                  ]),
                   const SectionTitle(S.dcCollected),
-                  _line(S.dcCollectedTotal, d.collectedPaise, bold: true, key: const Key('dcCollected')),
-                  _line(S.cash, d.collectedByMode['cash'] ?? 0, muted: true),
-                  _line('UPI', d.collectedByMode['upi'] ?? 0, muted: true),
-                  _line('Bank', d.collectedByMode['bank'] ?? 0, muted: true),
+                  _group([
+                    _line(S.dcCollectedTotal, d.collectedPaise, bold: true, key: const Key('dcCollected')),
+                    _line(S.cash, d.collectedByMode['cash'] ?? 0, muted: true),
+                    _line('UPI', d.collectedByMode['upi'] ?? 0, muted: true),
+                    _line('Bank', d.collectedByMode['bank'] ?? 0, muted: true),
+                  ]),
                   const SectionTitle(S.dcPurchases),
-                  _count(S.dcPurchasesEntered, d.purchaseCount, key: const Key('dcPurchaseCount')),
-                  _line(S.dcPurchasesTotal, d.purchaseTotalPaise, key: const Key('dcPurchaseTotal')),
-                  _line(S.dcPaidSuppliers, d.supplierPaidPaise, key: const Key('dcSupplierPaid')),
+                  _group([
+                    _count(S.dcPurchasesEntered, d.purchaseCount, key: const Key('dcPurchaseCount')),
+                    _line(S.dcPurchasesTotal, d.purchaseTotalPaise, key: const Key('dcPurchaseTotal')),
+                    _line(S.dcPaidSuppliers, d.supplierPaidPaise, key: const Key('dcSupplierPaid')),
+                  ]),
                   const SectionTitle(S.cashInHand),
-                  _line(S.cashOpening, d.cash.openingPaise),
-                  _line('+ ${S.cashSales}', d.cash.cashSalesPaise),
-                  _line('+ ${S.cashReceived}', d.cash.cashReceiptsPaise),
-                  _line('- ${S.cashPaidOut}', d.cash.cashPaidOutPaise),
-                  if (d.cash.cashRefundsPaise > 0) _line('- ${S.dcCashRefunds}', d.cash.cashRefundsPaise),
-                  const Divider(),
-                  _line(S.cashClosing, d.cash.closingPaise, bold: true, key: const Key('dcCashClosing')),
+                  _group([
+                    _line(S.cashOpening, d.cash.openingPaise),
+                    _line('+ ${S.cashSales}', d.cash.cashSalesPaise),
+                    _line('+ ${S.cashReceived}', d.cash.cashReceiptsPaise),
+                    _line('- ${S.cashPaidOut}', d.cash.cashPaidOutPaise),
+                    if (d.cash.cashRefundsPaise > 0) _line('- ${S.dcCashRefunds}', d.cash.cashRefundsPaise),
+                    const Divider(),
+                    _line(S.cashClosing, d.cash.closingPaise, bold: true, key: const Key('dcCashClosing')),
+                  ]),
                   const SizedBox(height: 16),
-                  const Text(S.dcCompareHelp, style: TextStyle(color: Colors.grey)),
+                  const Text(S.dcCompareHelp, style: TextStyle(color: AppPalette.muted)),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     key: const Key('dcStockCheck'),
@@ -170,7 +189,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
                     label: const Text(S.stockSpotCheck),
                   ),
                   Text('${S.dcCheckedAt} ${backupTime(DateTime.now())}',
-                      style: const TextStyle(color: Colors.grey, fontSize: 12)),
+                      style: const TextStyle(color: AppPalette.muted, fontSize: 12)),
                 ],
               );
             },

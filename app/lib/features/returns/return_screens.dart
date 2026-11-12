@@ -14,6 +14,7 @@ import '../../shared/widgets.dart';
 import '../auth/owner_approval.dart';
 import '../bills/bill_sharing.dart';
 import '../bills/bills_screens.dart';
+import '../../shared/theme.dart';
 
 final returnDetailsProvider = FutureProvider.autoDispose.family<ReturnDetails, String>(
   (ref, id) => ref.watch(returnRepositoryProvider).details(id),
@@ -187,7 +188,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
         Text('${S.returnAgainst} ${d.invoice.invoiceNoText}', style: Theme.of(context).textTheme.titleMedium),
         if (d.party != null) Text(d.party!.name),
         const SizedBox(height: 4),
-        const Text(S.returnHow, style: TextStyle(color: Colors.grey)),
+        const Text(S.returnHow, style: TextStyle(color: AppPalette.muted)),
         const Divider(height: 24),
         for (final l in list)
           if (!l.fullyReturned)
@@ -237,14 +238,14 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
         if (_quoteError != null)
           Padding(
             padding: const EdgeInsets.only(bottom: 8),
-            child: Text(_quoteError!, key: const Key('returnError'), style: const TextStyle(color: Colors.red)),
+            child: Text(_quoteError!, key: const Key('returnError'), style: const TextStyle(color: AppPalette.red)),
           ),
         if (q != null) ...[
           const Divider(height: 24),
           _row(S.returnLinesTotal, Money.format(q.linesTotalPaise)),
           if (q.roundOffPaise != 0) _row(S.roundOff, '${q.roundOffPaise < 0 ? '-' : '+'} ${Money.format(q.roundOffPaise.abs())}'),
           _row(S.returnRefundTotal, Money.format(q.totalPaise), bold: true, key: const Key('returnTotal')),
-          if (q.completesBill) const Text(S.returnCompletes, style: TextStyle(color: Colors.grey)),
+          if (q.completesBill) const Text(S.returnCompletes, style: TextStyle(color: AppPalette.muted)),
           const SizedBox(height: 12),
           Text(S.returnGiveBack, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
@@ -282,7 +283,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           Text(
             matches ? S.refundAddsUp : S.refundRemaining(Money.format(q.totalPaise - (split < 0 ? 0 : split))),
             key: const Key('refundStatus'),
-            style: TextStyle(fontWeight: FontWeight.bold, color: matches ? Colors.green.shade800 : Colors.red),
+            style: TextStyle(fontWeight: FontWeight.bold, color: matches ? AppPalette.green : AppPalette.red),
           ),
           const SizedBox(height: 12),
           TextField(
@@ -399,7 +400,7 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               Text(v.noteNo, key: const Key('creditNoteNo'), style: Theme.of(context).textTheme.headlineSmall),
-              if (v.isCancel) const Text(S.billCancelledNote, style: TextStyle(color: Colors.red)),
+              if (v.isCancel) const Text(S.billCancelledNote, style: TextStyle(color: AppPalette.red)),
               Text('${S.returnAgainst} ${v.againstBill}  •  ${v.dateText}'),
               Text(v.customerName, style: Theme.of(context).textTheme.titleMedium),
               const Divider(height: 24),

@@ -10,6 +10,7 @@ import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import 'parties_providers.dart';
 import 'party_detail_screen.dart';
+import '../../shared/theme.dart';
 
 /// Who owes the shop and whom the shop owes, with ageing (0-30, 31-60, 61-90,
 /// 90+ days). Payments settle the oldest debts first.
@@ -92,7 +93,7 @@ class _DuesList extends ConsumerWidget {
                   Money.format(d.buckets.totalDue),
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: d.buckets.over90 > 0 ? Colors.red.shade700 : null,
+                    color: d.buckets.over90 > 0 ? AppPalette.red : null,
                   ),
                 ),
                 onTap: () async {
@@ -116,7 +117,7 @@ class _DuesList extends ConsumerWidget {
             const SizedBox(width: 8),
             Text(
               Money.format(paise),
-              style: TextStyle(color: bad && paise > 0 ? Colors.red.shade700 : null),
+              style: TextStyle(color: bad && paise > 0 ? AppPalette.red : null),
             ),
           ],
         ),

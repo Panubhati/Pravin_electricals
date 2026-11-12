@@ -12,6 +12,7 @@ import '../../shared/widgets.dart';
 import '../auth/owner_approval.dart';
 import '../returns/return_screens.dart';
 import 'bill_sharing.dart';
+import '../../shared/theme.dart';
 
 typedef BillsQuery = ({String query, DateTime? from, DateTime? to});
 
@@ -112,12 +113,12 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 if (b.cancelled)
-                                  const StatusChip(S.cancelledBadge, color: Colors.red)
+                                  const StatusChip(S.cancelledBadge, color: AppPalette.red)
                                 else if (b.returnedPaise > 0)
                                   StatusChip('${S.returnedBadge} ${Money.format(b.returnedPaise)}'),
                                 if (b.duePaise > 0 && !b.cancelled)
                                   Text('${Money.format(b.duePaise)} ${S.dueLabel}',
-                                      style: const TextStyle(color: Colors.red, fontSize: 12)),
+                                      style: const TextStyle(color: AppPalette.red, fontSize: 12)),
                               ],
                             ),
                         ],
@@ -279,11 +280,11 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
               if (v.dueText != null)
                 Text(v.dueText!,
                     key: const Key('detailDue'),
-                    style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                    style: const TextStyle(color: AppPalette.red, fontWeight: FontWeight.bold)),
               if (d.invoice.status == 'cancelled')
                 const Padding(
                   padding: EdgeInsets.only(top: 12),
-                  child: Text(S.billCancelledNote, key: Key('detailCancelled'), style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                  child: Text(S.billCancelledNote, key: Key('detailCancelled'), style: TextStyle(color: AppPalette.red, fontWeight: FontWeight.bold)),
                 ),
               ..._creditNotes(),
               const SizedBox(height: 24),
@@ -311,7 +312,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   key: const Key('detailCancel'),
-                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red.shade700),
+                  style: OutlinedButton.styleFrom(foregroundColor: AppPalette.red),
                   onPressed: _busy ? null : () => _cancelBill(d),
                   icon: const Icon(Icons.cancel_outlined),
                   label: const Text(S.cancelBill),
@@ -369,7 +370,7 @@ class _CancelDialogState extends State<_CancelDialog> {
           ),
           FilledButton(
             key: const Key('cancelConfirm'),
-            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700),
+            style: FilledButton.styleFrom(backgroundColor: AppPalette.red),
             onPressed: () => Navigator.pop(context, _reason.text),
             child: const Text(S.cancelBill),
           ),

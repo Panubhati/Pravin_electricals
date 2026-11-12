@@ -14,6 +14,7 @@ import '../parties/parties_providers.dart';
 import 'domain/purchase_calculator.dart';
 import 'purchase_providers.dart';
 import 'supplier_sheet.dart';
+import '../../shared/theme.dart';
 
 /// What was typed for one purchase line (kept as text until saved).
 class _LineData {
@@ -223,11 +224,15 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                     ),
                   ),
                   const SizedBox(width: 12),
-                  OutlinedButton.icon(
-                    key: const Key('purchaseDate'),
-                    onPressed: _pickDate,
-                    icon: const Icon(Icons.calendar_today, size: 18),
-                    label: Text(formatDate(_date)),
+                  Flexible(
+                    flex: 2,
+                    child: OutlinedButton.icon(
+                      key: const Key('purchaseDate'),
+                      onPressed: _pickDate,
+                      style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(horizontal: 10)),
+                      icon: const Icon(Icons.calendar_today, size: 18),
+                      label: Text(formatDate(_date), maxLines: 1, softWrap: false, overflow: TextOverflow.ellipsis),
+                    ),
                   ),
                 ]),
                 const SizedBox(height: 12),
@@ -284,7 +289,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                 top: false,
                 child: Column(mainAxisSize: MainAxisSize.min, children: [
                   if (result.error != null && _lines.isNotEmpty)
-                    Text(result.error!, style: const TextStyle(color: Colors.red)),
+                    Text(result.error!, style: const TextStyle(color: AppPalette.red)),
                   if (totals != null && !totals.isEmpty) ...[
                     _row(S.taxableTotal, Money.format(totals.subtotalPaise)),
                     _row(S.gstAmount, Money.format(totals.taxPaise)),
@@ -292,19 +297,27 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                   const SizedBox(height: 6),
                   Row(children: [
                     Expanded(
-                      child: Text(
-                        totals == null ? '' : Money.format(totals.totalPaise),
-                        key: const Key('purchaseTotal'),
-                        style: Theme.of(context)
-                            .textTheme
-                            .headlineMedium
-                            ?.copyWith(fontWeight: FontWeight.bold),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          totals == null ? '' : Money.format(totals.totalPaise),
+                          key: const Key('purchaseTotal'),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineMedium
+                              ?.copyWith(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ),
-                    FilledButton(
-                      key: const Key('savePurchase'),
-                      onPressed: _saving ? null : _save,
-                      child: const Text(S.savePurchase),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      flex: 2,
+                      child: FilledButton(
+                        key: const Key('savePurchase'),
+                        onPressed: _saving ? null : _save,
+                        child: const Text(S.savePurchase, maxLines: 1, overflow: TextOverflow.ellipsis),
+                      ),
                     ),
                   ]),
                 ]),
@@ -395,6 +408,7 @@ class _PurchaseLineTileState extends State<_PurchaseLineTile> {
             Expanded(
               child: DropdownButtonFormField<String>(
                 key: Key('punit_$i'),
+                isExpanded: true,
                 value: d.unit.unitName,
                 decoration: const InputDecoration(
                     labelText: S.unit, border: OutlineInputBorder()),
