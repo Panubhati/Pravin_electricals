@@ -27,6 +27,9 @@ BackupStatus backupStatus({
 }) {
   if (!hasData) return BackupStatus.ok;
   if (lastBackupAt == null) return BackupStatus.never;
+  // A last-backup time in the future means the phone's clock was wrong at the
+  // time. Do not stay silent for weeks because of it: ask for a fresh backup.
+  if (lastBackupAt.isAfter(now.add(const Duration(hours: 1)))) return BackupStatus.overdue;
   return now.difference(lastBackupAt) > const Duration(days: backupReminderDays)
       ? BackupStatus.overdue
       : BackupStatus.ok;
@@ -40,7 +43,10 @@ String backupStatusMessage(BackupStatus status, DateTime? lastBackupAt, DateTime
     case BackupStatus.never:
       return 'You have not made a backup yet.';
     case BackupStatus.overdue:
-      final days = now.difference(lastBackupAt!).inDays;
+      if (lastBackupAt!.isAfter(now)) {
+        return 'The date of your last backup looks wrong (the phone clock may have been changed). Please back up again.';
+      }
+      final days = now.difference(lastBackupAt).inDays;
       return 'Your last backup was $days days ago.';
   }
 }

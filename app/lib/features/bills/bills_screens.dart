@@ -167,7 +167,8 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(k, style: bold ? const TextStyle(fontWeight: FontWeight.bold) : null),
+                    Flexible(child: Text(k, style: bold ? const TextStyle(fontWeight: FontWeight.bold) : null)),
+                    const SizedBox(width: 8),
                     Text(val,
                         key: key, style: bold ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 18) : null),
                   ],

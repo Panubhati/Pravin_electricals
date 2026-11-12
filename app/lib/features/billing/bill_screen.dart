@@ -105,7 +105,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
-        _toast('Could not save the bill: $e');
+        _toast('Could not save the bill: ${errorMessage(e)}');
       }
     }
   }
@@ -123,9 +123,13 @@ class _BillScreenState extends ConsumerState<BillScreen> {
           TextButton.icon(
             onPressed: _chooseCustomer,
             icon: const Icon(Icons.person),
-            label: Text(
-              bill.customer?.name ?? S.walkIn,
-              overflow: TextOverflow.ellipsis,
+            label: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 130),
+              child: Text(
+                bill.customer?.name ?? S.walkIn,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
             ),
           ),
         ],
@@ -296,7 +300,11 @@ class _BillScreenState extends ConsumerState<BillScreen> {
         : Theme.of(context).textTheme.bodyMedium;
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [Text(k, style: style), Text(v, style: style)],
+      children: [
+        Flexible(child: Text(k, style: style)),
+        const SizedBox(width: 8),
+        Text(v, style: style),
+      ],
     );
   }
 }
@@ -422,6 +430,7 @@ class _CartTileState extends ConsumerState<_CartTile> {
                 Expanded(
                   child: DropdownButtonFormField<String>(
                     key: Key('unit_${widget.index}'),
+                    isExpanded: true,
                     value: line.unitName,
                     decoration: const InputDecoration(
                       labelText: S.unit,

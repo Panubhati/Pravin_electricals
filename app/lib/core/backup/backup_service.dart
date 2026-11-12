@@ -171,6 +171,10 @@ class BackupService {
       throw BackupException(_fileProblem(e));
     } catch (e) {
       if (file.existsSync()) file.deleteSync();
+      final text = '$e'.toLowerCase();
+      if (text.contains('disk is full') || text.contains('sqlite_full')) {
+        throw BackupException('The phone is out of storage space. Free some space and try again.');
+      }
       throw BackupException('Could not make a backup: $e');
     }
   }

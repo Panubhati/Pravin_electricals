@@ -27,6 +27,18 @@ String rupeesForField(int paise) =>
 String errorMessage(Object e) {
   if (e is DomainException) return e.message;
   if (e is FormatException) return e.message;
+  // Storage problems from SQLite, in words staff can act on. A save is all or
+  // nothing, so in every case nothing half-saved is left behind.
+  final text = '$e'.toLowerCase();
+  if (text.contains('disk is full') || text.contains('sqlite_full') || text.contains('no space left')) {
+    return 'The phone is out of storage space. Free some space and try again. Nothing was saved.';
+  }
+  if (text.contains('disk i/o error') || text.contains('sqlite_ioerr')) {
+    return 'The phone could not write to its storage. Nothing was saved. Try again, and restart the phone if it keeps happening.';
+  }
+  if (text.contains('database is locked') || text.contains('sqlite_busy')) {
+    return 'The shop data is busy. Wait a moment and try again.';
+  }
   return 'Something went wrong: $e';
 }
 

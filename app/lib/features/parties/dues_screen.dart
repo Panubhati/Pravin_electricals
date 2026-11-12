@@ -112,7 +112,8 @@ class _DuesList extends ConsumerWidget {
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(label),
+            Flexible(child: Text(label)),
+            const SizedBox(width: 8),
             Text(
               Money.format(paise),
               style: TextStyle(color: bad && paise > 0 ? Colors.red.shade700 : null),

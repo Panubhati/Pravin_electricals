@@ -82,7 +82,8 @@ class DashboardCard extends ConsumerWidget {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(S.totalDues, style: Theme.of(context).textTheme.titleSmall),
+                        Flexible(child: Text(S.totalDues, style: Theme.of(context).textTheme.titleSmall)),
+                        const SizedBox(width: 8),
                         Text(Money.format(d.totalDuePaise),
                             key: const Key('dashTotalDue'),
                             style: const TextStyle(fontWeight: FontWeight.bold)),

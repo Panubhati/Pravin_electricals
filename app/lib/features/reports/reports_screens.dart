@@ -104,11 +104,16 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                 icon: const Icon(Icons.chevron_left),
                 onPressed: () => _move(-1),
               ),
-              TextButton(
-                key: const Key('dayPick'),
-                onPressed: _pick,
-                child: Text(isToday ? 'Today, ${formatDate(_day)}' : formatDate(_day),
-                    style: Theme.of(context).textTheme.titleMedium),
+              Flexible(
+                child: TextButton(
+                  key: const Key('dayPick'),
+                  onPressed: _pick,
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(isToday ? 'Today, ${formatDate(_day)}' : formatDate(_day),
+                        style: Theme.of(context).textTheme.titleMedium),
+                  ),
+                ),
               ),
               IconButton(
                 key: const Key('dayForward'),

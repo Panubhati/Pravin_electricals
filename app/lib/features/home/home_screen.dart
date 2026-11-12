@@ -94,7 +94,8 @@ class HomeScreen extends ConsumerWidget {
               physics: const NeverScrollableScrollPhysics(),
               mainAxisSpacing: 12,
               crossAxisSpacing: 12,
-              childAspectRatio: 1.35,
+              // Taller tiles when the owner has made the text bigger.
+              childAspectRatio: 1.35 / MediaQuery.textScalerOf(context).scale(1).clamp(1.0, 2.0),
               children: [
                 for (final t in tiles)
                   Card(
@@ -108,7 +109,11 @@ class HomeScreen extends ConsumerWidget {
                         children: [
                           Icon(t.icon, size: 36),
                           const SizedBox(height: 8),
-                          Text(t.label, style: Theme.of(context).textTheme.titleMedium),
+                          Text(t.label,
+                              maxLines: 2,
+                              textAlign: TextAlign.center,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleMedium),
                         ],
                       ),
                     ),

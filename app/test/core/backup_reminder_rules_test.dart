@@ -30,6 +30,19 @@ void main() {
     });
   });
 
+  group('a wrong phone clock', () {
+    test('a last backup dated far in the future is not trusted: back up again', () {
+      final future = now.add(const Duration(days: 30));
+      expect(backupStatus(lastBackupAt: future, now: now, hasData: true), BackupStatus.overdue);
+      expect(backupStatusMessage(BackupStatus.overdue, future, now), contains('looks wrong'));
+    });
+
+    test('a few minutes of clock difference is not a problem', () {
+      expect(backupStatus(lastBackupAt: now.add(const Duration(minutes: 20)), now: now, hasData: true),
+          BackupStatus.ok);
+    });
+  });
+
   group('wording', () {
     test('never and overdue', () {
       expect(backupStatusMessage(BackupStatus.never, null, now), 'You have not made a backup yet.');
