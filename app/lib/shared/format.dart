@@ -50,3 +50,12 @@ String formatDate(DateTime d) {
   ];
   return '${d.day} ${months[d.month - 1]} ${d.year}';
 }
+
+/// "12 Nov 2026, 3:05 pm" (today: "today 3:05 pm").
+String formatDateTime(DateTime d, {DateTime? now}) {
+  final n = now ?? DateTime.now();
+  final h = d.hour % 12 == 0 ? 12 : d.hour % 12;
+  final time = '$h:${d.minute.toString().padLeft(2, '0')} ${d.hour < 12 ? 'am' : 'pm'}';
+  final sameDay = d.year == n.year && d.month == n.month && d.day == n.day;
+  return sameDay ? 'today $time' : '${formatDate(d)}, $time';
+}

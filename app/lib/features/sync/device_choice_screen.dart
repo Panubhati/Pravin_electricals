@@ -1,37 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:uuid/uuid.dart';
 
 import '../../core/db/app_database.dart';
-import '../../core/db/repositories/repo_context.dart';
-import '../../core/db/repositories/setup_repository.dart';
 import '../../core/providers.dart';
-import '../../core/sync/device_identity.dart';
+import '../../core/sync/phones.dart';
+
+export '../../core/sync/phones.dart' show addThisPhone, nextSeriesLetter;
 import '../../shared/strings.dart';
 import '../../shared/theme.dart';
 import '../../shared/widgets.dart';
-
-/// The next free bill series letter (A, B, C...).
-String nextSeriesLetter(Iterable<String> used) {
-  for (var c = 'A'.codeUnitAt(0); c <= 'Z'.codeUnitAt(0); c++) {
-    final letter = String.fromCharCode(c);
-    if (!used.contains(letter)) return letter;
-  }
-  throw DomainException('This shop already has 26 phones');
-}
-
-/// Adds a new phone (device row) to the shop and makes this phone that device.
-/// Its changes are stamped with the new device from the very first row.
-Future<Device> addThisPhone(AppDatabase db, DeviceIdentity identity, {required String label}) async {
-  final shop = await (db.select(db.shops)..where((t) => t.deletedAt.isNull())..limit(1)).getSingle();
-  final devices = await (db.select(db.devices)..where((t) => t.shopId.equals(shop.id))).get();
-  final letter = nextSeriesLetter(devices.map((d) => d.invoiceSeriesPrefix));
-  final id = const Uuid().v4();
-  final ctx = RepoContext(db, shopId: shop.id)..originDeviceId = id;
-  await SetupRepository(ctx).createDevice(id: id, label: label, invoiceSeriesPrefix: letter);
-  await identity.write(id);
-  return (db.select(db.devices)..where((t) => t.id.equals(id))).getSingle();
-}
 
 /// Shown when the data holds more than one phone and this phone does not know
 /// which one it is (usually after a backup was restored on a new phone).
@@ -95,7 +72,7 @@ class _DeviceChoiceScreenState extends ConsumerState<DeviceChoiceScreen> {
                     child: Text(d.invoiceSeriesPrefix, style: const TextStyle(color: AppPalette.blue)),
                   ),
                   title: Text(S.devicePhone(d.invoiceSeriesPrefix)),
-                  subtitle: Text(d.label),
+                  subtitle: Text(phoneName(d)),
                   enabled: !_busy,
                   onTap: () => _replace(d),
                 ),

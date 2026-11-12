@@ -3,6 +3,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/bootstrap.dart';
 import '../sync/device_choice_screen.dart';
+import '../sync/join_shop_screen.dart';
+import '../sync/sync_providers.dart';
 
 import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
@@ -26,7 +28,8 @@ class LockGate extends ConsumerStatefulWidget {
   ConsumerState<LockGate> createState() => _LockGateState();
 }
 
-class _LockGateState extends ConsumerState<LockGate> with WidgetsBindingObserver {
+class _LockGateState extends ConsumerState<LockGate>
+    with WidgetsBindingObserver {
   DateTime? _pausedAt;
   String? _lastUserId;
 
@@ -55,7 +58,8 @@ class _LockGateState extends ConsumerState<LockGate> with WidgetsBindingObserver
     final since = _pausedAt;
     _pausedAt = null;
     if (since == null || ref.read(currentUserProvider) == null) return;
-    final minutes = await ref.read(settingsRepositoryProvider).autoLockMinutes();
+    final minutes =
+        await ref.read(settingsRepositoryProvider).autoLockMinutes();
     if (!mounted) return;
     if (DateTime.now().difference(since) >= Duration(minutes: minutes)) {
       lockApp(ProviderScope.containerOf(context));
@@ -67,7 +71,9 @@ class _LockGateState extends ConsumerState<LockGate> with WidgetsBindingObserver
     // A different person logging in starts with a clean bill.
     ref.listen(currentUserProvider, (prev, next) {
       if (next == null) return;
-      if (_lastUserId != null && _lastUserId != next.id) ref.invalidate(billProvider);
+      if (_lastUserId != null && _lastUserId != next.id) {
+        ref.invalidate(billProvider);
+      }
       _lastUserId = next.id;
     });
 
@@ -75,9 +81,11 @@ class _LockGateState extends ConsumerState<LockGate> with WidgetsBindingObserver
     final user = ref.watch(currentUserProvider);
     return session.when(
       loading: () => const _Splash(),
-      error: (e, _) => e is DeviceChoiceNeeded
-          ? _Standalone(child: DeviceChoiceScreen(devices: e.devices))
-          : Center(child: Text('Could not open the database: $e')),
+      error:
+          (e, _) =>
+              e is DeviceChoiceNeeded
+                  ? _Standalone(child: DeviceChoiceScreen(devices: e.devices))
+                  : Center(child: Text('Could not open the database: $e')),
       data: (_) {
         final hasPin = ref.watch(ownerHasPinProvider);
         return hasPin.when(
@@ -85,16 +93,21 @@ class _LockGateState extends ConsumerState<LockGate> with WidgetsBindingObserver
           error: (e, _) => Center(child: Text('$e')),
           data: (has) {
             if (!has) return const _Standalone(child: _FirstRunPin());
-            return Stack(
-              fit: StackFit.expand,
-              children: [
-                // Kept alive but hidden, so a short lock does not lose work.
-                Offstage(
-                  offstage: user == null,
-                  child: TickerMode(enabled: user != null, child: widget.child),
-                ),
-                if (user == null) const _Standalone(child: LockScreen()),
-              ],
+            return SyncRunner(
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Kept alive but hidden, so a short lock does not lose work.
+                  Offstage(
+                    offstage: user == null,
+                    child: TickerMode(
+                      enabled: user != null,
+                      child: widget.child,
+                    ),
+                  ),
+                  if (user == null) const _Standalone(child: LockScreen()),
+                ],
+              ),
             );
           },
         );
@@ -113,9 +126,9 @@ class _Splash extends StatelessWidget {
   const _Splash();
   @override
   Widget build(BuildContext context) => const ColoredBox(
-        color: Colors.white,
-        child: Center(child: CircularProgressIndicator()),
-      );
+    color: Colors.white,
+    child: Center(child: CircularProgressIndicator()),
+  );
 }
 
 /// Gives the lock and setup screens their own Navigator and Overlay (the gate
@@ -126,10 +139,10 @@ class _Standalone extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => HeroControllerScope.none(
-        child: Navigator(
-          onGenerateRoute: (_) => MaterialPageRoute<void>(builder: (_) => child),
-        ),
-      );
+    child: Navigator(
+      onGenerateRoute: (_) => MaterialPageRoute<void>(builder: (_) => child),
+    ),
+  );
 }
 
 class _FirstRunPin extends ConsumerWidget {
@@ -140,10 +153,23 @@ class _FirstRunPin extends ConsumerWidget {
     return NewPinScreen(
       title: S.setupPinTitle,
       help: S.setupPinHelp,
-      footer: TextButton(
-        key: const Key('firstRunRestore'),
-        onPressed: () => restoreFromBackup(context, ref),
-        child: const Text(S.restoreFromBackupFirstRun),
+      footer: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          TextButton(
+            key: const Key('firstRunRestore'),
+            onPressed: () => restoreFromBackup(context, ref),
+            child: const Text(S.restoreFromBackupFirstRun),
+          ),
+          TextButton(
+            key: const Key('firstRunJoin'),
+            onPressed:
+                () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(builder: (_) => const JoinShopScreen()),
+                ),
+            child: const Text(S.joinShopFirstRun),
+          ),
+        ],
       ),
       onPin: (pin) async {
         final auth = ref.read(authRepositoryProvider);
@@ -151,7 +177,9 @@ class _FirstRunPin extends ConsumerWidget {
         await auth.setPin(owner.id, pin);
         ref.invalidate(ownerHasPinProvider);
         ref.invalidate(loginUsersProvider);
-        ref.read(currentUserProvider.notifier).login(await auth.getUser(owner.id));
+        ref
+            .read(currentUserProvider.notifier)
+            .login(await auth.getUser(owner.id));
       },
     );
   }

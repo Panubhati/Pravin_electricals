@@ -57,6 +57,8 @@ dependencies:
   crypto: ^3.0.8
   qr_flutter: ^4.1.0
   sqlite3: ^2.9.4
+  cryptography: ^2.9.0
+  nsd: ^5.0.0
 
 dev_dependencies:
   flutter_test:

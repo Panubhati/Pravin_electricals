@@ -6,6 +6,7 @@ import '../../core/db/repositories/settings_repository.dart';
 import '../../core/money.dart';
 import '../../core/notifications/daily_summary.dart';
 import '../../core/providers.dart';
+import '../sync/phones_screen.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
@@ -109,6 +110,15 @@ class SettingsScreen extends ConsumerWidget {
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push<void>(
                   MaterialPageRoute(builder: (_) => const ShopDetailsScreen())),
+            ),
+            ListTile(
+              key: const Key('settingPhones'),
+              leading: const Icon(Icons.phonelink_ring_outlined),
+              title: const Text(S.phonesTitle),
+              subtitle: const Text(S.phonesSettingHelp),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push<void>(
+                  MaterialPageRoute(builder: (_) => const PhonesScreen())),
             ),
             ListTile(
               key: const Key('settingUpi'),

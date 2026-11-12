@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/permissions.dart';
 import '../../core/providers.dart';
+import '../sync/phones_screen.dart';
 import '../../shared/strings.dart';
 import '../../shared/theme.dart';
 import '../../shared/widgets.dart';
@@ -81,6 +82,7 @@ class HomeScreen extends ConsumerWidget {
       appBar: AppBar(
         title: Text(session.valueOrNull?.shop.name ?? S.appTitle),
         actions: [
+          if (session.hasValue) const SyncStatusDot(),
           IconButton(
             key: const Key('lockNow'),
             icon: const Icon(Icons.lock_outline),

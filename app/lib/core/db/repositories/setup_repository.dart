@@ -95,6 +95,30 @@ class SetupRepository {
     return deviceId;
   }
 
+  /// Takes a phone out of the shop (A8): its bills stay, but it can no longer
+  /// sync. Audited by the caller.
+  Future<void> removeDevice(String deviceId) async {
+    final now = ctx.clock();
+    await ctx.db.transaction(() async {
+      await (ctx.db.update(ctx.db.devices)..where((t) => t.id.equals(deviceId)))
+          .write(DevicesCompanion(deletedAt: Value(now), updatedAt: Value(now)));
+      final row = await (ctx.db.select(ctx.db.devices)..where((t) => t.id.equals(deviceId))).getSingle();
+      await ctx.recordOutbox('devices', deviceId, 'upsert', row.toJson());
+    });
+  }
+
+  /// Renames a phone (shown in Settings, Phones and on the other phone).
+  Future<void> renameDevice(String deviceId, String label) async {
+    if (label.trim().isEmpty) throw DomainException('A phone needs a name');
+    final now = ctx.clock();
+    await ctx.db.transaction(() async {
+      await (ctx.db.update(ctx.db.devices)..where((t) => t.id.equals(deviceId)))
+          .write(DevicesCompanion(label: Value(label.trim()), updatedAt: Value(now)));
+      final row = await (ctx.db.select(ctx.db.devices)..where((t) => t.id.equals(deviceId))).getSingle();
+      await ctx.recordOutbox('devices', deviceId, 'upsert', row.toJson());
+    });
+  }
+
   /// [name] is one of: shop, godown, vehicle.
   Future<String> createLocation(String name) async {
     if (!const {'shop', 'godown', 'vehicle'}.contains(name)) {

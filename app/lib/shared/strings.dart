@@ -522,4 +522,50 @@ abstract final class S {
   static String deviceReplaceWarn(String letter) =>
       'Only do this if phone $letter is lost, broken or no longer used. If phone $letter is still billing, two phones would give out the same bill numbers.';
   static const deviceReplaceYes = 'Yes, replace it';
+
+  // A8 Wi-Fi sync
+  static const phonesTitle = 'Phones and Wi-Fi sync';
+  static const phonesSettingHelp = 'Bill on two phones; they share data over the shop Wi-Fi';
+  static const phonesThisPhone = 'This phone';
+  static const phonesNoneYet = 'Only this phone so far. Add a second phone to bill on two phones at once.';
+  static const phonesAdd = 'Add a phone';
+  static const phonesSyncNow = 'Sync now';
+  static const phonesRemove = 'Remove this phone from the shop';
+  static String phonesRemoveConfirm(String name) =>
+      'Remove $name? Its bills stay in the shop, but it will no longer sync. To use it again, add it again from this screen.';
+  static const phonesRemoved = 'Phone removed';
+  static const phonesRename = 'Rename';
+  static const phonesRenameTitle = 'Name for this phone';
+  static const phonesClashes = 'Changes made on both phones at once';
+  static String phonesClashesHelp(int n) =>
+      '$n time${n == 1 ? '' : 's'} in the last 7 days the same thing was changed on both phones before they synced. The later change was kept; both are in the activity log.';
+  static String phonesClockWarn(int minutes) =>
+      "The two phones' clocks differ by about $minutes minutes. Set both to automatic date and time, or the newer change may not win.";
+  static String phonesLastSync(String when) => 'Last synced $when';
+  static const phonesNeverSynced = 'Not synced yet';
+  static const syncOff = 'One phone';
+  static const syncSearching = 'Looking for the other phone';
+  static const syncSearchingHelp = 'Both phones need the app open and the same shop Wi-Fi. Bills are saved here and go across later.';
+  static const syncSynced = 'Synced';
+  static const syncProblem = 'Sync problem';
+  static const addPhoneTitle = 'Add a phone';
+  static const addPhoneSteps =
+      '1. Install the app on the new phone and connect it to the shop Wi-Fi.\n'
+      '2. Open the app on the new phone and tap "Join a shop".\n'
+      '3. Scan this code with the new phone.';
+  static const addPhoneExpires = 'This code works once, for 10 minutes. Keep this screen open until the new phone says it has joined.';
+  static String addPhoneJoined(String name) => '$name joined the shop';
+  static const addPhoneNoWifi = 'This phone is not on a Wi-Fi network. Connect it to the shop Wi-Fi and try again.';
+  static const joinShop = 'Join a shop';
+  static const joinShopFirstRun = 'Join a shop (second phone)';
+  static const joinTitle = 'Join a shop';
+  static const joinHelp =
+      "On the owner's phone open Settings, Phones and Wi-Fi sync, Add a phone. Then scan the code it shows. This phone gets a copy of all the shop's data and its own bill numbers.";
+  static const joinName = 'Name for this phone';
+  static const joinNameDefault = 'Counter phone';
+  static const joinScan = "Scan the owner's code";
+  static const joinNotShopCode = "That is not a shop pairing code. Scan the code on the owner's phone (Settings, Phones and Wi-Fi sync, Add a phone).";
+  static const joining = "Copying the shop's data from the owner's phone...";
+  static const joinDone = 'This phone has joined the shop. Log in with your PIN.';
+  static const joinReplaceWarn = "Anything already saved on this phone will be replaced by the shop's data (a safety copy is kept).";
 }

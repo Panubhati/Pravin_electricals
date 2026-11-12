@@ -66,7 +66,7 @@ Future<ShopSession> ensureShopSession(
     await db.transaction(() async {
       await setup.createShop(name: 'Pravin Electricals');
       await setup.createUser(name: 'Owner', role: 'owner');
-      await setup.createDevice(label: 'This phone', invoiceSeriesPrefix: 'A');
+      await setup.createDevice(label: 'Owner phone', invoiceSeriesPrefix: 'A');
       await setup.createLocation('shop');
     });
     shop = await (db.select(db.shops)..where((t) => t.id.equals(shopId)))
