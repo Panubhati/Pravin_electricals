@@ -582,4 +582,21 @@ abstract final class S {
   static String purchaseTwiceNote(int n) =>
       n == 1 ? 'A supplier bill was entered twice' : '$n supplier bills were entered twice';
   static const purchaseTwiceHelp = 'Usually once on each phone. Open it and cancel the extra copy.';
+
+  // Settings (compact menu)
+  static const settingsBackupTitle = 'Backup and restore';
+  static const settingsData = 'Data';
+  static const settingsBillingRules = 'Billing rules';
+  static const settingsShopDetailsSub = 'Name, GSTIN, address, bill terms';
+  static const settingsStaffSub = 'Counter staff and PINs';
+  static const settingsPhonesOne = 'One phone';
+  static String settingsPhonesMany(int n) => '$n phones';
+  static const settingsAuditSub = 'Who changed what, and when';
+  static const settingsAlertsTitle = 'Daily summary';
+  static const settingsOff = 'Off';
+  static const settingsNeverBackedUp = 'Never backed up';
+  static const backupGroupBackUp = 'Back up';
+  static const backupGroupRestore = 'Restore';
+  static const backupGroupReminder = 'Reminder';
+  static const settingsPhonesRow = 'Phones and sync';
 }

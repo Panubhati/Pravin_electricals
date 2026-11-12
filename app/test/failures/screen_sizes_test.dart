@@ -26,6 +26,7 @@ import 'package:shop_app/features/reports/reports_screens.dart';
 import 'package:shop_app/features/settings/settings_screen.dart';
 import 'package:shop_app/features/stock/stock_screen.dart';
 
+import 'package:shop_app/features/backup/backup_screen.dart';
 import 'package:shop_app/features/sync/join_shop_screen.dart';
 import 'package:shop_app/features/sync/phones_screen.dart';
 
@@ -68,6 +69,8 @@ void main() {
     'Check my data': (_) => const DataCheckScreen(),
     'Import': (_) => const ImportScreen(),
     'Phones': (_) => const PhonesScreen(),
+    'Backup and restore': (_) => const BackupScreen(),
+    'Daily summary': (_) => const AlertsScreen(),
     'Join a shop': (_) => const JoinShopScreen(),
     'PIN set-up': (_) => NewPinScreen(title: 'Set the owner PIN', help: 'Choose a PIN.', onPin: (_) async {}),
   };

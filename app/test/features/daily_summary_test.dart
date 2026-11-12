@@ -83,7 +83,7 @@ void main() {
         {bool allowed = true}) async {
       final n = FakeNotifications(allowed: allowed);
       final sch = FakeScheduler();
-      await h.pump(tester, const SettingsScreen(), overrides: [
+      await h.pump(tester, const AlertsScreen(), overrides: [
         notificationServiceProvider.overrideWithValue(n),
         summarySchedulerProvider.overrideWithValue(sch),
       ]);

@@ -16,6 +16,8 @@ import 'package:shop_app/features/parties/dues_screen.dart';
 import 'package:shop_app/features/parties/parties_screen.dart';
 import 'package:shop_app/features/reports/reports_screens.dart';
 import 'package:shop_app/features/settings/settings_screen.dart';
+import 'package:shop_app/features/backup/backup_screen.dart';
+import 'package:shop_app/features/sync/phones_screen.dart';
 import 'package:shop_app/features/stock/stock_screen.dart';
 import 'package:shop_app/shared/theme.dart';
 
@@ -105,5 +107,8 @@ void main() {
   screen('reports', () => const ReportsScreen());
   screen('day_check', () => const DayCheckScreen());
   screen('settings', () => const SettingsScreen());
+  screen('backup', () => const BackupScreen());
+  screen('alerts', () => const AlertsScreen());
+  screen('phones', () => const PhonesScreen());
   screen('lock_pin', () => NewPinScreen(title: 'Set the owner PIN', help: 'Choose a 4 to 6 digit PIN.', onPin: (_) async {}));
 }

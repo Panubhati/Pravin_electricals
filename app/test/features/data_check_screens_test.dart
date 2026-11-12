@@ -12,6 +12,7 @@ import 'package:shop_app/core/import/file_service.dart';
 import 'package:shop_app/core/providers.dart';
 import 'package:shop_app/features/datacheck/data_check_screen.dart';
 import 'package:shop_app/features/home/home_screen.dart';
+import 'package:shop_app/features/backup/backup_screen.dart';
 import 'package:shop_app/features/settings/settings_screen.dart';
 import 'package:sqlite3/sqlite3.dart' as sq;
 
@@ -165,7 +166,7 @@ void main() {
   group('before a backup', () {
     harnessTest('healthy data: the backup goes ahead with no question', (tester, h) async {
       await db(tester, () => seedRichShop(h.session));
-      final sharer = await open(tester, h, const SettingsScreen());
+      final sharer = await open(tester, h, const BackupScreen());
       await tester.tap(find.byKey(const Key('backupNow')));
       await waitUntil(tester, () => sharer.shared.isNotEmpty);
       expect(sharer.shared, hasLength(1));
@@ -175,7 +176,7 @@ void main() {
     harnessTest('problems found: warns, Cancel makes no backup, Back up anyway does', (tester, h) async {
       await db(tester, () => seedRichShop(h.session));
       await db(tester, () => corrupt(h));
-      final sharer = await open(tester, h, const SettingsScreen());
+      final sharer = await open(tester, h, const BackupScreen());
 
       await tester.tap(find.byKey(const Key('backupNow')));
       await waitUntil(tester, () => find.byKey(const Key('backupProblemsBody')).evaluate().isNotEmpty);
@@ -215,7 +216,7 @@ void main() {
         return File(b.path);
       }))!;
 
-      await open(tester, h, const SettingsScreen(), pick: file);
+      await open(tester, h, const BackupScreen(), pick: file);
       await tester.tap(find.byKey(const Key('restoreBackup')));
       await waitUntil(tester, () => find.byKey(const Key('restoreConfirm')).evaluate().isNotEmpty);
       await tester.tap(find.byKey(const Key('restoreConfirm')));

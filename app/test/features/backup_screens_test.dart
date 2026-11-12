@@ -15,7 +15,7 @@ import 'package:shop_app/core/db/repositories/settings_repository.dart';
 import 'package:shop_app/core/import/file_service.dart';
 import 'package:shop_app/core/providers.dart';
 import 'package:shop_app/features/home/home_screen.dart';
-import 'package:shop_app/features/settings/settings_screen.dart';
+import 'package:shop_app/features/backup/backup_screen.dart';
 import 'package:sqlite3/sqlite3.dart' as sq;
 
 import '../helpers/app_harness.dart';
@@ -99,7 +99,7 @@ void main() {
   Future<Opened> open(WidgetTester tester, Harness h, {File? pick}) async {
     final sharer = FakeSharer();
     var restarts = 0;
-    final c = await h.pump(tester, const SettingsScreen(), overrides: [
+    final c = await h.pump(tester, const BackupScreen(), overrides: [
       databaseLocationProvider.overrideWithValue(location),
       backupSharerProvider.overrideWithValue(sharer),
       fileServiceProvider.overrideWithValue(FakePicker(pick)),
