@@ -136,7 +136,9 @@ Future<void> claimUnstampedOutbox(AppDatabase db, String deviceId) async {
     final base = max.data['m'] as int;
     // rowid follows insertion order, so seq does too (gaps are fine).
     await db.customUpdate(
-      'UPDATE outbox SET origin_device_id = ?, seq = ? + rowid WHERE origin_device_id IS NULL',
+      'UPDATE outbox SET origin_device_id = ?, seq = ? + rowid, '
+      'changed_at_ms = CASE WHEN changed_at_ms = 0 THEN created_at * 1000 ELSE changed_at_ms END '
+      'WHERE origin_device_id IS NULL',
       variables: [Variable.withString(deviceId), Variable.withInt(base)],
       updates: {db.outbox},
     );

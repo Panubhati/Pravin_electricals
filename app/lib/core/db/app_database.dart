@@ -7,6 +7,7 @@ import 'tables/party_tables.dart';
 import 'tables/purchase_tables.dart';
 import 'tables/sales_tables.dart';
 import 'tables/stock_tables.dart';
+import 'tables/sync_tables.dart';
 
 part 'app_database.g.dart';
 
@@ -33,6 +34,8 @@ part 'app_database.g.dart';
   StockMovements,
   AuditLog,
   AppSettings,
+  SyncPeers,
+  SyncState,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -76,14 +79,18 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(salesReturnLines);
           }
           // v6 (A8): outbox origin phone and sequence for Wi-Fi sync; purchases
-          // lose the unique supplier bill key (rebuilt) and get a plain index.
+          // lose the unique supplier bill key (rebuilt) and get a plain index; two
+          // phone-only tables remember the paired phone and the shop key.
           // Existing outbox rows are claimed by this phone in ensureShopSession.
           if (from < 6) {
             await m.addColumn(outbox, outbox.originDeviceId);
             await m.addColumn(outbox, outbox.seq);
+            await m.addColumn(outbox, outbox.changedAtMs);
             await m.createIndex(outboxOriginSeq);
             await m.alterTable(TableMigration(purchases));
             await m.createIndex(purchasesSupplierNo);
+            await m.createTable(syncPeers);
+            await m.createTable(syncState);
           }
         },
         beforeOpen: (details) async {

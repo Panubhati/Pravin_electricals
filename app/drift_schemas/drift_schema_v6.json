@@ -536,6 +536,16 @@
             "default_dart": "const CustomExpression('0')",
             "default_client_dart": null,
             "dsl_features": []
+          },
+          {
+            "name": "changed_at_ms",
+            "getter_name": "changedAtMs",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
           }
         ],
         "is_virtual": false,
@@ -3581,6 +3591,130 @@
     },
     {
       "id": 22,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "sync_peers",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "label",
+            "getter_name": "label",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('\\'\\'')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "address",
+            "getter_name": "address",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "port",
+            "getter_name": "port",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "last_sync_at",
+            "getter_name": "lastSyncAt",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "seen_of_me",
+            "getter_name": "seenOfMe",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "last_error",
+            "getter_name": "lastError",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "device_id"
+        ]
+      }
+    },
+    {
+      "id": 23,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "sync_state",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "key",
+            "getter_name": "key",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "value",
+            "getter_name": "value",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "key"
+        ]
+      }
+    },
+    {
+      "id": 24,
       "references": [
         4
       ],
@@ -3603,7 +3737,7 @@
       }
     },
     {
-      "id": 23,
+      "id": 25,
       "references": [
         5
       ],
@@ -3622,7 +3756,7 @@
       }
     },
     {
-      "id": 24,
+      "id": 26,
       "references": [
         7
       ],
@@ -3641,7 +3775,7 @@
       }
     },
     {
-      "id": 25,
+      "id": 27,
       "references": [
         11
       ],
@@ -3660,7 +3794,7 @@
       }
     },
     {
-      "id": 26,
+      "id": 28,
       "references": [
         12
       ],
@@ -3679,7 +3813,7 @@
       }
     },
     {
-      "id": 27,
+      "id": 29,
       "references": [
         17
       ],
@@ -3702,7 +3836,7 @@
       }
     },
     {
-      "id": 28,
+      "id": 30,
       "references": [
         19
       ],
@@ -3763,7 +3897,7 @@
       "sql": [
         {
           "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"outbox\" (\"id\" TEXT NOT NULL, \"shop_id\" TEXT NOT NULL, \"entity\" TEXT NOT NULL, \"entity_id\" TEXT NOT NULL, \"op\" TEXT NOT NULL, \"payload_json\" TEXT NOT NULL, \"attempt_count\" INTEGER NOT NULL DEFAULT 0, \"created_at\" INTEGER NOT NULL, \"origin_device_id\" TEXT NULL, \"seq\" INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (\"id\"));"
+          "sql": "CREATE TABLE IF NOT EXISTS \"outbox\" (\"id\" TEXT NOT NULL, \"shop_id\" TEXT NOT NULL, \"entity\" TEXT NOT NULL, \"entity_id\" TEXT NOT NULL, \"op\" TEXT NOT NULL, \"payload_json\" TEXT NOT NULL, \"attempt_count\" INTEGER NOT NULL DEFAULT 0, \"created_at\" INTEGER NOT NULL, \"origin_device_id\" TEXT NULL, \"seq\" INTEGER NOT NULL DEFAULT 0, \"changed_at_ms\" INTEGER NOT NULL DEFAULT 0, PRIMARY KEY (\"id\"));"
         }
       ]
     },
@@ -3917,6 +4051,24 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE TABLE IF NOT EXISTS \"app_settings\" (\"id\" TEXT NOT NULL, \"shop_id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"key\" TEXT NOT NULL, \"value\" TEXT NOT NULL, PRIMARY KEY (\"id\"), UNIQUE (\"shop_id\", \"key\"));"
+        }
+      ]
+    },
+    {
+      "name": "sync_peers",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"sync_peers\" (\"device_id\" TEXT NOT NULL, \"label\" TEXT NOT NULL DEFAULT '', \"address\" TEXT NULL, \"port\" INTEGER NULL, \"last_sync_at\" INTEGER NULL, \"seen_of_me\" INTEGER NOT NULL DEFAULT 0, \"last_error\" TEXT NULL, PRIMARY KEY (\"device_id\"));"
+        }
+      ]
+    },
+    {
+      "name": "sync_state",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"sync_state\" (\"key\" TEXT NOT NULL, \"value\" TEXT NOT NULL, PRIMARY KEY (\"key\"));"
         }
       ]
     },

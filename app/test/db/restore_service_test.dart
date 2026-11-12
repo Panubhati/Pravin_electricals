@@ -136,6 +136,9 @@ void main() {
       d.execute('DROP INDEX purchases_supplier_no');
       d.execute('ALTER TABLE outbox DROP COLUMN origin_device_id');
       d.execute('ALTER TABLE outbox DROP COLUMN seq');
+      d.execute('ALTER TABLE outbox DROP COLUMN changed_at_ms');
+      d.execute('DROP TABLE sync_peers');
+      d.execute('DROP TABLE sync_state');
       d.execute('PRAGMA user_version = 3');
       d.dispose();
 

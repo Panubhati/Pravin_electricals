@@ -2318,6 +2318,18 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _changedAtMsMeta = const VerificationMeta(
+    'changedAtMs',
+  );
+  @override
+  late final GeneratedColumn<int> changedAtMs = GeneratedColumn<int>(
+    'changed_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2330,6 +2342,7 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
     createdAt,
     originDeviceId,
     seq,
+    changedAtMs,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2420,6 +2433,15 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
         seq.isAcceptableOrUnknown(data['seq']!, _seqMeta),
       );
     }
+    if (data.containsKey('changed_at_ms')) {
+      context.handle(
+        _changedAtMsMeta,
+        changedAtMs.isAcceptableOrUnknown(
+          data['changed_at_ms']!,
+          _changedAtMsMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2478,6 +2500,11 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
             DriftSqlType.int,
             data['${effectivePrefix}seq'],
           )!,
+      changedAtMs:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}changed_at_ms'],
+          )!,
     );
   }
 
@@ -2504,6 +2531,10 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
 
   /// 1, 2, 3... per origin phone.
   final int seq;
+
+  /// When the change was made, in milliseconds (the table times are stored to
+  /// the second). Sync keeps the version with the later time.
+  final int changedAtMs;
   const OutboxData({
     required this.id,
     required this.shopId,
@@ -2515,6 +2546,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     required this.createdAt,
     this.originDeviceId,
     required this.seq,
+    required this.changedAtMs,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2531,6 +2563,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
       map['origin_device_id'] = Variable<String>(originDeviceId);
     }
     map['seq'] = Variable<int>(seq);
+    map['changed_at_ms'] = Variable<int>(changedAtMs);
     return map;
   }
 
@@ -2549,6 +2582,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
               ? const Value.absent()
               : Value(originDeviceId),
       seq: Value(seq),
+      changedAtMs: Value(changedAtMs),
     );
   }
 
@@ -2568,6 +2602,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
       originDeviceId: serializer.fromJson<String?>(json['originDeviceId']),
       seq: serializer.fromJson<int>(json['seq']),
+      changedAtMs: serializer.fromJson<int>(json['changedAtMs']),
     );
   }
   @override
@@ -2584,6 +2619,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
       'createdAt': serializer.toJson<DateTime>(createdAt),
       'originDeviceId': serializer.toJson<String?>(originDeviceId),
       'seq': serializer.toJson<int>(seq),
+      'changedAtMs': serializer.toJson<int>(changedAtMs),
     };
   }
 
@@ -2598,6 +2634,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     DateTime? createdAt,
     Value<String?> originDeviceId = const Value.absent(),
     int? seq,
+    int? changedAtMs,
   }) => OutboxData(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -2610,6 +2647,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     originDeviceId:
         originDeviceId.present ? originDeviceId.value : this.originDeviceId,
     seq: seq ?? this.seq,
+    changedAtMs: changedAtMs ?? this.changedAtMs,
   );
   OutboxData copyWithCompanion(OutboxCompanion data) {
     return OutboxData(
@@ -2630,6 +2668,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
               ? data.originDeviceId.value
               : this.originDeviceId,
       seq: data.seq.present ? data.seq.value : this.seq,
+      changedAtMs:
+          data.changedAtMs.present ? data.changedAtMs.value : this.changedAtMs,
     );
   }
 
@@ -2645,7 +2685,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
           ..write('attemptCount: $attemptCount, ')
           ..write('createdAt: $createdAt, ')
           ..write('originDeviceId: $originDeviceId, ')
-          ..write('seq: $seq')
+          ..write('seq: $seq, ')
+          ..write('changedAtMs: $changedAtMs')
           ..write(')'))
         .toString();
   }
@@ -2662,6 +2703,7 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     createdAt,
     originDeviceId,
     seq,
+    changedAtMs,
   );
   @override
   bool operator ==(Object other) =>
@@ -2676,7 +2718,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
           other.attemptCount == this.attemptCount &&
           other.createdAt == this.createdAt &&
           other.originDeviceId == this.originDeviceId &&
-          other.seq == this.seq);
+          other.seq == this.seq &&
+          other.changedAtMs == this.changedAtMs);
 }
 
 class OutboxCompanion extends UpdateCompanion<OutboxData> {
@@ -2690,6 +2733,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
   final Value<DateTime> createdAt;
   final Value<String?> originDeviceId;
   final Value<int> seq;
+  final Value<int> changedAtMs;
   final Value<int> rowid;
   const OutboxCompanion({
     this.id = const Value.absent(),
@@ -2702,6 +2746,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     this.createdAt = const Value.absent(),
     this.originDeviceId = const Value.absent(),
     this.seq = const Value.absent(),
+    this.changedAtMs = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OutboxCompanion.insert({
@@ -2715,6 +2760,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     required DateTime createdAt,
     this.originDeviceId = const Value.absent(),
     this.seq = const Value.absent(),
+    this.changedAtMs = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
@@ -2734,6 +2780,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     Expression<DateTime>? createdAt,
     Expression<String>? originDeviceId,
     Expression<int>? seq,
+    Expression<int>? changedAtMs,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2747,6 +2794,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
       if (createdAt != null) 'created_at': createdAt,
       if (originDeviceId != null) 'origin_device_id': originDeviceId,
       if (seq != null) 'seq': seq,
+      if (changedAtMs != null) 'changed_at_ms': changedAtMs,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2762,6 +2810,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     Value<DateTime>? createdAt,
     Value<String?>? originDeviceId,
     Value<int>? seq,
+    Value<int>? changedAtMs,
     Value<int>? rowid,
   }) {
     return OutboxCompanion(
@@ -2775,6 +2824,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
       createdAt: createdAt ?? this.createdAt,
       originDeviceId: originDeviceId ?? this.originDeviceId,
       seq: seq ?? this.seq,
+      changedAtMs: changedAtMs ?? this.changedAtMs,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2812,6 +2862,9 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     if (seq.present) {
       map['seq'] = Variable<int>(seq.value);
     }
+    if (changedAtMs.present) {
+      map['changed_at_ms'] = Variable<int>(changedAtMs.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2831,6 +2884,7 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
           ..write('createdAt: $createdAt, ')
           ..write('originDeviceId: $originDeviceId, ')
           ..write('seq: $seq, ')
+          ..write('changedAtMs: $changedAtMs, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -16304,6 +16358,695 @@ class AppSettingsCompanion extends UpdateCompanion<AppSetting> {
   }
 }
 
+class $SyncPeersTable extends SyncPeers
+    with TableInfo<$SyncPeersTable, SyncPeer> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncPeersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _addressMeta = const VerificationMeta(
+    'address',
+  );
+  @override
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+    'address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _portMeta = const VerificationMeta('port');
+  @override
+  late final GeneratedColumn<int> port = GeneratedColumn<int>(
+    'port',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _lastSyncAtMeta = const VerificationMeta(
+    'lastSyncAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastSyncAt = GeneratedColumn<DateTime>(
+    'last_sync_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _seenOfMeMeta = const VerificationMeta(
+    'seenOfMe',
+  );
+  @override
+  late final GeneratedColumn<int> seenOfMe = GeneratedColumn<int>(
+    'seen_of_me',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastErrorMeta = const VerificationMeta(
+    'lastError',
+  );
+  @override
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    deviceId,
+    label,
+    address,
+    port,
+    lastSyncAt,
+    seenOfMe,
+    lastError,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_peers';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncPeer> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    }
+    if (data.containsKey('address')) {
+      context.handle(
+        _addressMeta,
+        address.isAcceptableOrUnknown(data['address']!, _addressMeta),
+      );
+    }
+    if (data.containsKey('port')) {
+      context.handle(
+        _portMeta,
+        port.isAcceptableOrUnknown(data['port']!, _portMeta),
+      );
+    }
+    if (data.containsKey('last_sync_at')) {
+      context.handle(
+        _lastSyncAtMeta,
+        lastSyncAt.isAcceptableOrUnknown(
+          data['last_sync_at']!,
+          _lastSyncAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('seen_of_me')) {
+      context.handle(
+        _seenOfMeMeta,
+        seenOfMe.isAcceptableOrUnknown(data['seen_of_me']!, _seenOfMeMeta),
+      );
+    }
+    if (data.containsKey('last_error')) {
+      context.handle(
+        _lastErrorMeta,
+        lastError.isAcceptableOrUnknown(data['last_error']!, _lastErrorMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {deviceId};
+  @override
+  SyncPeer map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncPeer(
+      deviceId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}device_id'],
+          )!,
+      label:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}label'],
+          )!,
+      address: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}address'],
+      ),
+      port: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}port'],
+      ),
+      lastSyncAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_sync_at'],
+      ),
+      seenOfMe:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}seen_of_me'],
+          )!,
+      lastError: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}last_error'],
+      ),
+    );
+  }
+
+  @override
+  $SyncPeersTable createAlias(String alias) {
+    return $SyncPeersTable(attachedDatabase, alias);
+  }
+}
+
+class SyncPeer extends DataClass implements Insertable<SyncPeer> {
+  final String deviceId;
+  final String label;
+
+  /// Last address the phone answered on (an IP on the shop Wi-Fi) and port.
+  final String? address;
+  final int? port;
+  final DateTime? lastSyncAt;
+
+  /// The highest seq of this phone's own changes that the peer already has.
+  /// A local edit above it was not seen by the peer, so the peer's edit of the
+  /// same row is a real clash (logged).
+  final int seenOfMe;
+  final String? lastError;
+  const SyncPeer({
+    required this.deviceId,
+    required this.label,
+    this.address,
+    this.port,
+    this.lastSyncAt,
+    required this.seenOfMe,
+    this.lastError,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['device_id'] = Variable<String>(deviceId);
+    map['label'] = Variable<String>(label);
+    if (!nullToAbsent || address != null) {
+      map['address'] = Variable<String>(address);
+    }
+    if (!nullToAbsent || port != null) {
+      map['port'] = Variable<int>(port);
+    }
+    if (!nullToAbsent || lastSyncAt != null) {
+      map['last_sync_at'] = Variable<DateTime>(lastSyncAt);
+    }
+    map['seen_of_me'] = Variable<int>(seenOfMe);
+    if (!nullToAbsent || lastError != null) {
+      map['last_error'] = Variable<String>(lastError);
+    }
+    return map;
+  }
+
+  SyncPeersCompanion toCompanion(bool nullToAbsent) {
+    return SyncPeersCompanion(
+      deviceId: Value(deviceId),
+      label: Value(label),
+      address:
+          address == null && nullToAbsent
+              ? const Value.absent()
+              : Value(address),
+      port: port == null && nullToAbsent ? const Value.absent() : Value(port),
+      lastSyncAt:
+          lastSyncAt == null && nullToAbsent
+              ? const Value.absent()
+              : Value(lastSyncAt),
+      seenOfMe: Value(seenOfMe),
+      lastError:
+          lastError == null && nullToAbsent
+              ? const Value.absent()
+              : Value(lastError),
+    );
+  }
+
+  factory SyncPeer.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncPeer(
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      label: serializer.fromJson<String>(json['label']),
+      address: serializer.fromJson<String?>(json['address']),
+      port: serializer.fromJson<int?>(json['port']),
+      lastSyncAt: serializer.fromJson<DateTime?>(json['lastSyncAt']),
+      seenOfMe: serializer.fromJson<int>(json['seenOfMe']),
+      lastError: serializer.fromJson<String?>(json['lastError']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'deviceId': serializer.toJson<String>(deviceId),
+      'label': serializer.toJson<String>(label),
+      'address': serializer.toJson<String?>(address),
+      'port': serializer.toJson<int?>(port),
+      'lastSyncAt': serializer.toJson<DateTime?>(lastSyncAt),
+      'seenOfMe': serializer.toJson<int>(seenOfMe),
+      'lastError': serializer.toJson<String?>(lastError),
+    };
+  }
+
+  SyncPeer copyWith({
+    String? deviceId,
+    String? label,
+    Value<String?> address = const Value.absent(),
+    Value<int?> port = const Value.absent(),
+    Value<DateTime?> lastSyncAt = const Value.absent(),
+    int? seenOfMe,
+    Value<String?> lastError = const Value.absent(),
+  }) => SyncPeer(
+    deviceId: deviceId ?? this.deviceId,
+    label: label ?? this.label,
+    address: address.present ? address.value : this.address,
+    port: port.present ? port.value : this.port,
+    lastSyncAt: lastSyncAt.present ? lastSyncAt.value : this.lastSyncAt,
+    seenOfMe: seenOfMe ?? this.seenOfMe,
+    lastError: lastError.present ? lastError.value : this.lastError,
+  );
+  SyncPeer copyWithCompanion(SyncPeersCompanion data) {
+    return SyncPeer(
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      label: data.label.present ? data.label.value : this.label,
+      address: data.address.present ? data.address.value : this.address,
+      port: data.port.present ? data.port.value : this.port,
+      lastSyncAt:
+          data.lastSyncAt.present ? data.lastSyncAt.value : this.lastSyncAt,
+      seenOfMe: data.seenOfMe.present ? data.seenOfMe.value : this.seenOfMe,
+      lastError: data.lastError.present ? data.lastError.value : this.lastError,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncPeer(')
+          ..write('deviceId: $deviceId, ')
+          ..write('label: $label, ')
+          ..write('address: $address, ')
+          ..write('port: $port, ')
+          ..write('lastSyncAt: $lastSyncAt, ')
+          ..write('seenOfMe: $seenOfMe, ')
+          ..write('lastError: $lastError')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    deviceId,
+    label,
+    address,
+    port,
+    lastSyncAt,
+    seenOfMe,
+    lastError,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncPeer &&
+          other.deviceId == this.deviceId &&
+          other.label == this.label &&
+          other.address == this.address &&
+          other.port == this.port &&
+          other.lastSyncAt == this.lastSyncAt &&
+          other.seenOfMe == this.seenOfMe &&
+          other.lastError == this.lastError);
+}
+
+class SyncPeersCompanion extends UpdateCompanion<SyncPeer> {
+  final Value<String> deviceId;
+  final Value<String> label;
+  final Value<String?> address;
+  final Value<int?> port;
+  final Value<DateTime?> lastSyncAt;
+  final Value<int> seenOfMe;
+  final Value<String?> lastError;
+  final Value<int> rowid;
+  const SyncPeersCompanion({
+    this.deviceId = const Value.absent(),
+    this.label = const Value.absent(),
+    this.address = const Value.absent(),
+    this.port = const Value.absent(),
+    this.lastSyncAt = const Value.absent(),
+    this.seenOfMe = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncPeersCompanion.insert({
+    required String deviceId,
+    this.label = const Value.absent(),
+    this.address = const Value.absent(),
+    this.port = const Value.absent(),
+    this.lastSyncAt = const Value.absent(),
+    this.seenOfMe = const Value.absent(),
+    this.lastError = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : deviceId = Value(deviceId);
+  static Insertable<SyncPeer> custom({
+    Expression<String>? deviceId,
+    Expression<String>? label,
+    Expression<String>? address,
+    Expression<int>? port,
+    Expression<DateTime>? lastSyncAt,
+    Expression<int>? seenOfMe,
+    Expression<String>? lastError,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (deviceId != null) 'device_id': deviceId,
+      if (label != null) 'label': label,
+      if (address != null) 'address': address,
+      if (port != null) 'port': port,
+      if (lastSyncAt != null) 'last_sync_at': lastSyncAt,
+      if (seenOfMe != null) 'seen_of_me': seenOfMe,
+      if (lastError != null) 'last_error': lastError,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncPeersCompanion copyWith({
+    Value<String>? deviceId,
+    Value<String>? label,
+    Value<String?>? address,
+    Value<int?>? port,
+    Value<DateTime?>? lastSyncAt,
+    Value<int>? seenOfMe,
+    Value<String?>? lastError,
+    Value<int>? rowid,
+  }) {
+    return SyncPeersCompanion(
+      deviceId: deviceId ?? this.deviceId,
+      label: label ?? this.label,
+      address: address ?? this.address,
+      port: port ?? this.port,
+      lastSyncAt: lastSyncAt ?? this.lastSyncAt,
+      seenOfMe: seenOfMe ?? this.seenOfMe,
+      lastError: lastError ?? this.lastError,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (address.present) {
+      map['address'] = Variable<String>(address.value);
+    }
+    if (port.present) {
+      map['port'] = Variable<int>(port.value);
+    }
+    if (lastSyncAt.present) {
+      map['last_sync_at'] = Variable<DateTime>(lastSyncAt.value);
+    }
+    if (seenOfMe.present) {
+      map['seen_of_me'] = Variable<int>(seenOfMe.value);
+    }
+    if (lastError.present) {
+      map['last_error'] = Variable<String>(lastError.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncPeersCompanion(')
+          ..write('deviceId: $deviceId, ')
+          ..write('label: $label, ')
+          ..write('address: $address, ')
+          ..write('port: $port, ')
+          ..write('lastSyncAt: $lastSyncAt, ')
+          ..write('seenOfMe: $seenOfMe, ')
+          ..write('lastError: $lastError, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $SyncStateTable extends SyncState
+    with TableInfo<$SyncStateTable, SyncStateData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $SyncStateTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _keyMeta = const VerificationMeta('key');
+  @override
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valueMeta = const VerificationMeta('value');
+  @override
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_state';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<SyncStateData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('key')) {
+      context.handle(
+        _keyMeta,
+        key.isAcceptableOrUnknown(data['key']!, _keyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_keyMeta);
+    }
+    if (data.containsKey('value')) {
+      context.handle(
+        _valueMeta,
+        value.isAcceptableOrUnknown(data['value']!, _valueMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valueMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  SyncStateData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SyncStateData(
+      key:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}key'],
+          )!,
+      value:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}value'],
+          )!,
+    );
+  }
+
+  @override
+  $SyncStateTable createAlias(String alias) {
+    return $SyncStateTable(attachedDatabase, alias);
+  }
+}
+
+class SyncStateData extends DataClass implements Insertable<SyncStateData> {
+  final String key;
+  final String value;
+  const SyncStateData({required this.key, required this.value});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  SyncStateCompanion toCompanion(bool nullToAbsent) {
+    return SyncStateCompanion(key: Value(key), value: Value(value));
+  }
+
+  factory SyncStateData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SyncStateData(
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  SyncStateData copyWith({String? key, String? value}) =>
+      SyncStateData(key: key ?? this.key, value: value ?? this.value);
+  SyncStateData copyWithCompanion(SyncStateCompanion data) {
+    return SyncStateData(
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateData(')
+          ..write('key: $key, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(key, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SyncStateData &&
+          other.key == this.key &&
+          other.value == this.value);
+}
+
+class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> rowid;
+  const SyncStateCompanion({
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SyncStateCompanion.insert({
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : key = Value(key),
+       value = Value(value);
+  static Insertable<SyncStateData> custom({
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SyncStateCompanion copyWith({
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return SyncStateCompanion(
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SyncStateCompanion(')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -16333,6 +17076,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $StockMovementsTable stockMovements = $StockMovementsTable(this);
   late final $AuditLogTable auditLog = $AuditLogTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final $SyncPeersTable syncPeers = $SyncPeersTable(this);
+  late final $SyncStateTable syncState = $SyncStateTable(this);
   late final Index outboxOriginSeq = Index(
     'outbox_origin_seq',
     'CREATE UNIQUE INDEX outbox_origin_seq ON outbox (origin_device_id, seq)',
@@ -16388,6 +17133,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stockMovements,
     auditLog,
     appSettings,
+    syncPeers,
+    syncState,
     outboxOriginSeq,
     itemsName,
     itemVariantsBarcode,
@@ -17807,6 +18554,7 @@ typedef $$OutboxTableCreateCompanionBuilder =
       required DateTime createdAt,
       Value<String?> originDeviceId,
       Value<int> seq,
+      Value<int> changedAtMs,
       Value<int> rowid,
     });
 typedef $$OutboxTableUpdateCompanionBuilder =
@@ -17821,6 +18569,7 @@ typedef $$OutboxTableUpdateCompanionBuilder =
       Value<DateTime> createdAt,
       Value<String?> originDeviceId,
       Value<int> seq,
+      Value<int> changedAtMs,
       Value<int> rowid,
     });
 
@@ -17880,6 +18629,11 @@ class $$OutboxTableFilterComposer
 
   ColumnFilters<int> get seq => $composableBuilder(
     column: $table.seq,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get changedAtMs => $composableBuilder(
+    column: $table.changedAtMs,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -17942,6 +18696,11 @@ class $$OutboxTableOrderingComposer
     column: $table.seq,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<int> get changedAtMs => $composableBuilder(
+    column: $table.changedAtMs,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$OutboxTableAnnotationComposer
@@ -17988,6 +18747,11 @@ class $$OutboxTableAnnotationComposer
 
   GeneratedColumn<int> get seq =>
       $composableBuilder(column: $table.seq, builder: (column) => column);
+
+  GeneratedColumn<int> get changedAtMs => $composableBuilder(
+    column: $table.changedAtMs,
+    builder: (column) => column,
+  );
 }
 
 class $$OutboxTableTableManager
@@ -18028,6 +18792,7 @@ class $$OutboxTableTableManager
                 Value<DateTime> createdAt = const Value.absent(),
                 Value<String?> originDeviceId = const Value.absent(),
                 Value<int> seq = const Value.absent(),
+                Value<int> changedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OutboxCompanion(
                 id: id,
@@ -18040,6 +18805,7 @@ class $$OutboxTableTableManager
                 createdAt: createdAt,
                 originDeviceId: originDeviceId,
                 seq: seq,
+                changedAtMs: changedAtMs,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -18054,6 +18820,7 @@ class $$OutboxTableTableManager
                 required DateTime createdAt,
                 Value<String?> originDeviceId = const Value.absent(),
                 Value<int> seq = const Value.absent(),
+                Value<int> changedAtMs = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OutboxCompanion.insert(
                 id: id,
@@ -18066,6 +18833,7 @@ class $$OutboxTableTableManager
                 createdAt: createdAt,
                 originDeviceId: originDeviceId,
                 seq: seq,
+                changedAtMs: changedAtMs,
                 rowid: rowid,
               ),
           withReferenceMapper:
@@ -29121,6 +29889,393 @@ typedef $$AppSettingsTableProcessedTableManager =
       AppSetting,
       PrefetchHooks Function()
     >;
+typedef $$SyncPeersTableCreateCompanionBuilder =
+    SyncPeersCompanion Function({
+      required String deviceId,
+      Value<String> label,
+      Value<String?> address,
+      Value<int?> port,
+      Value<DateTime?> lastSyncAt,
+      Value<int> seenOfMe,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+typedef $$SyncPeersTableUpdateCompanionBuilder =
+    SyncPeersCompanion Function({
+      Value<String> deviceId,
+      Value<String> label,
+      Value<String?> address,
+      Value<int?> port,
+      Value<DateTime?> lastSyncAt,
+      Value<int> seenOfMe,
+      Value<String?> lastError,
+      Value<int> rowid,
+    });
+
+class $$SyncPeersTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncPeersTable> {
+  $$SyncPeersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get port => $composableBuilder(
+    column: $table.port,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastSyncAt => $composableBuilder(
+    column: $table.lastSyncAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get seenOfMe => $composableBuilder(
+    column: $table.seenOfMe,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncPeersTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncPeersTable> {
+  $$SyncPeersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get address => $composableBuilder(
+    column: $table.address,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get port => $composableBuilder(
+    column: $table.port,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastSyncAt => $composableBuilder(
+    column: $table.lastSyncAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get seenOfMe => $composableBuilder(
+    column: $table.seenOfMe,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get lastError => $composableBuilder(
+    column: $table.lastError,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncPeersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncPeersTable> {
+  $$SyncPeersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get address =>
+      $composableBuilder(column: $table.address, builder: (column) => column);
+
+  GeneratedColumn<int> get port =>
+      $composableBuilder(column: $table.port, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get lastSyncAt => $composableBuilder(
+    column: $table.lastSyncAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get seenOfMe =>
+      $composableBuilder(column: $table.seenOfMe, builder: (column) => column);
+
+  GeneratedColumn<String> get lastError =>
+      $composableBuilder(column: $table.lastError, builder: (column) => column);
+}
+
+class $$SyncPeersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncPeersTable,
+          SyncPeer,
+          $$SyncPeersTableFilterComposer,
+          $$SyncPeersTableOrderingComposer,
+          $$SyncPeersTableAnnotationComposer,
+          $$SyncPeersTableCreateCompanionBuilder,
+          $$SyncPeersTableUpdateCompanionBuilder,
+          (SyncPeer, BaseReferences<_$AppDatabase, $SyncPeersTable, SyncPeer>),
+          SyncPeer,
+          PrefetchHooks Function()
+        > {
+  $$SyncPeersTableTableManager(_$AppDatabase db, $SyncPeersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$SyncPeersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$SyncPeersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer:
+              () => $$SyncPeersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> deviceId = const Value.absent(),
+                Value<String> label = const Value.absent(),
+                Value<String?> address = const Value.absent(),
+                Value<int?> port = const Value.absent(),
+                Value<DateTime?> lastSyncAt = const Value.absent(),
+                Value<int> seenOfMe = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncPeersCompanion(
+                deviceId: deviceId,
+                label: label,
+                address: address,
+                port: port,
+                lastSyncAt: lastSyncAt,
+                seenOfMe: seenOfMe,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String deviceId,
+                Value<String> label = const Value.absent(),
+                Value<String?> address = const Value.absent(),
+                Value<int?> port = const Value.absent(),
+                Value<DateTime?> lastSyncAt = const Value.absent(),
+                Value<int> seenOfMe = const Value.absent(),
+                Value<String?> lastError = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncPeersCompanion.insert(
+                deviceId: deviceId,
+                label: label,
+                address: address,
+                port: port,
+                lastSyncAt: lastSyncAt,
+                seenOfMe: seenOfMe,
+                lastError: lastError,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncPeersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncPeersTable,
+      SyncPeer,
+      $$SyncPeersTableFilterComposer,
+      $$SyncPeersTableOrderingComposer,
+      $$SyncPeersTableAnnotationComposer,
+      $$SyncPeersTableCreateCompanionBuilder,
+      $$SyncPeersTableUpdateCompanionBuilder,
+      (SyncPeer, BaseReferences<_$AppDatabase, $SyncPeersTable, SyncPeer>),
+      SyncPeer,
+      PrefetchHooks Function()
+    >;
+typedef $$SyncStateTableCreateCompanionBuilder =
+    SyncStateCompanion Function({
+      required String key,
+      required String value,
+      Value<int> rowid,
+    });
+typedef $$SyncStateTableUpdateCompanionBuilder =
+    SyncStateCompanion Function({
+      Value<String> key,
+      Value<String> value,
+      Value<int> rowid,
+    });
+
+class $$SyncStateTableFilterComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$SyncStateTableOrderingComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get key => $composableBuilder(
+    column: $table.key,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get value => $composableBuilder(
+    column: $table.value,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$SyncStateTableAnnotationComposer
+    extends Composer<_$AppDatabase, $SyncStateTable> {
+  $$SyncStateTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get key =>
+      $composableBuilder(column: $table.key, builder: (column) => column);
+
+  GeneratedColumn<String> get value =>
+      $composableBuilder(column: $table.value, builder: (column) => column);
+}
+
+class $$SyncStateTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $SyncStateTable,
+          SyncStateData,
+          $$SyncStateTableFilterComposer,
+          $$SyncStateTableOrderingComposer,
+          $$SyncStateTableAnnotationComposer,
+          $$SyncStateTableCreateCompanionBuilder,
+          $$SyncStateTableUpdateCompanionBuilder,
+          (
+            SyncStateData,
+            BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateData>,
+          ),
+          SyncStateData,
+          PrefetchHooks Function()
+        > {
+  $$SyncStateTableTableManager(_$AppDatabase db, $SyncStateTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$SyncStateTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$SyncStateTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer:
+              () => $$SyncStateTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> key = const Value.absent(),
+                Value<String> value = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => SyncStateCompanion(key: key, value: value, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String key,
+                required String value,
+                Value<int> rowid = const Value.absent(),
+              }) => SyncStateCompanion.insert(
+                key: key,
+                value: value,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          BaseReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$SyncStateTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $SyncStateTable,
+      SyncStateData,
+      $$SyncStateTableFilterComposer,
+      $$SyncStateTableOrderingComposer,
+      $$SyncStateTableAnnotationComposer,
+      $$SyncStateTableCreateCompanionBuilder,
+      $$SyncStateTableUpdateCompanionBuilder,
+      (
+        SyncStateData,
+        BaseReferences<_$AppDatabase, $SyncStateTable, SyncStateData>,
+      ),
+      SyncStateData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -29169,4 +30324,8 @@ class $AppDatabaseManager {
       $$AuditLogTableTableManager(_db, _db.auditLog);
   $$AppSettingsTableTableManager get appSettings =>
       $$AppSettingsTableTableManager(_db, _db.appSettings);
+  $$SyncPeersTableTableManager get syncPeers =>
+      $$SyncPeersTableTableManager(_db, _db.syncPeers);
+  $$SyncStateTableTableManager get syncState =>
+      $$SyncStateTableTableManager(_db, _db.syncState);
 }

@@ -35,6 +35,13 @@ void main() {
     final wire = (await items.search('wire')).first.item;
     await items.updateItem(
         itemId: wire.id, name: '${wire.name} FR', gstRateBp: wire.gstRateBp, minStockBase: 5000, brand: 'Polycab');
+    // Removals are soft deletes and must travel as whole rows too.
+    final unitId = await items.addUnit(wire.id, 'bundle', 90000);
+    await items.removeUnit(unitId);
+    final variantId = await items.addVariant(itemId: wire.id, label: 'Red');
+    await items.removeVariant(variantId);
+    await items.setPrice(itemId: wire.id, tier: 'dealer', ratePaise: 4000);
+    await items.clearPrice(itemId: wire.id, tier: 'dealer');
     final parties = PartyRepository(s.ctx);
     final c = (await (db.select(db.parties)..where((t) => t.kind.equals('customer'))).get()).first;
     await parties.updateParty(partyId: c.id, kind: c.kind, name: c.name, tier: 'contractor', creditLimitPaise: 500000);

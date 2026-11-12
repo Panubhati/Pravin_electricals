@@ -617,7 +617,8 @@ class ItemRepository {
       final now = ctx.clock();
       await (_db.update(_db.itemUnits)..where((t) => t.id.equals(unitId)))
           .write(ItemUnitsCompanion(deletedAt: Value(now), updatedAt: Value(now)));
-      await ctx.recordOutbox('item_units', unitId, 'delete', {'id': unitId});
+      await ctx.recordOutbox('item_units', unitId, 'delete',
+          (await (_db.select(_db.itemUnits)..where((t) => t.id.equals(unitId))).getSingle()).toJson());
       await _audit.record(
         action: 'edit',
         entity: 'item',
@@ -685,8 +686,8 @@ class ItemRepository {
       await (_db.update(_db.itemVariants)..where((t) => t.id.equals(variantId)))
           .write(ItemVariantsCompanion(
               deletedAt: Value(now), updatedAt: Value(now)));
-      await ctx.recordOutbox(
-          'item_variants', variantId, 'delete', {'id': variantId});
+      await ctx.recordOutbox('item_variants', variantId, 'delete',
+          (await (_db.select(_db.itemVariants)..where((t) => t.id.equals(variantId))).getSingle()).toJson());
       await _audit.record(
         action: 'delete',
         entity: 'item_variant',
@@ -739,8 +740,8 @@ class ItemRepository {
       await (_db.update(_db.itemPrices)..where((t) => t.id.equals(existing.id)))
           .write(ItemPricesCompanion(
               deletedAt: Value(now), updatedAt: Value(now)));
-      await ctx.recordOutbox(
-          'item_prices', existing.id, 'delete', {'id': existing.id});
+      await ctx.recordOutbox('item_prices', existing.id, 'delete',
+          (await (_db.select(_db.itemPrices)..where((t) => t.id.equals(existing.id))).getSingle()).toJson());
       await _audit.record(
         action: 'price_change',
         entity: 'item_price',

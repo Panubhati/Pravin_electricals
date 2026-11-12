@@ -66,6 +66,7 @@ class RepoContext {
   ) async {
     final origin = originDeviceId;
     final seq = origin == null ? 0 : await _nextSeq(origin);
+    final now = clock();
     await db.into(db.outbox).insert(OutboxCompanion.insert(
           id: newId(),
           shopId: shopId,
@@ -73,9 +74,10 @@ class RepoContext {
           entityId: entityId,
           op: op,
           payloadJson: jsonEncode(payload),
-          createdAt: clock(),
+          createdAt: now,
           originDeviceId: Value(origin),
           seq: Value(seq),
+          changedAtMs: Value(now.millisecondsSinceEpoch),
         ));
   }
 

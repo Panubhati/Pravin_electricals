@@ -532,6 +532,15 @@ class Outbox extends Table with TableInfo {
     $customConstraints: 'NOT NULL DEFAULT 0',
     defaultValue: const CustomExpression('0'),
   );
+  late final GeneratedColumn<int> changedAtMs = GeneratedColumn<int>(
+    'changed_at_ms',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -544,6 +553,7 @@ class Outbox extends Table with TableInfo {
     createdAt,
     originDeviceId,
     seq,
+    changedAtMs,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -3186,6 +3196,148 @@ class AppSettings extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
+class SyncPeers extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  SyncPeers(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT \'\'',
+    defaultValue: const CustomExpression('\'\''),
+  );
+  late final GeneratedColumn<String> address = GeneratedColumn<String>(
+    'address',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<int> port = GeneratedColumn<int>(
+    'port',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<int> lastSyncAt = GeneratedColumn<int>(
+    'last_sync_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  late final GeneratedColumn<int> seenOfMe = GeneratedColumn<int>(
+    'seen_of_me',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    $customConstraints: 'NOT NULL DEFAULT 0',
+    defaultValue: const CustomExpression('0'),
+  );
+  late final GeneratedColumn<String> lastError = GeneratedColumn<String>(
+    'last_error',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    $customConstraints: 'NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    deviceId,
+    label,
+    address,
+    port,
+    lastSyncAt,
+    seenOfMe,
+    lastError,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_peers';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {deviceId};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  SyncPeers createAlias(String alias) {
+    return SyncPeers(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY(device_id)'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
+class SyncState extends Table with TableInfo {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  SyncState(this.attachedDatabase, [this._alias]);
+  late final GeneratedColumn<String> key = GeneratedColumn<String>(
+    'key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  late final GeneratedColumn<String> value = GeneratedColumn<String>(
+    'value',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    $customConstraints: 'NOT NULL',
+  );
+  @override
+  List<GeneratedColumn> get $columns => [key, value];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'sync_state';
+  @override
+  Set<GeneratedColumn> get $primaryKey => {key};
+  @override
+  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
+    throw UnsupportedError('TableInfo.map in schema verification code');
+  }
+
+  @override
+  SyncState createAlias(String alias) {
+    return SyncState(attachedDatabase, alias);
+  }
+
+  @override
+  List<String> get customConstraints => const ['PRIMARY KEY("key")'];
+  @override
+  bool get dontWriteConstraints => true;
+}
+
 class DatabaseAtV6 extends GeneratedDatabase {
   DatabaseAtV6(QueryExecutor e) : super(e);
   late final Shops shops = Shops(this);
@@ -3210,6 +3362,8 @@ class DatabaseAtV6 extends GeneratedDatabase {
   late final StockMovements stockMovements = StockMovements(this);
   late final AuditLog auditLog = AuditLog(this);
   late final AppSettings appSettings = AppSettings(this);
+  late final SyncPeers syncPeers = SyncPeers(this);
+  late final SyncState syncState = SyncState(this);
   late final Index outboxOriginSeq = Index(
     'outbox_origin_seq',
     'CREATE UNIQUE INDEX outbox_origin_seq ON outbox (origin_device_id, seq)',
@@ -3265,6 +3419,8 @@ class DatabaseAtV6 extends GeneratedDatabase {
     stockMovements,
     auditLog,
     appSettings,
+    syncPeers,
+    syncState,
     outboxOriginSeq,
     itemsName,
     itemVariantsBarcode,

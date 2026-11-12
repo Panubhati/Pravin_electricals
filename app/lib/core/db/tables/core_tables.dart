@@ -56,6 +56,10 @@ class Outbox extends Table {
   /// 1, 2, 3... per origin phone.
   IntColumn get seq => integer().withDefault(const Constant(0))();
 
+  /// When the change was made, in milliseconds (the table times are stored to
+  /// the second). Sync keeps the version with the later time.
+  IntColumn get changedAtMs => integer().withDefault(const Constant(0))();
+
   @override
   Set<Column> get primaryKey => {id};
 }
