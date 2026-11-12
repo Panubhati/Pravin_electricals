@@ -11,6 +11,8 @@ import 'package:shop_app/features/auth/lock_screen.dart';
 import 'package:shop_app/features/billing/bill_screen.dart';
 import 'package:shop_app/features/bills/bills_screens.dart';
 import 'package:shop_app/features/datacheck/data_check_screen.dart';
+import 'package:shop_app/features/dayclose/day_check_screen.dart';
+import 'package:shop_app/features/dayclose/stock_spot_check_screen.dart';
 import 'package:shop_app/features/home/home_screen.dart';
 import 'package:shop_app/features/import/import_screen.dart';
 import 'package:shop_app/features/items/item_form_screen.dart';
@@ -55,6 +57,8 @@ void main() {
     'New purchase': (_) => const PurchaseScreen(),
     'Reports': (_) => const ReportsScreen(),
     'Daily sales': (_) => const DailySalesScreen(),
+    'Day check': (_) => const DayCheckScreen(),
+    'Stock spot check': (_) => const StockSpotCheckScreen(),
     'Item profit': (_) => const ItemProfitScreen(),
     'Stock value': (_) => const StockValueScreen(),
     'Settings': (_) => const SettingsScreen(),

@@ -466,4 +466,37 @@ abstract final class S {
   static const ownerApprovalTitle = 'Owner approval needed';
   static String ownerApprovalBody(String what) => 'The owner must approve $what. Owner, enter your PIN.';
   static const ownerPinLabel = 'Owner PIN';
+
+  // Day check (A7)
+  static const dayCheckTitle = 'Day check';
+  static const shareSummary = 'Share summary';
+  static const dcSales = 'Sales';
+  static const dcCancelled = 'Cancelled bills';
+  static const dcSalesGross = 'Sold on bills';
+  static const dcReturns = 'Taken back (returns and cancels)';
+  static const dcNetSales = 'Net sales';
+  static const dcHowPaid = 'How it was paid';
+  static const dcCollected = 'Collected from customers';
+  static const dcCollectedTotal = 'Paid against old dues';
+  static const dcPurchases = 'Purchases';
+  static const dcPurchasesEntered = 'Supplier bills entered';
+  static const dcPurchasesTotal = 'Purchases total';
+  static const dcPaidSuppliers = 'Paid to suppliers';
+  static const dcCashRefunds = 'Cash handed back to customers';
+  static const dcCompareHelp =
+      'Put these numbers beside your paper book. If one differs, find the bill or payment that explains it before you close the day.';
+  static const dcCheckedAt = 'Looked at';
+  static const stockSpotCheck = 'Stock spot check';
+  static const spotIntro = 'Choose a few items, count them on the shelf, and see if the app agrees. Nothing changes unless you tap Apply.';
+  static const spotAddItem = 'Search an item to check';
+  static const spotAppSays = 'The app says';
+  static const spotCounted = 'You counted';
+  static const spotMatches = 'Matches';
+  static const spotDifference = 'Difference';
+  static const spotAllMatch = 'Everything you counted matches';
+  static String spotDifferences(int n) => n == 1 ? '1 item differs from the app' : '$n items differ from the app';
+  static const spotApply = 'Apply counts';
+  static const spotApplyHelp = 'Apply sets the app\'s stock to what you counted and records it as a stock count.';
+  static String spotApplyConfirm(int n) => 'Set the stock of $n item${n == 1 ? '' : 's'} to what you counted?';
+  static const spotApplied = 'Stock updated to your counts';
 }

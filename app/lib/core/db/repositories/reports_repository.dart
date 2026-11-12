@@ -153,6 +153,62 @@ class LowStockEntry {
   final int balanceBase;
 }
 
+/// Everything the owner compares with the paper book at the end of a day.
+class DayClose {
+  const DayClose({
+    required this.sales,
+    required this.cash,
+    required this.collectedByMode,
+    required this.supplierPaidByMode,
+    required this.purchaseCount,
+    required this.purchaseTotalPaise,
+  });
+
+  /// Bills, returns and cancels, and how customers paid, all net of returns.
+  final DailySales sales;
+  final CashPosition cash;
+
+  /// Money customers paid that day against what they owed (not on a bill): cash, upi, bank.
+  final Map<String, int> collectedByMode;
+
+  /// Money the shop paid suppliers that day: cash, upi, bank.
+  final Map<String, int> supplierPaidByMode;
+
+  /// Supplier bills entered that day, and what they came to.
+  final int purchaseCount;
+  final int purchaseTotalPaise;
+
+  int get collectedPaise => collectedByMode.values.fold(0, (a, b) => a + b);
+  int get supplierPaidPaise => supplierPaidByMode.values.fold(0, (a, b) => a + b);
+
+  /// All money received that day: what customers paid on bills (cash, UPI) plus
+  /// what they paid against old dues, less refunds.
+  int get receivedPaise => sales.mode('cash') + sales.mode('upi') + sales.mode('card') + collectedPaise;
+
+  /// A plain-text summary to send to your own phone or note down.
+  String toSummary(String shopName, String Function(int paise) money, String dateText) {
+    final s = sales;
+    final lines = <String>[
+      '$shopName - day check for $dateText',
+      '',
+      'Bills: ${s.billCount}${s.cancelCount > 0 ? ' (${s.cancelCount} cancelled)' : ''}',
+      'Sales: ${money(s.grossPaise)}',
+      if (s.returnsPaise > 0) 'Returns and cancels: -${money(s.returnsPaise)}',
+      'Net sales: ${money(s.totalPaise)}',
+      '  Cash: ${money(s.mode('cash'))}',
+      '  UPI: ${money(s.mode('upi'))}',
+      '  On credit (udhaar): ${money(s.mode('credit'))}',
+      'Collected from customers: ${money(collectedPaise)}',
+      '  Cash: ${money(collectedByMode['cash'] ?? 0)}, UPI: ${money(collectedByMode['upi'] ?? 0)}, Bank: ${money(collectedByMode['bank'] ?? 0)}',
+      'Purchases entered: $purchaseCount, ${money(purchaseTotalPaise)}',
+      'Paid to suppliers: ${money(supplierPaidPaise)}',
+      '',
+      'Cash in hand: start ${money(cash.openingPaise)}, now ${money(cash.closingPaise)}',
+    ];
+    return lines.join('\n');
+  }
+}
+
 /// What the owner sees on the home screen.
 class DashboardData {
   const DashboardData({
@@ -459,6 +515,43 @@ class ReportsRepository {
         it.id
     };
     return balances.entries.where((e) => active.contains(e.key) && e.value < 0).length;
+  }
+
+  /// One screen of numbers for the evening, to compare with the paper book.
+  Future<DayClose> dayClose(DateTime day) async {
+    final from = startOfDay(day);
+    final to = DateTime(from.year, from.month, from.day + 1);
+    final db = ctx.db;
+
+    Future<Map<String, int>> byMode(String entryType, {required bool negate}) async {
+      final rows = await db.customSelect(
+        'SELECT COALESCE(payment_mode, \'cash\') AS m, SUM(amount_paise) AS n FROM ledger_entries '
+        'WHERE entry_type = ? AND deleted_at IS NULL AND ts >= ? AND ts < ? GROUP BY m',
+        variables: [
+          Variable.withString(entryType),
+          Variable.withInt(from.millisecondsSinceEpoch ~/ 1000),
+          Variable.withInt(to.millisecondsSinceEpoch ~/ 1000),
+        ],
+      ).get();
+      return {
+        for (final r in rows) r.data['m'] as String: (negate ? -1 : 1) * (r.data['n'] as num).toInt(),
+      };
+    }
+
+    final purchases = await (db.select(db.purchases)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              t.supplierInvoiceDate.isBiggerOrEqualValue(from) &
+              t.supplierInvoiceDate.isSmallerThanValue(to)))
+        .get();
+    return DayClose(
+      sales: await dailySales(day),
+      cash: await cashPosition(day),
+      collectedByMode: await byMode('payment', negate: true),
+      supplierPaidByMode: await byMode('supplier_payment', negate: false),
+      purchaseCount: purchases.length,
+      purchaseTotalPaise: purchases.fold(0, (a, p) => a + p.totalPaise),
+    );
   }
 
   Future<DashboardData> dashboard({DateTime? now, int topDues = 5}) async {

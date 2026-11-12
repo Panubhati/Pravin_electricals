@@ -6,6 +6,7 @@ import '../../core/money.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../dayclose/day_check_screen.dart';
 import 'reports_providers.dart';
 
 /// Owner-only list of reports.
@@ -32,6 +33,8 @@ class ReportsScreen extends StatelessWidget {
         children: [
           tile(const Key('reportDailySales'), Icons.today_outlined, S.dailySales,
               'Bills, payment modes and cash in hand for a day', const DailySalesScreen()),
+          tile(const Key('reportDayCheck'), Icons.fact_check_outlined, S.dayCheckTitle,
+              'Everything to compare with your paper book', const DayCheckScreen()),
           tile(const Key('reportItemProfit'), Icons.trending_up, S.itemProfit,
               'What each item earned over a period', const ItemProfitScreen()),
           tile(const Key('reportStockValue'), Icons.inventory_outlined, S.stockValue,
