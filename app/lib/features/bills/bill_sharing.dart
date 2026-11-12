@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/money.dart';
 import '../../core/printing/credit_note_pdf.dart';
+import '../../core/printing/bill_words.dart';
 import '../../core/printing/invoice_pdf.dart';
+import '../../core/printing/marathi_bill.dart';
 import '../../core/providers.dart';
 import '../../core/sharing/phone_number.dart';
 import '../../shared/strings.dart';
@@ -40,7 +42,12 @@ Future<ShareOutcome> shareBill(
 }) async {
   final d = await ref.read(invoiceRepositoryProvider).details(invoiceId);
   final payee = await ref.read(upiPayeeProvider.future);
-  final bytes = await buildInvoicePdf(d, await InvoiceFonts.load(), upi: payee);
+  // The shop's bill language (Settings), not this phone's screen language.
+  final lang = await ref.read(settingsRepositoryProvider).billLanguage();
+  final words = BillWords.of(lang);
+  final bytes = lang == AppLang.mr
+      ? await buildMarathiInvoicePdf(d, upi: payee)
+      : await buildInvoicePdf(d, await InvoiceFonts.load(), upi: payee);
   final filename = '${d.invoice.invoiceNoText}.pdf';
   final sharer = ref.read(billSharerProvider);
 
@@ -56,8 +63,8 @@ Future<ShareOutcome> shareBill(
   }
   final shop = ref.read(sessionProvider).requireValue.shop.name;
   final due = d.invoice.totalPaise - d.invoice.paidPaise;
-  final text = 'Bill ${d.invoice.invoiceNoText} from $shop: ${Money.format(d.invoice.totalPaise)}'
-      '${due > 0 ? ' (balance due ${Money.format(due)})' : ''}. Thank you!';
+  final text = words.billMessage(
+      d.invoice.invoiceNoText, shop, Money.format(d.invoice.totalPaise), due > 0 ? Money.format(due) : null);
   bool sent;
   try {
     sent = await sharer.sendToWhatsApp(bytes: bytes, filename: filename, number: number, text: text);
@@ -73,7 +80,11 @@ Future<ShareOutcome> shareBill(
 /// Builds a credit note's PDF from saved data and shares it, like [shareBill].
 Future<ShareOutcome> shareCreditNote(WidgetRef ref, String returnId, {bool whatsapp = false}) async {
   final d = await ref.read(returnRepositoryProvider).details(returnId);
-  final bytes = await buildCreditNotePdf(d, await InvoiceFonts.load());
+  final lang = await ref.read(settingsRepositoryProvider).billLanguage();
+  final words = BillWords.of(lang);
+  final bytes = lang == AppLang.mr
+      ? await buildMarathiCreditNotePdf(d)
+      : await buildCreditNotePdf(d, await InvoiceFonts.load());
   final filename = '${d.ret.creditNoteNoText}.pdf';
   final sharer = ref.read(billSharerProvider);
 
@@ -87,8 +98,8 @@ Future<ShareOutcome> shareCreditNote(WidgetRef ref, String returnId, {bool whats
     return ShareOutcome.sheetNoPhone;
   }
   final shop = ref.read(sessionProvider).requireValue.shop.name;
-  final text = 'Credit note ${d.ret.creditNoteNoText} from $shop for bill ${d.invoice.invoiceNoText}: '
-      '${Money.format(d.ret.totalPaise)} refunded. Thank you!';
+  final text = words.creditNoteMessage(
+      d.ret.creditNoteNoText, shop, d.invoice.invoiceNoText, Money.format(d.ret.totalPaise));
   bool sent;
   try {
     sent = await sharer.sendToWhatsApp(bytes: bytes, filename: filename, number: number, text: text);

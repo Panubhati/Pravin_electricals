@@ -18,7 +18,7 @@ void main() {
   // Files where English stays on purpose.
   const allowedFiles = {
     'speed/speed_screen.dart': 'debug-only speed check, never in the shop build',
-    'bills/bill_sharing.dart': 'customer messages follow the bill language (A10 step 6)',
+    'bills/bill_sharing.dart': 'only a debug log line; customer messages come from BillWords',
     'billing/domain/bill_calculator.dart': 'programming error text, never shown',
   };
 

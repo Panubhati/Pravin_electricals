@@ -15,5 +15,6 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A7 Testing gate and exit criteria | tools done, parallel week in progress | [A7-testing-gate.md](A7-testing-gate.md), [../stage-a-exit.md](../stage-a-exit.md) |
 | A8 Shop Wi-Fi sync between two phones (no server) | built; two-phone test in the shop pending | [A8-wifi-sync.md](A8-wifi-sync.md) |
 | A9 OCR feasibility prototype (optional) | planned | |
+| A10 Marathi and English, bills in either language | built; wording and phone check pending | [A10-marathi.md](A10-marathi.md) |
 
 Related: [decisions.md](../decisions.md) (every non-obvious decision, with date and reason).

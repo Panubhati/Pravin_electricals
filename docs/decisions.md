@@ -113,3 +113,11 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Two phones selling the last unit: both bills stand; stock shows negative and the existing warning flags it.
 - Phone-only settings that never travel: last backup time, last data check, backup reminder, auto-lock minutes, daily summary on/hour.
 - The optional OCR prototype is renumbered A9 in AGENTS.md.
+
+## 2026-11-13 A10 decisions (Marathi)
+- Screens in Marathi or English per phone; new installs start in Marathi; the choice is a file beside the device identity (not synced, not in backups, known before the database opens). Switching redraws the screens without logging out or losing a bill in progress.
+- Bill language (PDF and WhatsApp) is a separate shop-wide setting chosen by the owner, English by default, synced to both phones.
+- Digits stay normal and month names stay English in both languages (owner's correction on 2026-11-13).
+- The pdf package cannot shape Devanagari, so Marathi bills are drawn by Flutter's text engine onto 150 dpi page pictures inside the PDF (about 60 KB a page). English bills remain text PDFs.
+- Translations use everyday shop Marathi with the English words people use (बिल, स्टॉक, GST, UPI, PIN, बॅकअप); docs/marathi-review.md is the sheet for the shop to correct wording.
+- Messages made deep in the app stay English at the source and are translated where they are shown, by whole-sentence patterns that keep names and numbers.

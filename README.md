@@ -66,6 +66,10 @@ app is open on both phones on the same Wi-Fi they share bills, stock, dues and e
 The same supplier bill entered on both phones is flagged; open it in Purchases and **Cancel this purchase**. Details:
 `docs/milestones/A8-wifi-sync.md`.
 
+## Marathi and English (A10)
+The app starts in Marathi. Switch with **मराठी / English** on the PIN screen, or Settings, **भाषा / Language**. The owner chooses the
+**Bill language** (PDF and WhatsApp) for the whole shop in Settings. To improve a word, see `docs/marathi-review.md`.
+
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.
 - `app/lib/core/units.dart`: quantity to base units (cable in millimetres), line amounts.
