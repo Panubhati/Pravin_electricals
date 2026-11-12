@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../bootstrap.dart';
+import '../sync/device_identity.dart';
 import '../db/app_database.dart';
 import '../db/repositories/audit_repository.dart';
 import '../db/repositories/data_check_models.dart';
@@ -157,8 +158,9 @@ class RestoreService {
 
 /// After the restored database has been reopened: counts the restore as a
 /// backup made now and records it in the audit log. Returns the session.
-Future<ShopSession> finishRestore(AppDatabase db, BackupSummary summary, {DateTime? now}) async {
-  final session = await ensureShopSession(db);
+Future<ShopSession> finishRestore(AppDatabase db, BackupSummary summary,
+    {DateTime? now, DeviceIdentity? identity}) async {
+  final session = await ensureShopSession(db, identity: identity);
   final settings = SettingsRepository(session.ctx);
   await settings.setLastBackupAt(now ?? session.ctx.clock());
   await AuditRepository(session.ctx).record(
@@ -179,8 +181,8 @@ Future<ShopSession> finishRestore(AppDatabase db, BackupSummary summary, {DateTi
 
 /// Runs "Check my data" on the freshly restored database and remembers the
 /// result (so Settings and Home show it after the app restarts).
-Future<DataCheckSummary> checkRestoredData(AppDatabase db) async {
-  final session = await ensureShopSession(db);
+Future<DataCheckSummary> checkRestoredData(AppDatabase db, {DeviceIdentity? identity}) async {
+  final session = await ensureShopSession(db, identity: identity);
   final result = await DataCheckRepository(session.ctx).run();
   await SettingsRepository(session.ctx).setDataCheckSummary(result.summary);
   return result.summary;

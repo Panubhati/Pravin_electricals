@@ -12,6 +12,10 @@ abstract class ShopDatabaseLocation {
 
   /// The app's private folder for backup temp files and safety copies.
   Future<Directory> workDirectory();
+
+  /// Holds this phone's own device id (A8). Kept outside the database so a
+  /// backup or a copy from the other phone never changes which phone this is.
+  Future<File> deviceIdentityFile();
 }
 
 /// The real phone: the app documents folder, as the database has always used.
@@ -31,6 +35,12 @@ class DeviceDatabaseLocation implements ShopDatabaseLocation {
     final work = Directory(p.join(dir.path, 'backups'));
     return work.create(recursive: true);
   }
+
+  @override
+  Future<File> deviceIdentityFile() async {
+    final dir = await getApplicationSupportDirectory();
+    return File(p.join(dir.path, 'this_device.txt'));
+  }
 }
 
 /// A folder on disk, for tests.
@@ -45,4 +55,7 @@ class FolderDatabaseLocation implements ShopDatabaseLocation {
   @override
   Future<Directory> workDirectory() =>
       Directory(p.join(root.path, 'work')).create(recursive: true);
+
+  @override
+  Future<File> deviceIdentityFile() async => File(p.join(root.path, 'this_device.txt'));
 }

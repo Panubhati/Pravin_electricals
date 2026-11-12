@@ -508,4 +508,18 @@ abstract final class S {
   static const homeGroupPeople = 'People and money';
   static const homeGroupShop = 'Shop';
   static const homeToday = 'Today';
+
+  // A8 which phone is this
+  static String devicePhone(String letter) => 'Phone $letter';
+  static const deviceNewLabel = 'New phone';
+  static const deviceChoiceTitle = 'Which phone is this?';
+  static const deviceChoiceHelp =
+      "This shop's data has more than one phone in it, and this phone does not know which one it is. This usually happens after a backup is restored on a new phone.";
+  static const deviceChoiceReplace = 'This phone replaces';
+  static const deviceChoiceNew = 'This is a new phone';
+  static const deviceChoiceNewHelp = 'A new phone gets its own bill numbers, so bills never share a number with another phone.';
+  static String deviceReplaceTitle(String letter) => 'Replace phone $letter?';
+  static String deviceReplaceWarn(String letter) =>
+      'Only do this if phone $letter is lost, broken or no longer used. If phone $letter is still billing, two phones would give out the same bill numbers.';
+  static const deviceReplaceYes = 'Yes, replace it';
 }

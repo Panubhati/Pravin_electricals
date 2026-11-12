@@ -7,6 +7,7 @@ import '../../core/auth/auth_providers.dart';
 import '../../core/backup/backup_models.dart';
 import '../../core/backup/backup_service.dart';
 import '../../core/backup/restore_service.dart';
+import '../../core/bootstrap.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/connection.dart';
 import '../../core/db/repositories/audit_repository.dart';
@@ -161,16 +162,31 @@ Future<void> _runRestore(
 
   String? problem;
   DataCheckSummary? checkOutcome;
+  final identity = ref.read(deviceIdentityProvider);
   try {
+    // A phone that is not paired with another forgets which device it was: the
+    // restored data then decides (it is phone A again after a lost phone).
+    // A paired phone keeps its identity, and asks if the data does not know it.
+    var paired = false;
+    try {
+      final phones = await db.customSelect('SELECT COUNT(*) AS n FROM devices WHERE deleted_at IS NULL').getSingle();
+      paired = (phones.data['n'] as int) > 1;
+    } catch (_) {
+      // The connection is already closed (a second restore in a row, only in
+      // tests): treated as one phone.
+    }
     // Nothing may hold the database file open while it is swapped.
     await db.close();
     await replace();
+    if (!paired) await identity?.clear();
     // Open the restored data once to upgrade an older backup, count the restore
     // as a backup made now, and write the audit entry.
     final restored = AppDatabase(openShopDatabase(location: loc));
     try {
-      await finishRestore(restored, summary);
-      checkOutcome = await checkRestoredData(restored);
+      await finishRestore(restored, summary, identity: identity);
+      checkOutcome = await checkRestoredData(restored, identity: identity);
+    } on DeviceChoiceNeeded {
+      // The app asks which phone this is when it starts again.
     } finally {
       await restored.close();
     }

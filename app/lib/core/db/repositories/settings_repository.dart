@@ -64,11 +64,10 @@ class SettingsRepository {
         await (ctx.db.update(ctx.db.appSettings)
               ..where((t) => t.id.equals(existing.id)))
             .write(AppSettingsCompanion(value: Value(value), updatedAt: Value(now)));
-        await ctx.recordOutbox('app_settings', existing.id, 'upsert', {
-          'id': existing.id,
-          'key': key,
-          'value': value,
-        });
+        final after = await (ctx.db.select(ctx.db.appSettings)
+              ..where((t) => t.id.equals(existing.id)))
+            .getSingle();
+        await ctx.recordOutbox('app_settings', existing.id, 'upsert', after.toJson());
       }
     });
   }

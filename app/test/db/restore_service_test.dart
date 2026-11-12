@@ -75,7 +75,7 @@ void main() {
       // Phone B has nothing yet: a fresh install.
       expect(File(p.join(phoneB.path, 'shop.sqlite')).existsSync(), isFalse);
       final result = await RestoreService(locB, clock: () => at)
-          .replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+          .replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
       expect(result.summary.bills, 3);
       expect(result.safetyCopy, isNull); // nothing to keep on a fresh phone
 
@@ -113,7 +113,7 @@ void main() {
 
     test('finishing a restore counts it as a backup made now and writes the audit entry', () async {
       final a = await shopOnPhoneA();
-      await RestoreService(locB).replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+      await RestoreService(locB).replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
       final b = await open(locB);
       addTearDown(b.close);
       final restoredAt = DateTime(2026, 11, 20, 9);
@@ -131,12 +131,17 @@ void main() {
       // Make the file look like one made by the previous version: no hsn column.
       final d = sq.sqlite3.open(a.backup.path);
       d.execute('ALTER TABLE invoice_lines DROP COLUMN hsn');
+      // ...and none of the v6 (A8) sync columns.
+      d.execute('DROP INDEX outbox_origin_seq');
+      d.execute('DROP INDEX purchases_supplier_no');
+      d.execute('ALTER TABLE outbox DROP COLUMN origin_device_id');
+      d.execute('ALTER TABLE outbox DROP COLUMN seq');
       d.execute('PRAGMA user_version = 3');
       d.dispose();
 
       final restore = RestoreService(locB);
-      expect(restore.inspect(File(a.backup.path), currentSchemaVersion: 5).schemaVersion, 3);
-      await restore.replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+      expect(restore.inspect(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion).schemaVersion, 3);
+      await restore.replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
 
       final b = await open(locB); // opening runs the v3 to v4 upgrade
       addTearDown(b.close);
@@ -159,7 +164,7 @@ void main() {
       await shopOnPhoneA();
       final before = await liveBytes();
       final junk = File(p.join(phoneB.path, 'photo.jpg'))..writeAsBytesSync(List.filled(5000, 7));
-      await expectLater(RestoreService(locA).replaceWith(junk, currentSchemaVersion: 5),
+      await expectLater(RestoreService(locA).replaceWith(junk, currentSchemaVersion: AppDatabase.currentSchemaVersion),
           throwsA(isA<BackupException>()));
       expect(await liveBytes(), before);
       expect(File('${(await locA.databaseFile()).path}.restoring').existsSync(), isFalse);
@@ -172,7 +177,7 @@ void main() {
       d.execute('PRAGMA user_version = 99');
       d.dispose();
       await expectLater(
-        RestoreService(locA).replaceWith(File(a.backup.path), currentSchemaVersion: 5),
+        RestoreService(locA).replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion),
         throwsA(isA<BackupException>().having((e) => e.message, 'message', contains('newer version'))),
       );
       expect(await liveBytes(), before);
@@ -183,7 +188,7 @@ void main() {
       final before = await liveBytes();
       final bytes = File(a.backup.path).readAsBytesSync();
       final cut = File(p.join(phoneB.path, 'cut.sqlite'))..writeAsBytesSync(bytes.sublist(0, bytes.length ~/ 2));
-      await expectLater(RestoreService(locA).replaceWith(cut, currentSchemaVersion: 5),
+      await expectLater(RestoreService(locA).replaceWith(cut, currentSchemaVersion: AppDatabase.currentSchemaVersion),
           throwsA(isA<BackupException>()));
       expect(await liveBytes(), before);
     });
@@ -202,7 +207,7 @@ void main() {
       await dbB.close();
 
       final restore = RestoreService(locB, clock: () => at);
-      final result = await restore.replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+      final result = await restore.replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
       expect(result.safetyCopy, isNotNull);
       expect(p.basename(result.safetyCopy!.path), startsWith('before_restore_20261112_213000'));
 
@@ -213,7 +218,7 @@ void main() {
       // Undo: B's own shop comes back exactly.
       final safety = await restore.latestSafetyCopy();
       expect(safety, isNotNull);
-      await restore.restoreSafetyCopy(safety!, currentSchemaVersion: 5);
+      await restore.restoreSafetyCopy(safety!, currentSchemaVersion: AppDatabase.currentSchemaVersion);
       db = await open(locB);
       addTearDown(db.close);
       expect(await dumpAll(db), dumpB);
@@ -223,7 +228,7 @@ void main() {
       final a = await shopOnPhoneA();
       for (var i = 0; i < 5; i++) {
         await RestoreService(locB, clock: () => at.add(Duration(minutes: i)))
-            .replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+            .replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
       }
       final work = await locB.workDirectory();
       final kept = work.listSync().whereType<File>().map((f) => p.basename(f.path)).where((n) => n.startsWith('before_restore_')).toList()
@@ -235,8 +240,8 @@ void main() {
     test('restoring the same backup twice works', () async {
       final a = await shopOnPhoneA();
       final restore = RestoreService(locB);
-      await restore.replaceWith(File(a.backup.path), currentSchemaVersion: 5);
-      await restore.replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+      await restore.replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
+      await restore.replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
       final b = await open(locB);
       addTearDown(b.close);
       expect(await dumpAll(b), a.dump);
@@ -248,7 +253,7 @@ void main() {
       live.writeAsBytesSync(File(a.backup.path).readAsBytesSync()); // some old database
       final wal = File('${live.path}-wal')..writeAsBytesSync([1, 2, 3]);
       final shm = File('${live.path}-shm')..writeAsBytesSync([1, 2, 3]);
-      await RestoreService(locB).replaceWith(File(a.backup.path), currentSchemaVersion: 5);
+      await RestoreService(locB).replaceWith(File(a.backup.path), currentSchemaVersion: AppDatabase.currentSchemaVersion);
       expect(wal.existsSync(), isFalse);
       expect(shm.existsSync(), isFalse);
       final b = await open(locB);

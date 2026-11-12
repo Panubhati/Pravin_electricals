@@ -2297,6 +2297,27 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
     type: DriftSqlType.dateTime,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _originDeviceIdMeta = const VerificationMeta(
+    'originDeviceId',
+  );
+  @override
+  late final GeneratedColumn<String> originDeviceId = GeneratedColumn<String>(
+    'origin_device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _seqMeta = const VerificationMeta('seq');
+  @override
+  late final GeneratedColumn<int> seq = GeneratedColumn<int>(
+    'seq',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -2307,6 +2328,8 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
     payloadJson,
     attemptCount,
     createdAt,
+    originDeviceId,
+    seq,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2382,6 +2405,21 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
     } else if (isInserting) {
       context.missing(_createdAtMeta);
     }
+    if (data.containsKey('origin_device_id')) {
+      context.handle(
+        _originDeviceIdMeta,
+        originDeviceId.isAcceptableOrUnknown(
+          data['origin_device_id']!,
+          _originDeviceIdMeta,
+        ),
+      );
+    }
+    if (data.containsKey('seq')) {
+      context.handle(
+        _seqMeta,
+        seq.isAcceptableOrUnknown(data['seq']!, _seqMeta),
+      );
+    }
     return context;
   }
 
@@ -2431,6 +2469,15 @@ class $OutboxTable extends Outbox with TableInfo<$OutboxTable, OutboxData> {
             DriftSqlType.dateTime,
             data['${effectivePrefix}created_at'],
           )!,
+      originDeviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}origin_device_id'],
+      ),
+      seq:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}seq'],
+          )!,
     );
   }
 
@@ -2451,6 +2498,12 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
   final String payloadJson;
   final int attemptCount;
   final DateTime createdAt;
+
+  /// The phone that made the change (null only in tests without a device).
+  final String? originDeviceId;
+
+  /// 1, 2, 3... per origin phone.
+  final int seq;
   const OutboxData({
     required this.id,
     required this.shopId,
@@ -2460,6 +2513,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     required this.payloadJson,
     required this.attemptCount,
     required this.createdAt,
+    this.originDeviceId,
+    required this.seq,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2472,6 +2527,10 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     map['payload_json'] = Variable<String>(payloadJson);
     map['attempt_count'] = Variable<int>(attemptCount);
     map['created_at'] = Variable<DateTime>(createdAt);
+    if (!nullToAbsent || originDeviceId != null) {
+      map['origin_device_id'] = Variable<String>(originDeviceId);
+    }
+    map['seq'] = Variable<int>(seq);
     return map;
   }
 
@@ -2485,6 +2544,11 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
       payloadJson: Value(payloadJson),
       attemptCount: Value(attemptCount),
       createdAt: Value(createdAt),
+      originDeviceId:
+          originDeviceId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(originDeviceId),
+      seq: Value(seq),
     );
   }
 
@@ -2502,6 +2566,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
       payloadJson: serializer.fromJson<String>(json['payloadJson']),
       attemptCount: serializer.fromJson<int>(json['attemptCount']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      originDeviceId: serializer.fromJson<String?>(json['originDeviceId']),
+      seq: serializer.fromJson<int>(json['seq']),
     );
   }
   @override
@@ -2516,6 +2582,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
       'payloadJson': serializer.toJson<String>(payloadJson),
       'attemptCount': serializer.toJson<int>(attemptCount),
       'createdAt': serializer.toJson<DateTime>(createdAt),
+      'originDeviceId': serializer.toJson<String?>(originDeviceId),
+      'seq': serializer.toJson<int>(seq),
     };
   }
 
@@ -2528,6 +2596,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     String? payloadJson,
     int? attemptCount,
     DateTime? createdAt,
+    Value<String?> originDeviceId = const Value.absent(),
+    int? seq,
   }) => OutboxData(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -2537,6 +2607,9 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     payloadJson: payloadJson ?? this.payloadJson,
     attemptCount: attemptCount ?? this.attemptCount,
     createdAt: createdAt ?? this.createdAt,
+    originDeviceId:
+        originDeviceId.present ? originDeviceId.value : this.originDeviceId,
+    seq: seq ?? this.seq,
   );
   OutboxData copyWithCompanion(OutboxCompanion data) {
     return OutboxData(
@@ -2552,6 +2625,11 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
               ? data.attemptCount.value
               : this.attemptCount,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      originDeviceId:
+          data.originDeviceId.present
+              ? data.originDeviceId.value
+              : this.originDeviceId,
+      seq: data.seq.present ? data.seq.value : this.seq,
     );
   }
 
@@ -2565,7 +2643,9 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
           ..write('op: $op, ')
           ..write('payloadJson: $payloadJson, ')
           ..write('attemptCount: $attemptCount, ')
-          ..write('createdAt: $createdAt')
+          ..write('createdAt: $createdAt, ')
+          ..write('originDeviceId: $originDeviceId, ')
+          ..write('seq: $seq')
           ..write(')'))
         .toString();
   }
@@ -2580,6 +2660,8 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
     payloadJson,
     attemptCount,
     createdAt,
+    originDeviceId,
+    seq,
   );
   @override
   bool operator ==(Object other) =>
@@ -2592,7 +2674,9 @@ class OutboxData extends DataClass implements Insertable<OutboxData> {
           other.op == this.op &&
           other.payloadJson == this.payloadJson &&
           other.attemptCount == this.attemptCount &&
-          other.createdAt == this.createdAt);
+          other.createdAt == this.createdAt &&
+          other.originDeviceId == this.originDeviceId &&
+          other.seq == this.seq);
 }
 
 class OutboxCompanion extends UpdateCompanion<OutboxData> {
@@ -2604,6 +2688,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
   final Value<String> payloadJson;
   final Value<int> attemptCount;
   final Value<DateTime> createdAt;
+  final Value<String?> originDeviceId;
+  final Value<int> seq;
   final Value<int> rowid;
   const OutboxCompanion({
     this.id = const Value.absent(),
@@ -2614,6 +2700,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     this.payloadJson = const Value.absent(),
     this.attemptCount = const Value.absent(),
     this.createdAt = const Value.absent(),
+    this.originDeviceId = const Value.absent(),
+    this.seq = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   OutboxCompanion.insert({
@@ -2625,6 +2713,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     required String payloadJson,
     this.attemptCount = const Value.absent(),
     required DateTime createdAt,
+    this.originDeviceId = const Value.absent(),
+    this.seq = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
@@ -2642,6 +2732,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     Expression<String>? payloadJson,
     Expression<int>? attemptCount,
     Expression<DateTime>? createdAt,
+    Expression<String>? originDeviceId,
+    Expression<int>? seq,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -2653,6 +2745,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
       if (payloadJson != null) 'payload_json': payloadJson,
       if (attemptCount != null) 'attempt_count': attemptCount,
       if (createdAt != null) 'created_at': createdAt,
+      if (originDeviceId != null) 'origin_device_id': originDeviceId,
+      if (seq != null) 'seq': seq,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -2666,6 +2760,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     Value<String>? payloadJson,
     Value<int>? attemptCount,
     Value<DateTime>? createdAt,
+    Value<String?>? originDeviceId,
+    Value<int>? seq,
     Value<int>? rowid,
   }) {
     return OutboxCompanion(
@@ -2677,6 +2773,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
       payloadJson: payloadJson ?? this.payloadJson,
       attemptCount: attemptCount ?? this.attemptCount,
       createdAt: createdAt ?? this.createdAt,
+      originDeviceId: originDeviceId ?? this.originDeviceId,
+      seq: seq ?? this.seq,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -2708,6 +2806,12 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
+    if (originDeviceId.present) {
+      map['origin_device_id'] = Variable<String>(originDeviceId.value);
+    }
+    if (seq.present) {
+      map['seq'] = Variable<int>(seq.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -2725,6 +2829,8 @@ class OutboxCompanion extends UpdateCompanion<OutboxData> {
           ..write('payloadJson: $payloadJson, ')
           ..write('attemptCount: $attemptCount, ')
           ..write('createdAt: $createdAt, ')
+          ..write('originDeviceId: $originDeviceId, ')
+          ..write('seq: $seq, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -12735,10 +12841,6 @@ class $PurchasesTable extends Purchases
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  List<Set<GeneratedColumn>> get uniqueKeys => [
-    {shopId, supplierId, supplierInvoiceNo},
-  ];
-  @override
   Purchase map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
     return Purchase(
@@ -16231,6 +16333,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $StockMovementsTable stockMovements = $StockMovementsTable(this);
   late final $AuditLogTable auditLog = $AuditLogTable(this);
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
+  late final Index outboxOriginSeq = Index(
+    'outbox_origin_seq',
+    'CREATE UNIQUE INDEX outbox_origin_seq ON outbox (origin_device_id, seq)',
+  );
   late final Index itemsName = Index(
     'items_name',
     'CREATE INDEX items_name ON items (name)',
@@ -16246,6 +16352,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index invoicesDate = Index(
     'invoices_date',
     'CREATE INDEX invoices_date ON invoices (date)',
+  );
+  late final Index purchasesSupplierNo = Index(
+    'purchases_supplier_no',
+    'CREATE INDEX purchases_supplier_no ON purchases (supplier_id, supplier_invoice_no)',
   );
   late final Index stockMovementsItem = Index(
     'stock_movements_item',
@@ -16278,10 +16388,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     stockMovements,
     auditLog,
     appSettings,
+    outboxOriginSeq,
     itemsName,
     itemVariantsBarcode,
     ledgerEntriesParty,
     invoicesDate,
+    purchasesSupplierNo,
     stockMovementsItem,
   ];
 }
@@ -17693,6 +17805,8 @@ typedef $$OutboxTableCreateCompanionBuilder =
       required String payloadJson,
       Value<int> attemptCount,
       required DateTime createdAt,
+      Value<String?> originDeviceId,
+      Value<int> seq,
       Value<int> rowid,
     });
 typedef $$OutboxTableUpdateCompanionBuilder =
@@ -17705,6 +17819,8 @@ typedef $$OutboxTableUpdateCompanionBuilder =
       Value<String> payloadJson,
       Value<int> attemptCount,
       Value<DateTime> createdAt,
+      Value<String?> originDeviceId,
+      Value<int> seq,
       Value<int> rowid,
     });
 
@@ -17754,6 +17870,16 @@ class $$OutboxTableFilterComposer
 
   ColumnFilters<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get originDeviceId => $composableBuilder(
+    column: $table.originDeviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get seq => $composableBuilder(
+    column: $table.seq,
     builder: (column) => ColumnFilters(column),
   );
 }
@@ -17806,6 +17932,16 @@ class $$OutboxTableOrderingComposer
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<String> get originDeviceId => $composableBuilder(
+    column: $table.originDeviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get seq => $composableBuilder(
+    column: $table.seq,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$OutboxTableAnnotationComposer
@@ -17844,6 +17980,14 @@ class $$OutboxTableAnnotationComposer
 
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<String> get originDeviceId => $composableBuilder(
+    column: $table.originDeviceId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get seq =>
+      $composableBuilder(column: $table.seq, builder: (column) => column);
 }
 
 class $$OutboxTableTableManager
@@ -17882,6 +18026,8 @@ class $$OutboxTableTableManager
                 Value<String> payloadJson = const Value.absent(),
                 Value<int> attemptCount = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
+                Value<String?> originDeviceId = const Value.absent(),
+                Value<int> seq = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OutboxCompanion(
                 id: id,
@@ -17892,6 +18038,8 @@ class $$OutboxTableTableManager
                 payloadJson: payloadJson,
                 attemptCount: attemptCount,
                 createdAt: createdAt,
+                originDeviceId: originDeviceId,
+                seq: seq,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -17904,6 +18052,8 @@ class $$OutboxTableTableManager
                 required String payloadJson,
                 Value<int> attemptCount = const Value.absent(),
                 required DateTime createdAt,
+                Value<String?> originDeviceId = const Value.absent(),
+                Value<int> seq = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => OutboxCompanion.insert(
                 id: id,
@@ -17914,6 +18064,8 @@ class $$OutboxTableTableManager
                 payloadJson: payloadJson,
                 attemptCount: attemptCount,
                 createdAt: createdAt,
+                originDeviceId: originDeviceId,
+                seq: seq,
                 rowid: rowid,
               ),
           withReferenceMapper:

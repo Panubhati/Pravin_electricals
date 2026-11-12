@@ -4,6 +4,8 @@ import 'package:workmanager/workmanager.dart';
 import '../db/app_database.dart';
 import '../db/connection.dart';
 import '../bootstrap.dart';
+import '../backup/database_location.dart';
+import '../sync/device_identity.dart';
 import '../backup/backup_reminder_rules.dart';
 import '../db/repositories/reports_repository.dart';
 import '../db/repositories/settings_repository.dart';
@@ -88,7 +90,13 @@ void summaryCallbackDispatcher() {
       // background job must never create the shop itself.
       final shops = await db.customSelect('SELECT COUNT(*) AS n FROM shops').getSingle();
       if ((shops.data['n'] as int) == 0) return true;
-      final session = await ensureShopSession(db);
+      final ShopSession session;
+      try {
+        session = await ensureShopSession(db,
+            identity: FileDeviceIdentity(const DeviceDatabaseLocation()));
+      } on DeviceChoiceNeeded {
+        return true; // the owner has not said which phone this is yet
+      }
 
       if (task == _taskName) {
         if (!await SettingsRepository(session.ctx).dailySummaryOn()) return true;

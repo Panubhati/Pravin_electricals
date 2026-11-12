@@ -74,13 +74,14 @@ class SetupRepository {
     required String label,
     required String invoiceSeriesPrefix,
     String? userId,
+    String? id,
   }) async {
     final now = ctx.clock();
-    final id = ctx.newId();
+    final deviceId = id ?? ctx.newId();
     await ctx.db.transaction(() => ctx.insertRow(
           ctx.db.devices,
           DevicesCompanion.insert(
-            id: id,
+            id: deviceId,
             shopId: ctx.shopId,
             createdAt: now,
             updatedAt: now,
@@ -89,9 +90,9 @@ class SetupRepository {
             userId: Value(userId),
           ),
           'devices',
-          id,
+          deviceId,
         ));
-    return id;
+    return deviceId;
   }
 
   /// [name] is one of: shop, godown, vehicle.

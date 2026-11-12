@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/bootstrap.dart';
+import '../sync/device_choice_screen.dart';
+
 import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
@@ -72,7 +75,9 @@ class _LockGateState extends ConsumerState<LockGate> with WidgetsBindingObserver
     final user = ref.watch(currentUserProvider);
     return session.when(
       loading: () => const _Splash(),
-      error: (e, _) => Center(child: Text('Could not open the database: $e')),
+      error: (e, _) => e is DeviceChoiceNeeded
+          ? _Standalone(child: DeviceChoiceScreen(devices: e.devices))
+          : Center(child: Text('Could not open the database: $e')),
       data: (_) {
         final hasPin = ref.watch(ownerHasPinProvider);
         return hasPin.when(

@@ -27,7 +27,7 @@ class DuplicatePurchaseException extends DomainException {
 ///
 /// Every repository write goes through [insertRow] / [recordOutbox] so that the
 /// local `outbox` always gets a row in the same transaction (plan section 12).
-/// Nothing reads the outbox in Stage A; Stage B sync will.
+/// Wi-Fi sync (A8) sends outbox rows to the other phone.
 class RepoContext {
   RepoContext(
     this.db, {
@@ -42,7 +42,21 @@ class RepoContext {
   final Uuid uuid;
   final DateTime Function() clock;
 
+  /// This phone's device id, stamped on every outbox row. Set once the session
+  /// knows which phone it is (see ensureShopSession).
+  String? originDeviceId;
+
   String newId() => uuid.v4();
+
+  /// The next number in this phone's change sequence.
+  Future<int> _nextSeq(String origin) async {
+    final row = await db.customSelect(
+      'SELECT COALESCE(MAX(seq), 0) AS m FROM outbox WHERE origin_device_id = ?',
+      variables: [Variable.withString(origin)],
+      readsFrom: {db.outbox},
+    ).getSingle();
+    return (row.data['m'] as int) + 1;
+  }
 
   Future<void> recordOutbox(
     String entity,
@@ -50,6 +64,8 @@ class RepoContext {
     String op,
     Map<String, Object?> payload,
   ) async {
+    final origin = originDeviceId;
+    final seq = origin == null ? 0 : await _nextSeq(origin);
     await db.into(db.outbox).insert(OutboxCompanion.insert(
           id: newId(),
           shopId: shopId,
@@ -58,6 +74,8 @@ class RepoContext {
           op: op,
           payloadJson: jsonEncode(payload),
           createdAt: clock(),
+          originDeviceId: Value(origin),
+          seq: Value(seq),
         ));
   }
 

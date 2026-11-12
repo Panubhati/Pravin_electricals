@@ -1,13 +1,17 @@
 import 'package:drift/drift.dart' hide isNull;
 import 'package:drift_dev/api/migrations_native.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:shop_app/core/bootstrap.dart';
 import 'package:shop_app/core/db/app_database.dart';
+import 'package:shop_app/core/db/repositories/settings_repository.dart';
+import 'package:shop_app/core/sync/device_identity.dart';
 
 import '../generated_migrations/schema.dart';
 import '../generated_migrations/schema_v1.dart' as v1;
 import '../generated_migrations/schema_v2.dart' as v2;
 import '../generated_migrations/schema_v3.dart' as v3;
 import '../generated_migrations/schema_v4.dart' as v4;
+import '../generated_migrations/schema_v5.dart' as v5;
 
 /// A phone with shop data on schema v1 must upgrade to the current version without losing
 /// anything (plan section 12, "Migration test").
@@ -16,7 +20,7 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 to v5 keeps existing shop data and the schema matches', () async {
+  test('v1 to v6 keeps existing shop data and the schema matches', () async {
     final schema = await verifier.schemaAt(1);
 
     // Build a v1 database holding data like an A2 phone: shop, party, ledger, stock.
@@ -39,7 +43,7 @@ void main() {
     late AppDatabase db;
     await verifier.migrateAndValidate(
       db = AppDatabase(schema.newConnection()),
-      5,
+      6,
     );
 
     // Old rows survived and new columns exist (null for old rows).
@@ -59,7 +63,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 to v5 adds settings and keeps shop data', () async {
+  test('v2 to v6 adds settings and keeps shop data', () async {
     final schema = await verifier.schemaAt(2);
     final old = v2.DatabaseAtV2(schema.newConnection());
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
@@ -72,13 +76,13 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 5);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
     expect((await db.select(db.users).get()).single.role, 'owner');
     expect((await db.select(db.appSettings).get()), isEmpty);
     await db.close();
   });
 
-  test('v3 upgrades to v5: the sold HSN column appears and existing bill lines are kept', () async {
+  test('v3 upgrades to v6: the sold HSN column appears and existing bill lines are kept', () async {
     final schema = await verifier.schemaAt(3);
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
     final old = v3.DatabaseAtV3(schema.newConnection());
@@ -94,14 +98,14 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 5);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
     final line = (await db.select(db.invoiceLines).get()).single;
     expect(line.lineTotalPaise, 11875);
     expect(line.hsn, isNull); // old lines have no sold HSN; reprints fall back to the item's
     await db.close();
   });
 
-  test('v4 to v5 rebuilds the credit note tables and keeps every bill', () async {
+  test('v4 to v6 rebuilds the credit note tables and keeps every bill', () async {
     final schema = await verifier.schemaAt(4);
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
     final old = v4.DatabaseAtV4(schema.newConnection());
@@ -115,7 +119,7 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 5);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
     expect((await db.select(db.invoices).get()).single.invoiceNoText, 'A-0001');
     expect(await db.select(db.salesReturns).get(), isEmpty);
     // The rebuilt tables accept a credit note.
@@ -126,10 +130,50 @@ void main() {
     await db.close();
   });
 
-  test('a fresh install creates the v5 schema directly', () async {
+  test('v5 to v6: outbox rows are claimed by this phone in order, and purchases keep their rows', () async {
     final schema = await verifier.schemaAt(5);
+    final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
+    final old = v5.DatabaseAtV5(schema.newConnection());
+    for (final sql in [
+      "INSERT INTO shops (id, shop_id, created_at, updated_at, name) VALUES ('s', 's', $secs, $secs, 'Shop')",
+      "INSERT INTO users (id, shop_id, created_at, updated_at, name, role) VALUES ('u', 's', $secs, $secs, 'Owner', 'owner')",
+      "INSERT INTO devices (id, shop_id, created_at, updated_at, label, invoice_series_prefix) VALUES ('d', 's', $secs, $secs, 'Phone', 'A')",
+      "INSERT INTO locations (id, shop_id, created_at, updated_at, name) VALUES ('loc', 's', $secs, $secs, 'shop')",
+      "INSERT INTO parties (id, shop_id, created_at, updated_at, kind, name) VALUES ('sup', 's', $secs, $secs, 'supplier', 'Havells')",
+      "INSERT INTO purchases (id, shop_id, created_at, updated_at, supplier_id, supplier_invoice_no, supplier_invoice_date, subtotal_paise, tax_paise, total_paise) VALUES ('pu', 's', $secs, $secs, 'sup', 'H-1', $secs, 100, 18, 118)",
+      "INSERT INTO outbox (id, shop_id, entity, entity_id, op, payload_json, created_at) VALUES ('o1', 's', 'shops', 's', 'upsert', '{}', $secs)",
+      "INSERT INTO outbox (id, shop_id, entity, entity_id, op, payload_json, created_at) VALUES ('o2', 's', 'parties', 'sup', 'upsert', '{}', $secs)",
+      "INSERT INTO outbox (id, shop_id, entity, entity_id, op, payload_json, created_at) VALUES ('o3', 's', 'purchases', 'pu', 'upsert', '{}', $secs)",
+    ]) {
+      await old.customStatement(sql);
+    }
+    await old.close();
+
+    late AppDatabase db;
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
+    expect((await db.select(db.purchases).get()).single.supplierInvoiceNo, 'H-1');
+
+    final identity = MemoryDeviceIdentity();
+    final session = await ensureShopSession(db, identity: identity);
+    expect(session.deviceId, 'd');
+    expect(identity.value, 'd', reason: 'the one phone of a pre-A8 shop is phone A');
+    final rows = await (db.select(db.outbox)..orderBy([(t) => OrderingTerm.asc(t.seq)])).get();
+    expect(rows.map((r) => r.id), ['o1', 'o2', 'o3']);
+    expect(rows.every((r) => r.originDeviceId == 'd'), isTrue);
+    expect(rows.map((r) => r.seq).toSet(), hasLength(3));
+
+    // New writes continue the same sequence.
+    await SettingsRepository(session.ctx).set('upi_id', 'shop@upi');
+    final last = await (db.select(db.outbox)..orderBy([(t) => OrderingTerm.desc(t.seq)])..limit(1)).getSingle();
+    expect(last.entity, 'app_settings');
+    expect(last.seq, greaterThan(rows.last.seq));
+    await db.close();
+  });
+
+  test('a fresh install creates the v6 schema directly', () async {
+    final schema = await verifier.schemaAt(6);
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 5);
+    await verifier.migrateAndValidate(db, 6);
     await db.close();
   });
 }

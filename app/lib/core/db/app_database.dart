@@ -39,8 +39,11 @@ class AppDatabase extends _$AppDatabase {
 
   /// Bump on every schema change and add a step in [migration].
   /// Never edit a released schema version; add a new one.
+  /// The schema this build of the app writes.
+  static const currentSchemaVersion = 6;
+
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => currentSchemaVersion;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -71,6 +74,16 @@ class AppDatabase extends _$AppDatabase {
             await m.drop(salesReturns);
             await m.createTable(salesReturns);
             await m.createTable(salesReturnLines);
+          }
+          // v6 (A8): outbox origin phone and sequence for Wi-Fi sync; purchases
+          // lose the unique supplier bill key (rebuilt) and get a plain index.
+          // Existing outbox rows are claimed by this phone in ensureShopSession.
+          if (from < 6) {
+            await m.addColumn(outbox, outbox.originDeviceId);
+            await m.addColumn(outbox, outbox.seq);
+            await m.createIndex(outboxOriginSeq);
+            await m.alterTable(TableMigration(purchases));
+            await m.createIndex(purchasesSupplierNo);
           }
         },
         beforeOpen: (details) async {

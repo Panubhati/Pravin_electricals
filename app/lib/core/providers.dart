@@ -26,6 +26,7 @@ import 'printing/upi_link.dart';
 import 'sharing/bill_sharer.dart';
 import 'notifications/device_notifications.dart';
 import 'import/party_import.dart';
+import 'sync/device_identity.dart';
 
 /// Overridden in main() with the on-phone database, and in tests with an
 /// in-memory one.
@@ -33,9 +34,13 @@ final databaseProvider = Provider<AppDatabase>(
   (ref) => throw UnimplementedError('databaseProvider must be overridden'),
 );
 
+/// Which device row is this phone (A8). The app uses a small file next to the
+/// database; tests without one fall back to the oldest device.
+final deviceIdentityProvider = Provider<DeviceIdentity?>((ref) => null);
+
 /// Shop, device and location. Creates them on first run.
 final sessionProvider = FutureProvider<ShopSession>((ref) async {
-  return ensureShopSession(ref.watch(databaseProvider));
+  return ensureShopSession(ref.watch(databaseProvider), identity: ref.watch(deviceIdentityProvider));
 });
 
 final itemRepositoryProvider = Provider<ItemRepository>(

@@ -3,7 +3,10 @@ import 'base.dart';
 import 'item_tables.dart';
 import 'party_tables.dart';
 
-/// Posted purchases are immutable. Duplicate supplier invoice numbers are blocked.
+/// Posted purchases are immutable. The same phone refuses a supplier invoice
+/// number that is already entered; with two phones (A8) both copies are kept
+/// and flagged, so this is an index, not a unique key.
+@TableIndex(name: 'purchases_supplier_no', columns: {#supplierId, #supplierInvoiceNo})
 class Purchases extends Table with BaseColumns {
   TextColumn get supplierId => text().references(Parties, #id)();
   TextColumn get supplierInvoiceNo => text()();
@@ -18,11 +21,6 @@ class Purchases extends Table with BaseColumns {
 
   /// posted | cancelled
   TextColumn get status => text().withDefault(const Constant('posted'))();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-        {shopId, supplierId, supplierInvoiceNo},
-      ];
 }
 
 class PurchaseLines extends Table with BaseColumns {

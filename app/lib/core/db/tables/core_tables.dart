@@ -33,7 +33,11 @@ class Locations extends Table with BaseColumns {
   TextColumn get name => text()();
 }
 
-/// Local-only queue that Stage B sync will read. Nothing reads it in Stage A.
+/// Every change made on any phone, in order. Wi-Fi sync (A8) sends the rows a
+/// phone has not seen yet. [originDeviceId] and [seq] say which phone made the
+/// change and its place in that phone's sequence; rows received from the other
+/// phone keep their original origin and seq.
+@TableIndex(name: 'outbox_origin_seq', columns: {#originDeviceId, #seq}, unique: true)
 class Outbox extends Table {
   TextColumn get id => text()();
   TextColumn get shopId => text()();
@@ -45,6 +49,12 @@ class Outbox extends Table {
   TextColumn get payloadJson => text()();
   IntColumn get attemptCount => integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime()();
+
+  /// The phone that made the change (null only in tests without a device).
+  TextColumn get originDeviceId => text().nullable()();
+
+  /// 1, 2, 3... per origin phone.
+  IntColumn get seq => integer().withDefault(const Constant(0))();
 
   @override
   Set<Column> get primaryKey => {id};

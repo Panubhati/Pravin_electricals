@@ -84,6 +84,18 @@ class PurchaseRepository {
 
     try {
       await ctx.db.transaction(() async {
+        // The same bill twice on this phone is refused (a cancelled one may be
+        // entered again). A copy that arrives from the other phone is kept and
+        // flagged by Check my data instead.
+        final dup = await (ctx.db.select(ctx.db.purchases)
+              ..where((t) =>
+                  t.shopId.equals(ctx.shopId) &
+                  t.supplierId.equals(input.supplierId) &
+                  t.supplierInvoiceNo.equals(input.supplierInvoiceNo.trim()) &
+                  t.status.equals('cancelled').not())
+              ..limit(1))
+            .getSingleOrNull();
+        if (dup != null) throw DuplicatePurchaseException(input.supplierInvoiceNo.trim());
         final lineTotals = <int>[];
         var subtotal = 0;
         var tax = 0;

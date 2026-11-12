@@ -5,6 +5,7 @@ import 'core/backup/database_location.dart';
 import 'core/db/app_database.dart';
 import 'core/db/connection.dart';
 import 'core/providers.dart';
+import 'core/sync/device_identity.dart';
 import 'features/auth/lock_gate.dart';
 import 'features/home/home_screen.dart';
 import 'shared/strings.dart';
@@ -44,6 +45,7 @@ class _AppRootState extends State<AppRoot> {
       key: _key,
       overrides: [
         databaseLocationProvider.overrideWithValue(widget.location),
+        deviceIdentityProvider.overrideWithValue(FileDeviceIdentity(widget.location)),
         databaseProvider.overrideWith((ref) {
           final db = AppDatabase(openShopDatabase(location: widget.location));
           ref.onDispose(db.close);
