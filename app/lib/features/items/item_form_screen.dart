@@ -338,8 +338,21 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                   TextField(
                     key: const Key('itemBarcode'),
                     controller: _barcode,
-                    decoration: const InputDecoration(
-                        labelText: S.barcode, border: OutlineInputBorder()),
+                    decoration: InputDecoration(
+                      labelText: S.barcode,
+                      border: const OutlineInputBorder(),
+                      suffixIcon: IconButton(
+                        key: const Key('itemBarcodeScan'),
+                        tooltip: S.scanBarcode,
+                        icon: const Icon(Icons.qr_code_scanner),
+                        onPressed: () async {
+                          final scanned = await Navigator.of(context).push<String>(
+                            MaterialPageRoute(builder: (_) => const ScanScreen()),
+                          );
+                          if (scanned != null && mounted) setState(() => _barcode.text = scanned);
+                        },
+                      ),
+                    ),
                   ),
                 ],
                 if (_editing && _detail != null) ..._editOnlySections(_detail!),

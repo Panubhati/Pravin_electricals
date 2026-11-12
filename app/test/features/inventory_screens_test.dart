@@ -42,6 +42,8 @@ void main() {
     await tester.enterText(find.byKey(const Key('itemCost')), '30');
     await tester.enterText(find.byKey(const Key('itemMin')), '100');
     await tester.enterText(find.byKey(const Key('itemOpening')), '90');
+    // The barcode can be typed or scanned with the camera.
+    expect(find.byKey(const Key('itemBarcodeScan')), findsOneWidget);
     await tester.enterText(find.byKey(const Key('itemBarcode')), '555');
     await tester.tap(find.byKey(const Key('saveItem')));
     await settle(tester);
