@@ -53,6 +53,10 @@ class DataCheckRepository {
     await check('ledger refs', _ledgerRefs);
     await check('ledger signs', _ledgerSigns);
     await check('ledger kinds', _ledgerKinds);
+    await check('credit note totals', _returnTotals);
+    await check('credit note limits', _returnLimits);
+    await check('credit note stock', _returnStock);
+    await check('credit note ledger', _returnLedger);
     await check('purchase totals', _purchaseTotals);
     await check('purchase ledger', _purchaseLedger);
     await check('items', _items);
@@ -349,7 +353,8 @@ SELECT e.id, e.entry_type AS type, e.ref_type AS rtype, COALESCE(p.name, '?') AS
 FROM ledger_entries e LEFT JOIN parties p ON p.id = e.party_id
 WHERE e.deleted_at IS NULL
   AND ((e.ref_type = 'invoice' AND NOT EXISTS (SELECT 1 FROM invoices i WHERE i.id = e.ref_id))
-    OR (e.ref_type = 'purchase' AND NOT EXISTS (SELECT 1 FROM purchases p2 WHERE p2.id = e.ref_id)))''');
+    OR (e.ref_type = 'purchase' AND NOT EXISTS (SELECT 1 FROM purchases p2 WHERE p2.id = e.ref_id))
+    OR (e.ref_type = 'sales_return' AND NOT EXISTS (SELECT 1 FROM sales_returns sr WHERE sr.id = e.ref_id)))''');
     return [
       for (final r in rows)
         _err('ledger_orphan',
@@ -392,6 +397,153 @@ GROUP BY p.id''');
         _warn('ledger_party_kind',
             '${_s(r, 'name')} is a ${_s(r, 'kind')} but has ${_i(r, 'n')} account entries of the other kind.',
             IssueRef.party, _s(r, 'pid')),
+    ];
+  }
+
+  // ---- credit notes (returns and cancelled bills) ----------------------------
+
+  /// Each credit note: total = lines + round-off share, the money given back adds
+  /// up to it, GST matches its lines; a refund to an account needs a customer.
+  Future<List<DataIssue>> _returnTotals() async {
+    final rows = await _q('''
+SELECT r.id, r.credit_note_no_text AS no, r.total_paise AS total, r.tax_paise AS tax, r.round_off_paise AS ro,
+       r.refund_cash_paise AS c, r.refund_upi_paise AS u, r.refund_account_paise AS a, i.party_id AS party,
+       COALESCE(l.sub, 0) AS l_sub, COALESCE(l.tax, 0) AS l_tax, COALESCE(l.n, 0) AS l_n
+FROM sales_returns r
+JOIN invoices i ON i.id = r.invoice_id
+LEFT JOIN (SELECT return_id, SUM(line_total_paise) AS sub, SUM(tax_paise) AS tax, COUNT(*) AS n
+           FROM sales_return_lines WHERE deleted_at IS NULL GROUP BY return_id) l ON l.return_id = r.id
+WHERE r.deleted_at IS NULL''');
+    final out = <DataIssue>[];
+    for (final r in rows) {
+      final id = _s(r, 'id');
+      void bad(String code, String text) =>
+          out.add(_err(code, 'Credit note ${_s(r, 'no')}: $text', IssueRef.invoice, id));
+      if (_i(r, 'l_n') == 0) {
+        bad('return_lines_missing', 'it has no item lines.');
+        continue;
+      }
+      if (_i(r, 'total') != _i(r, 'l_sub') + _i(r, 'ro')) {
+        bad('return_total',
+            'the total is ${_m(_i(r, 'total'))} but its lines (${_m(_i(r, 'l_sub'))}) plus round-off (${_m(_i(r, 'ro'))}) are ${_m(_i(r, 'l_sub') + _i(r, 'ro'))}.');
+      }
+      if (_i(r, 'c') < 0 || _i(r, 'u') < 0 || _i(r, 'a') < 0 ||
+          _i(r, 'c') + _i(r, 'u') + _i(r, 'a') != _i(r, 'total')) {
+        bad('return_refund_split',
+            'the refund is ${_m(_i(r, 'total'))} but the money given back adds up to ${_m(_i(r, 'c') + _i(r, 'u') + _i(r, 'a'))}.');
+      }
+      if (_i(r, 'tax') != _i(r, 'l_tax')) {
+        bad('return_tax', 'the GST is ${_m(_i(r, 'tax'))} but its lines give ${_m(_i(r, 'l_tax'))}.');
+      }
+      if (_i(r, 'a') > 0 && r.data['party'] == null) {
+        bad('return_no_customer', 'part was refunded to an account but the bill has no customer.');
+      }
+    }
+    return out;
+  }
+
+  /// Nothing is returned that was not sold, and cancelled bills are fully returned.
+  Future<List<DataIssue>> _returnLimits() async {
+    final over = await _q('''
+SELECT i.id AS iid, i.invoice_no_text AS no, COALESCE(it.name, '?') AS name,
+       il.qty_base AS sold, SUM(rl.qty_base) AS back, il.line_total_paise AS lt, SUM(rl.line_total_paise) AS refunded,
+       it.price_unit_factor AS factor, it.base_unit AS base
+FROM sales_return_lines rl
+JOIN sales_returns r ON r.id = rl.return_id AND r.deleted_at IS NULL
+JOIN invoice_lines il ON il.id = rl.invoice_line_id
+JOIN invoices i ON i.id = il.invoice_id
+LEFT JOIN items it ON it.id = il.item_id
+WHERE rl.deleted_at IS NULL
+GROUP BY il.id HAVING back > sold OR refunded > lt''');
+    final cancelledPartial = await _q('''
+SELECT i.id, i.invoice_no_text AS no FROM invoices i
+WHERE i.status = 'cancelled' AND i.deleted_at IS NULL
+  AND EXISTS (SELECT 1 FROM invoice_lines il
+              WHERE il.invoice_id = i.id AND il.deleted_at IS NULL
+                AND il.qty_base != COALESCE((SELECT SUM(rl.qty_base) FROM sales_return_lines rl
+                                             JOIN sales_returns r ON r.id = rl.return_id
+                                             WHERE rl.invoice_line_id = il.id AND rl.deleted_at IS NULL
+                                               AND r.deleted_at IS NULL), 0))''');
+    final cancelledNoNote = await _q('''
+SELECT i.id, i.invoice_no_text AS no FROM invoices i
+WHERE i.status = 'cancelled' AND i.deleted_at IS NULL
+  AND NOT EXISTS (SELECT 1 FROM sales_returns r WHERE r.invoice_id = i.id AND r.is_cancel = 1 AND r.deleted_at IS NULL)''');
+    final noteNotCancelled = await _q('''
+SELECT i.id, i.invoice_no_text AS no FROM sales_returns r JOIN invoices i ON i.id = r.invoice_id
+WHERE r.is_cancel = 1 AND r.deleted_at IS NULL AND i.status != 'cancelled\'''');
+    return [
+      for (final r in over)
+        _err(
+          'return_over',
+          'Bill ${_s(r, 'no')}, ${_s(r, 'name')}: ${_qty(_i(r, 'back'), r)} returned but only ${_qty(_i(r, 'sold'), r)} sold'
+          '${_i(r, 'refunded') > _i(r, 'lt') ? ' (refunds ${_m(_i(r, 'refunded'))} are more than the line ${_m(_i(r, 'lt'))})' : ''}.',
+          IssueRef.invoice,
+          _s(r, 'iid'),
+        ),
+      for (final r in cancelledPartial)
+        _err('cancel_not_complete', 'Bill ${_s(r, 'no')} is marked cancelled but not everything on it was returned.',
+            IssueRef.invoice, _s(r, 'id')),
+      for (final r in cancelledNoNote)
+        _err('cancel_no_credit_note', 'Bill ${_s(r, 'no')} is marked cancelled but has no cancelling credit note.',
+            IssueRef.invoice, _s(r, 'id')),
+      for (final r in noteNotCancelled)
+        _err('cancel_not_marked', 'Bill ${_s(r, 'no')} has a cancelling credit note but is not marked cancelled.',
+            IssueRef.invoice, _s(r, 'id')),
+    ];
+  }
+
+  /// Everything taken back put exactly that quantity back into stock.
+  Future<List<DataIssue>> _returnStock() async {
+    final rows = await _q('''
+SELECT t.ref AS ref, t.back AS back, t.moved AS moved, r.credit_note_no_text AS no,
+       COALESCE(it.name, '?') AS name, it.id AS item, it.price_unit_factor AS factor, it.base_unit AS base
+FROM (SELECT ref, item, SUM(back) AS back, SUM(moved) AS moved FROM (
+        SELECT l.return_id AS ref, l.item_id AS item, l.qty_base AS back, 0 AS moved
+        FROM sales_return_lines l WHERE l.deleted_at IS NULL
+        UNION ALL
+        SELECT m.ref_id, m.item_id, 0, m.qty_base
+        FROM stock_movements m
+        WHERE m.ref_type = 'sales_return' AND m.movement_type = 'sale_return' AND m.deleted_at IS NULL)
+      GROUP BY ref, item HAVING SUM(back) != SUM(moved)) t
+LEFT JOIN sales_returns r ON r.id = t.ref
+LEFT JOIN items it ON it.id = t.item''');
+    final out = <DataIssue>[];
+    for (final r in rows) {
+      final back = _i(r, 'back');
+      final moved = _i(r, 'moved');
+      if (back == 0) {
+        out.add(_err('return_stock_orphan',
+            '${_s(r, 'name')}: stock was added (${_qty(moved, r)}) for a returned line that does not exist.',
+            IssueRef.item, _s(r, 'item')));
+      } else {
+        out.add(_err(
+          'return_stock_mismatch',
+          'Credit note ${_s(r, 'no')}, ${_s(r, 'name')}: ${_qty(back, r)} returned but ${_qty(moved, r)} went back into stock.',
+          IssueRef.invoice,
+          _s(r, 'ref'),
+        ));
+      }
+    }
+    return out;
+  }
+
+  /// A refund to a customer's account is in their account once, for exactly that amount.
+  Future<List<DataIssue>> _returnLedger() async {
+    final rows = await _q('''
+SELECT r.id, r.credit_note_no_text AS no, r.refund_account_paise AS a,
+       COALESCE(e.amt, 0) AS amt, COALESCE(e.n, 0) AS n
+FROM sales_returns r
+LEFT JOIN (SELECT ref_id, SUM(amount_paise) AS amt, COUNT(*) AS n FROM ledger_entries
+           WHERE ref_type = 'sales_return' AND entry_type = 'return' AND deleted_at IS NULL GROUP BY ref_id) e
+  ON e.ref_id = r.id
+WHERE r.deleted_at IS NULL
+  AND ((r.refund_account_paise > 0 AND (COALESCE(e.n, 0) != 1 OR COALESCE(e.amt, 0) != -r.refund_account_paise))
+    OR (r.refund_account_paise = 0 AND COALESCE(e.n, 0) > 0))''');
+    return [
+      for (final r in rows)
+        _err('return_ledger',
+            'Credit note ${_s(r, 'no')}: ${_m(_i(r, 'a'))} should be taken off the customer\'s account, but it shows ${_m(-_i(r, 'amt'))} in ${_i(r, 'n')} entries.',
+            IssueRef.invoice, _s(r, 'id')),
     ];
   }
 

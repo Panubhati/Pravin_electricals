@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/money.dart';
+import '../../core/printing/credit_note_pdf.dart';
 import '../../core/printing/invoice_pdf.dart';
 import '../../core/providers.dart';
 import '../../core/sharing/phone_number.dart';
@@ -57,6 +58,37 @@ Future<ShareOutcome> shareBill(
   final due = d.invoice.totalPaise - d.invoice.paidPaise;
   final text = 'Bill ${d.invoice.invoiceNoText} from $shop: ${Money.format(d.invoice.totalPaise)}'
       '${due > 0 ? ' (balance due ${Money.format(due)})' : ''}. Thank you!';
+  bool sent;
+  try {
+    sent = await sharer.sendToWhatsApp(bytes: bytes, filename: filename, number: number, text: text);
+  } catch (e) {
+    debugPrint('WhatsApp send failed: $e');
+    sent = false;
+  }
+  if (sent) return ShareOutcome.whatsapp;
+  await sharer.sharePdf(bytes: bytes, filename: filename);
+  return ShareOutcome.sheetNoWhatsApp;
+}
+
+/// Builds a credit note's PDF from saved data and shares it, like [shareBill].
+Future<ShareOutcome> shareCreditNote(WidgetRef ref, String returnId, {bool whatsapp = false}) async {
+  final d = await ref.read(returnRepositoryProvider).details(returnId);
+  final bytes = await buildCreditNotePdf(d, await InvoiceFonts.load());
+  final filename = '${d.ret.creditNoteNoText}.pdf';
+  final sharer = ref.read(billSharerProvider);
+
+  if (!whatsapp) {
+    await sharer.sharePdf(bytes: bytes, filename: filename);
+    return ShareOutcome.sheet;
+  }
+  final number = whatsappNumber(d.party?.phone);
+  if (number == null) {
+    await sharer.sharePdf(bytes: bytes, filename: filename);
+    return ShareOutcome.sheetNoPhone;
+  }
+  final shop = ref.read(sessionProvider).requireValue.shop.name;
+  final text = 'Credit note ${d.ret.creditNoteNoText} from $shop for bill ${d.invoice.invoiceNoText}: '
+      '${Money.format(d.ret.totalPaise)} refunded. Thank you!';
   bool sent;
   try {
     sent = await sharer.sendToWhatsApp(bytes: bytes, filename: filename, number: number, text: text);

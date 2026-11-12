@@ -18,6 +18,7 @@ import 'db/repositories/ledger_repository.dart';
 import 'db/repositories/party_repository.dart';
 import 'db/repositories/purchase_repository.dart';
 import 'db/repositories/setup_repository.dart';
+import 'db/repositories/return_repository.dart';
 import 'db/repositories/stock_repository.dart';
 import 'import/item_import.dart';
 import 'notifications/daily_summary.dart';
@@ -139,4 +140,8 @@ final lastBackupProvider = FutureProvider.autoDispose<DateTime?>(
 
 final dataCheckRepositoryProvider = Provider<DataCheckRepository>(
   (ref) => DataCheckRepository(ref.watch(sessionProvider).requireValue.ctx),
+);
+
+final returnRepositoryProvider = Provider<ReturnRepository>(
+  (ref) => ReturnRepository(ref.watch(sessionProvider).requireValue.ctx),
 );

@@ -4,10 +4,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/db/repositories/invoice_repository.dart';
 import '../../core/money.dart';
 import '../../core/printing/invoice_view.dart';
+import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../auth/owner_approval.dart';
+import '../returns/return_screens.dart';
 import 'bill_sharing.dart';
 
 typedef BillsQuery = ({String query, DateTime? from, DateTime? to});
@@ -99,17 +102,32 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                     return ListTile(
                       key: Key('bill_${b.invoice.id}'),
                       title: Text(b.partyName ?? S.walkIn),
-                      subtitle: Text('${b.invoice.invoiceNoText}  •  ${_time(b.invoice.date)}'),
-                      trailing: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.end,
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(Money.format(b.invoice.totalPaise),
-                              style: const TextStyle(fontWeight: FontWeight.bold)),
-                          if (b.duePaise > 0)
-                            Text('${Money.format(b.duePaise)} ${S.dueLabel}',
-                                style: const TextStyle(color: Colors.red, fontSize: 12)),
+                          Text('${b.invoice.invoiceNoText}  •  ${_time(b.invoice.date)}'),
+                          if (b.cancelled || b.returnedPaise > 0 || (b.duePaise > 0 && !b.cancelled))
+                            Wrap(
+                              spacing: 8,
+                              crossAxisAlignment: WrapCrossAlignment.center,
+                              children: [
+                                if (b.cancelled)
+                                  const StatusChip(S.cancelledBadge, color: Colors.red)
+                                else if (b.returnedPaise > 0)
+                                  StatusChip('${S.returnedBadge} ${Money.format(b.returnedPaise)}'),
+                                if (b.duePaise > 0 && !b.cancelled)
+                                  Text('${Money.format(b.duePaise)} ${S.dueLabel}',
+                                      style: const TextStyle(color: Colors.red, fontSize: 12)),
+                              ],
+                            ),
                         ],
+                      ),
+                      trailing: Text(
+                        Money.format(b.invoice.totalPaise),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          decoration: b.cancelled ? TextDecoration.lineThrough : null,
+                        ),
                       ),
                       onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(
                           builder: (_) => BillDetailScreen(invoiceId: b.invoice.id))),
@@ -148,6 +166,63 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     } finally {
       if (mounted) setState(() => _busy = false);
     }
+  }
+
+  Future<void> _openReturn() async {
+    await Navigator.of(context).push<void>(
+        MaterialPageRoute(builder: (_) => ReturnScreen(invoiceId: widget.invoiceId)));
+    refreshAfterReturn(ref, widget.invoiceId);
+  }
+
+  /// Cancel the whole bill: ask why, get the owner's go-ahead, then reverse it.
+  Future<void> _cancelBill(InvoiceDetails d) async {
+    final reason = await showDialog<String>(
+      context: context,
+      builder: (_) => _CancelDialog(invoiceNo: d.invoice.invoiceNoText, total: Money.format(d.invoice.totalPaise)),
+    );
+    if (reason == null || !mounted) return;
+    setState(() => _busy = true);
+    try {
+      final approver = await askOwnerApproval(context, ref,
+          what: S.cancelApprovalWhat(d.invoice.invoiceNoText));
+      if (approver == null || !mounted) return;
+      final session = ref.read(sessionProvider).requireValue;
+      final id = await ref.read(returnRepositoryProvider).cancelBill(
+            widget.invoiceId,
+            deviceId: session.deviceId,
+            series: session.series,
+            reason: reason,
+            createdBy: ref.read(actingUserIdProvider),
+            approvedBy: approver,
+          );
+      refreshAfterReturn(ref, widget.invoiceId);
+      if (!mounted) return;
+      await Navigator.of(context).push<void>(
+          MaterialPageRoute(builder: (_) => CreditNoteScreen(returnId: id)));
+    } catch (e) {
+      if (mounted) toastError(context, e);
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  List<Widget> _creditNotes() {
+    final notes = ref.watch(invoiceReturnsProvider(widget.invoiceId)).valueOrNull ?? const [];
+    if (notes.isEmpty) return const [];
+    return [
+      const SectionTitle(S.creditNotes),
+      for (final n in notes)
+        ListTile(
+          key: Key('note_${n.noteNo}'),
+          contentPadding: EdgeInsets.zero,
+          leading: Icon(n.isCancel ? Icons.cancel_outlined : Icons.assignment_return_outlined),
+          title: Text(n.noteNo),
+          subtitle: Text(_time(n.date)),
+          trailing: Text(Money.format(n.totalPaise)),
+          onTap: () => Navigator.of(context).push<void>(
+              MaterialPageRoute(builder: (_) => CreditNoteScreen(returnId: n.id))),
+        ),
+    ];
   }
 
   @override
@@ -205,6 +280,12 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 Text(v.dueText!,
                     key: const Key('detailDue'),
                     style: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+              if (d.invoice.status == 'cancelled')
+                const Padding(
+                  padding: EdgeInsets.only(top: 12),
+                  child: Text(S.billCancelledNote, key: Key('detailCancelled'), style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold)),
+                ),
+              ..._creditNotes(),
               const SizedBox(height: 24),
               FilledButton.icon(
                 key: const Key('detailShare'),
@@ -219,10 +300,79 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 icon: const Icon(Icons.chat_outlined),
                 label: const Text(S.whatsapp),
               ),
+              if (d.invoice.status != 'cancelled') ...[
+                const SizedBox(height: 24),
+                OutlinedButton.icon(
+                  key: const Key('detailReturn'),
+                  onPressed: _busy ? null : () => _openReturn(),
+                  icon: const Icon(Icons.assignment_return_outlined),
+                  label: const Text(S.returnItems),
+                ),
+                const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('detailCancel'),
+                  style: OutlinedButton.styleFrom(foregroundColor: Colors.red.shade700),
+                  onPressed: _busy ? null : () => _cancelBill(d),
+                  icon: const Icon(Icons.cancel_outlined),
+                  label: const Text(S.cancelBill),
+                ),
+              ],
             ],
           );
         },
       ),
     );
   }
+}
+
+/// Asks why the bill is being cancelled. Returns the reason (may be empty), or
+/// null if the person backed out.
+class _CancelDialog extends StatefulWidget {
+  const _CancelDialog({required this.invoiceNo, required this.total});
+  final String invoiceNo;
+  final String total;
+
+  @override
+  State<_CancelDialog> createState() => _CancelDialogState();
+}
+
+class _CancelDialogState extends State<_CancelDialog> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => AlertDialog(
+        title: Text('${S.cancelBill} ${widget.invoiceNo}?'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(S.cancelBillWarning(widget.total)),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('cancelReason'),
+              controller: _reason,
+              decoration: const InputDecoration(labelText: S.returnReason, border: OutlineInputBorder()),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            key: const Key('cancelKeep'),
+            onPressed: () => Navigator.pop(context),
+            child: const Text(S.keepBill),
+          ),
+          FilledButton(
+            key: const Key('cancelConfirm'),
+            style: FilledButton.styleFrom(backgroundColor: Colors.red.shade700),
+            onPressed: () => Navigator.pop(context, _reason.text),
+            child: const Text(S.cancelBill),
+          ),
+        ],
+      );
 }

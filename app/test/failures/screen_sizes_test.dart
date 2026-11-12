@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/core/backup/database_location.dart';
 import 'package:shop_app/core/db/repositories/item_repository.dart';
+import 'package:shop_app/core/db/repositories/return_repository.dart';
 import 'package:shop_app/core/providers.dart';
+import 'package:shop_app/features/returns/return_screens.dart';
 import 'package:shop_app/features/auth/lock_screen.dart';
 import 'package:shop_app/features/billing/bill_screen.dart';
 import 'package:shop_app/features/bills/bills_screens.dart';
@@ -41,6 +43,8 @@ void main() {
     'New bill': (_) => const BillScreen(),
     'Bills list': (_) => const BillsScreen(),
     'Bill detail': (i) => BillDetailScreen(invoiceId: i.invoiceId),
+    'Return items': (i) => ReturnScreen(invoiceId: i.invoiceId),
+    'Credit note': (i) => CreditNoteScreen(returnId: i.returnId),
     'Items': (_) => const ItemsScreen(),
     'Item form': (i) => ItemFormScreen(itemId: i.itemId),
     'Stock': (_) => const StockScreen(),
@@ -115,16 +119,30 @@ void main() {
 }
 
 class _Ids {
-  const _Ids(this.invoiceId, this.itemId, this.partyId);
-  final String invoiceId, itemId, partyId;
+  const _Ids(this.invoiceId, this.itemId, this.partyId, this.returnId);
+  final String invoiceId, itemId, partyId, returnId;
 
   static Future<_Ids> load(Harness h) async {
     Future<String> first(String sql) async =>
         (await h.db.customSelect(sql).getSingle()).data.values.first as String;
+    // Ramesh's bill A-0002: take 4 of the 10 switches back, so there is a credit note.
+    final invoice = await first("SELECT id FROM invoices WHERE invoice_no_text = 'A-0002'");
+    final returns = ReturnRepository(h.session.ctx);
+    final line = (await returns.returnable(invoice)).single.line;
+    final returnId = await returns.postReturn(PostReturnInput(
+      invoiceId: invoice,
+      deviceId: h.session.deviceId,
+      series: h.session.series,
+      lines: [ReturnLineInput(line.id, '4')],
+      refund: const RefundSplit(upiPaise: 2000, accountPaise: 4000),
+      createdBy: h.session.userId,
+      approvedBy: h.session.userId,
+    ));
     return _Ids(
       await first('SELECT id FROM invoices ORDER BY number LIMIT 1'),
       await first("SELECT id FROM items WHERE name = '6A switch'"),
       await first("SELECT id FROM parties WHERE name = 'Ramesh'"),
+      returnId,
     );
   }
 }

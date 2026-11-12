@@ -40,7 +40,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump on every schema change and add a step in [migration].
   /// Never edit a released schema version; add a new one.
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -63,6 +63,14 @@ class AppDatabase extends _$AppDatabase {
           // v4 (A5): the HSN an item had when a bill line was sold.
           if (from < 4) {
             await m.addColumn(invoiceLines, invoiceLines.hsn);
+          }
+          // v5 (A7): credit notes. The two return tables existed since v1 but were
+          // never written to, so they are rebuilt with the new columns.
+          if (from < 5) {
+            await m.drop(salesReturnLines);
+            await m.drop(salesReturns);
+            await m.createTable(salesReturns);
+            await m.createTable(salesReturnLines);
           }
         },
         beforeOpen: (details) async {

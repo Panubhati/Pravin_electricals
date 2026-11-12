@@ -306,9 +306,20 @@ class InvoiceRepository {
       select.where(db.invoices.date
           .isSmallerThanValue(DateTime(to.year, to.month, to.day + 1)));
     }
+    final rows = await select.get();
+    final returned = <String, int>{};
+    if (rows.isNotEmpty) {
+      final back = await db.customSelect(
+        'SELECT invoice_id AS id, SUM(total_paise) AS n FROM sales_returns WHERE deleted_at IS NULL GROUP BY invoice_id',
+      ).get();
+      for (final r in back) {
+        returned[r.data['id'] as String] = (r.data['n'] as num).toInt();
+      }
+    }
     return [
-      for (final r in await select.get())
-        InvoiceListEntry(r.readTable(db.invoices), r.readTableOrNull(db.parties)?.name),
+      for (final r in rows)
+        InvoiceListEntry(r.readTable(db.invoices), r.readTableOrNull(db.parties)?.name,
+            returnedPaise: returned[r.readTable(db.invoices).id] ?? 0),
     ];
   }
 
@@ -427,8 +438,13 @@ class InvoiceRepository {
 
 /// One row of the bills list.
 class InvoiceListEntry {
-  const InvoiceListEntry(this.invoice, this.partyName);
+  const InvoiceListEntry(this.invoice, this.partyName, {this.returnedPaise = 0});
   final Invoice invoice;
+
+  /// Total given back on this bill so far (returns and cancel).
+  final int returnedPaise;
+
+  bool get cancelled => invoice.status == 'cancelled';
 
   /// Null for a walk-in customer.
   final String? partyName;

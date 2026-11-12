@@ -7,6 +7,7 @@ import '../generated_migrations/schema.dart';
 import '../generated_migrations/schema_v1.dart' as v1;
 import '../generated_migrations/schema_v2.dart' as v2;
 import '../generated_migrations/schema_v3.dart' as v3;
+import '../generated_migrations/schema_v4.dart' as v4;
 
 /// A phone with shop data on schema v1 must upgrade to the current version without losing
 /// anything (plan section 12, "Migration test").
@@ -15,7 +16,7 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 to v4 keeps existing shop data and the schema matches', () async {
+  test('v1 to v5 keeps existing shop data and the schema matches', () async {
     final schema = await verifier.schemaAt(1);
 
     // Build a v1 database holding data like an A2 phone: shop, party, ledger, stock.
@@ -38,7 +39,7 @@ void main() {
     late AppDatabase db;
     await verifier.migrateAndValidate(
       db = AppDatabase(schema.newConnection()),
-      4,
+      5,
     );
 
     // Old rows survived and new columns exist (null for old rows).
@@ -58,7 +59,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 to v4 adds settings and keeps shop data', () async {
+  test('v2 to v5 adds settings and keeps shop data', () async {
     final schema = await verifier.schemaAt(2);
     final old = v2.DatabaseAtV2(schema.newConnection());
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
@@ -71,13 +72,13 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 4);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 5);
     expect((await db.select(db.users).get()).single.role, 'owner');
     expect((await db.select(db.appSettings).get()), isEmpty);
     await db.close();
   });
 
-  test('v3 to v4 adds the sold HSN to bill lines and keeps existing lines', () async {
+  test('v3 upgrades to v5: the sold HSN column appears and existing bill lines are kept', () async {
     final schema = await verifier.schemaAt(3);
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
     final old = v3.DatabaseAtV3(schema.newConnection());
@@ -93,17 +94,42 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 4);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 5);
     final line = (await db.select(db.invoiceLines).get()).single;
     expect(line.lineTotalPaise, 11875);
     expect(line.hsn, isNull); // old lines have no sold HSN; reprints fall back to the item's
     await db.close();
   });
 
-  test('a fresh install creates the v4 schema directly', () async {
+  test('v4 to v5 rebuilds the credit note tables and keeps every bill', () async {
     final schema = await verifier.schemaAt(4);
+    final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
+    final old = v4.DatabaseAtV4(schema.newConnection());
+    for (final sql in [
+      "INSERT INTO shops (id, shop_id, created_at, updated_at, name) VALUES ('s', 's', $secs, $secs, 'Shop')",
+      "INSERT INTO devices (id, shop_id, created_at, updated_at, label, invoice_series_prefix) VALUES ('d', 's', $secs, $secs, 'Phone', 'A')",
+      "INSERT INTO invoices (id, shop_id, created_at, updated_at, device_id, series, number, invoice_no_text, date, subtotal_paise, discount_paise, tax_paise, round_off_paise, total_paise, paid_paise, status) VALUES ('inv', 's', $secs, $secs, 'd', 'A', 1, 'A-0001', $secs, 11875, 0, 1811, 25, 11900, 11900, 'posted')",
+    ]) {
+      await old.customStatement(sql);
+    }
+    await old.close();
+
+    late AppDatabase db;
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 5);
+    expect((await db.select(db.invoices).get()).single.invoiceNoText, 'A-0001');
+    expect(await db.select(db.salesReturns).get(), isEmpty);
+    // The rebuilt tables accept a credit note.
+    await db.customStatement(
+        "INSERT INTO sales_returns (id, shop_id, created_at, updated_at, invoice_id, device_id, series, number, "
+        "credit_note_no_text, date, total_paise) VALUES ('r', 's', $secs, $secs, 'inv', 'd', 'A', 1, 'CN-A-0001', $secs, 100)");
+    expect((await db.select(db.salesReturns).get()).single.creditNoteNoText, 'CN-A-0001');
+    await db.close();
+  });
+
+  test('a fresh install creates the v5 schema directly', () async {
+    final schema = await verifier.schemaAt(5);
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 4);
+    await verifier.migrateAndValidate(db, 5);
     await db.close();
   });
 }

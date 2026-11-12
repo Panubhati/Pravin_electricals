@@ -10,8 +10,9 @@ import 'stock_repository.dart';
 /// Start of the local calendar day containing [d].
 DateTime startOfDay(DateTime d) => DateTime(d.year, d.month, d.day);
 
-/// One day's sales. Amounts are paise; [byMode] splits what customers paid by
-/// payment mode (cash, upi, card, credit) so it adds up to [totalPaise].
+/// One day's sales, net of what customers took back that day. Amounts are
+/// paise; [byMode] splits what customers paid by payment mode (cash, upi, card,
+/// credit) after refunds, so it adds up to [totalPaise].
 class DailySales {
   const DailySales({
     required this.day,
@@ -20,16 +21,36 @@ class DailySales {
     required this.discountPaise,
     required this.gstPaise,
     required this.byMode,
+    this.grossPaise = 0,
+    this.returnsPaise = 0,
+    this.returnCount = 0,
+    this.cancelCount = 0,
   });
 
   final DateTime day;
+
+  /// Bills made that day, not counting ones that were cancelled.
   final int billCount;
+
+  /// Net sales: [grossPaise] minus [returnsPaise].
   final int totalPaise;
   final int discountPaise;
 
-  /// GST contained in the total (informational; prices include GST).
+  /// GST contained in the net total (informational; prices include GST).
   final int gstPaise;
   final Map<String, int> byMode;
+
+  /// What the bills made that day came to, before any returns.
+  final int grossPaise;
+
+  /// Given back that day (returns and cancelled bills, whichever bill they were on).
+  final int returnsPaise;
+
+  /// Credit notes made that day for part of a bill.
+  final int returnCount;
+
+  /// Bills dated that day that were cancelled.
+  final int cancelCount;
 
   int mode(String m) => byMode[m] ?? 0;
 }
@@ -42,6 +63,7 @@ class CashPosition {
     required this.cashReceiptsPaise,
     required this.cashPaidOutPaise,
     required this.openingPaise,
+    this.cashRefundsPaise = 0,
   });
 
   final DateTime day;
@@ -55,10 +77,13 @@ class CashPosition {
   /// Cash paid to suppliers today.
   final int cashPaidOutPaise;
 
+  /// Cash handed back to customers for returns and cancelled bills today.
+  final int cashRefundsPaise;
+
   /// Cash in hand at the start of the day.
   final int openingPaise;
 
-  int get netPaise => cashSalesPaise + cashReceiptsPaise - cashPaidOutPaise;
+  int get netPaise => cashSalesPaise + cashReceiptsPaise - cashPaidOutPaise - cashRefundsPaise;
   int get closingPaise => openingPaise + netPaise;
 }
 
@@ -164,10 +189,11 @@ class ReportsRepository {
     final from = startOfDay(day);
     final to = DateTime(from.year, from.month, from.day + 1);
     final db = ctx.db;
+    // Every bill dated that day, cancelled ones too: a cancel is a return made
+    // on the day it happens, so the day it was sold on still shows the sale.
     final invoices = await (db.select(db.invoices)
           ..where((t) =>
               t.deletedAt.isNull() &
-              t.status.equals('posted') &
               t.date.isBiggerOrEqualValue(from) &
               t.date.isSmallerThanValue(to)))
         .get();
@@ -181,13 +207,32 @@ class ReportsRepository {
         byMode[p.mode] = (byMode[p.mode] ?? 0) + p.amountPaise;
       }
     }
+    final returns = await (db.select(db.salesReturns)
+          ..where((t) =>
+              t.deletedAt.isNull() &
+              t.date.isBiggerOrEqualValue(from) &
+              t.date.isSmallerThanValue(to)))
+        .get();
+    var refunded = 0, refundedTax = 0;
+    for (final r in returns) {
+      refunded += r.totalPaise;
+      refundedTax += r.taxPaise;
+      byMode['cash'] = (byMode['cash'] ?? 0) - r.refundCashPaise;
+      byMode['upi'] = (byMode['upi'] ?? 0) - r.refundUpiPaise;
+      byMode['credit'] = (byMode['credit'] ?? 0) - r.refundAccountPaise;
+    }
+    final gross = invoices.fold<int>(0, (a, i) => a + i.totalPaise);
     return DailySales(
       day: from,
-      billCount: invoices.length,
-      totalPaise: invoices.fold(0, (a, i) => a + i.totalPaise),
+      billCount: invoices.where((i) => i.status != 'cancelled').length,
+      totalPaise: gross - refunded,
       discountPaise: invoices.fold(0, (a, i) => a + i.discountPaise),
-      gstPaise: invoices.fold(0, (a, i) => a + i.taxPaise),
+      gstPaise: invoices.fold<int>(0, (a, i) => a + i.taxPaise) - refundedTax,
       byMode: byMode,
+      grossPaise: gross,
+      returnsPaise: refunded,
+      returnCount: returns.where((r) => !r.isCancel).length,
+      cancelCount: invoices.where((i) => i.status == 'cancelled').length,
     );
   }
 
@@ -202,19 +247,23 @@ class ReportsRepository {
     final sales = await _cashSales(from: from, to: to);
     final receipts = -await _cashLedger('payment', from: from, to: to);
     final paidOut = await _cashLedger('supplier_payment', from: from, to: to);
+    final refunds = await _cashRefunds(from: from, to: to);
+    final beforeRefunds = await _cashRefunds(to: from);
     final beforeSales = await _cashSales(to: from);
     final beforeReceipts = -await _cashLedger('payment', to: from);
     final beforePaid = await _cashLedger('supplier_payment', to: from);
     final opening = await _settings.openingCashPaise() +
         beforeSales +
         beforeReceipts -
-        beforePaid;
+        beforePaid -
+        beforeRefunds;
     return CashPosition(
       day: from,
       cashSalesPaise: sales,
       cashReceiptsPaise: receipts,
       cashPaidOutPaise: paidOut,
       openingPaise: opening,
+      cashRefundsPaise: refunds,
     );
   }
 
@@ -227,10 +276,20 @@ class ReportsRepository {
       ..addColumns([sum])
       ..where(p.deletedAt.isNull() &
           i.deletedAt.isNull() &
-          i.status.equals('posted') &
           p.mode.equals('cash') &
           i.date.isSmallerThanValue(to));
     if (from != null) q.where(i.date.isBiggerOrEqualValue(from));
+    return (await q.getSingle()).read(sum) ?? 0;
+  }
+
+  /// Cash handed back to customers (returns and cancelled bills) by return date.
+  Future<int> _cashRefunds({DateTime? from, required DateTime to}) async {
+    final r = ctx.db.salesReturns;
+    final sum = r.refundCashPaise.sum();
+    final q = ctx.db.selectOnly(r)
+      ..addColumns([sum])
+      ..where(r.deletedAt.isNull() & r.date.isSmallerThanValue(to));
+    if (from != null) q.where(r.date.isBiggerOrEqualValue(from));
     return (await q.getSingle()).read(sum) ?? 0;
   }
 
@@ -257,13 +316,27 @@ class ReportsRepository {
     ])
           ..where(db.invoiceLines.deletedAt.isNull() &
               db.invoices.deletedAt.isNull() &
-              db.invoices.status.equals('posted') &
               db.invoices.date.isBiggerOrEqualValue(start) &
               db.invoices.date.isSmallerThanValue(end)))
         .get();
-    if (rows.isEmpty) return const ItemProfitReport([]);
+    // What customers took back in the same period (by the day of the return),
+    // with the bill line it came from, so the cost on the original bill date is used.
+    final returned = await (db.select(db.salesReturnLines).join([
+      innerJoin(db.salesReturns, db.salesReturns.id.equalsExp(db.salesReturnLines.returnId)),
+      innerJoin(db.invoiceLines, db.invoiceLines.id.equalsExp(db.salesReturnLines.invoiceLineId)),
+      innerJoin(db.invoices, db.invoices.id.equalsExp(db.invoiceLines.invoiceId)),
+    ])
+          ..where(db.salesReturnLines.deletedAt.isNull() &
+              db.salesReturns.deletedAt.isNull() &
+              db.salesReturns.date.isBiggerOrEqualValue(start) &
+              db.salesReturns.date.isSmallerThanValue(end)))
+        .get();
+    if (rows.isEmpty && returned.isEmpty) return const ItemProfitReport([]);
 
-    final itemIds = {for (final r in rows) r.readTable(db.invoiceLines).itemId};
+    final itemIds = {
+      for (final r in rows) r.readTable(db.invoiceLines).itemId,
+      for (final r in returned) r.readTable(db.salesReturnLines).itemId,
+    };
     final costRows = await (db.select(db.itemCosts)
           ..where((t) => t.deletedAt.isNull() & t.itemId.isIn(itemIds))
           ..orderBy([
@@ -297,6 +370,27 @@ class ReportsRepository {
       } else {
         a.taxable += taxable;
         a.cost += Money.divRoundHalfUp(line.qtyBase * cost, line.priceUnitFactor);
+      }
+    }
+    // Take back what customers returned: less sales, less cost (at the cost in
+    // force on the original bill's date), so profit only counts what was kept.
+    for (final r in returned) {
+      final line = r.readTable(db.salesReturnLines);
+      final orig = r.readTable(db.invoiceLines);
+      final inv = r.readTable(db.invoices);
+      final a = acc[line.itemId] ??= _ProfitAcc();
+      a.qty -= line.qtyBase;
+      final taxable = line.lineTotalPaise - line.taxPaise;
+      int? cost;
+      for (final c in costs[line.itemId] ?? const <ItemCost>[]) {
+        if (c.effectiveFrom.isAfter(inv.date)) break;
+        cost = c.costPaise;
+      }
+      if (cost == null) {
+        a.unknown -= taxable;
+      } else {
+        a.taxable -= taxable;
+        a.cost -= Money.divRoundHalfUp(line.qtyBase * cost, orig.priceUnitFactor);
       }
     }
     final out = [

@@ -10471,6 +10471,49 @@ class $SalesReturnsTable extends SalesReturns
       'REFERENCES invoices (id)',
     ),
   );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES devices (id)',
+    ),
+  );
+  static const VerificationMeta _seriesMeta = const VerificationMeta('series');
+  @override
+  late final GeneratedColumn<String> series = GeneratedColumn<String>(
+    'series',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _numberMeta = const VerificationMeta('number');
+  @override
+  late final GeneratedColumn<int> number = GeneratedColumn<int>(
+    'number',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _creditNoteNoTextMeta = const VerificationMeta(
+    'creditNoteNoText',
+  );
+  @override
+  late final GeneratedColumn<String> creditNoteNoText = GeneratedColumn<String>(
+    'credit_note_no_text',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _dateMeta = const VerificationMeta('date');
   @override
   late final GeneratedColumn<DateTime> date = GeneratedColumn<DateTime>(
@@ -10490,6 +10533,80 @@ class $SalesReturnsTable extends SalesReturns
     false,
     type: DriftSqlType.int,
     requiredDuringInsert: true,
+  );
+  static const VerificationMeta _taxPaiseMeta = const VerificationMeta(
+    'taxPaise',
+  );
+  @override
+  late final GeneratedColumn<int> taxPaise = GeneratedColumn<int>(
+    'tax_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _roundOffPaiseMeta = const VerificationMeta(
+    'roundOffPaise',
+  );
+  @override
+  late final GeneratedColumn<int> roundOffPaise = GeneratedColumn<int>(
+    'round_off_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _refundCashPaiseMeta = const VerificationMeta(
+    'refundCashPaise',
+  );
+  @override
+  late final GeneratedColumn<int> refundCashPaise = GeneratedColumn<int>(
+    'refund_cash_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _refundUpiPaiseMeta = const VerificationMeta(
+    'refundUpiPaise',
+  );
+  @override
+  late final GeneratedColumn<int> refundUpiPaise = GeneratedColumn<int>(
+    'refund_upi_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _refundAccountPaiseMeta =
+      const VerificationMeta('refundAccountPaise');
+  @override
+  late final GeneratedColumn<int> refundAccountPaise = GeneratedColumn<int>(
+    'refund_account_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isCancelMeta = const VerificationMeta(
+    'isCancel',
+  );
+  @override
+  late final GeneratedColumn<bool> isCancel = GeneratedColumn<bool>(
+    'is_cancel',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_cancel" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
   );
   static const VerificationMeta _noteMeta = const VerificationMeta('note');
   @override
@@ -10511,6 +10628,17 @@ class $SalesReturnsTable extends SalesReturns
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _approvedByMeta = const VerificationMeta(
+    'approvedBy',
+  );
+  @override
+  late final GeneratedColumn<String> approvedBy = GeneratedColumn<String>(
+    'approved_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -10519,10 +10647,21 @@ class $SalesReturnsTable extends SalesReturns
     updatedAt,
     deletedAt,
     invoiceId,
+    deviceId,
+    series,
+    number,
+    creditNoteNoText,
     date,
     totalPaise,
+    taxPaise,
+    roundOffPaise,
+    refundCashPaise,
+    refundUpiPaise,
+    refundAccountPaise,
+    isCancel,
     note,
     createdBy,
+    approvedBy,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -10579,6 +10718,41 @@ class $SalesReturnsTable extends SalesReturns
     } else if (isInserting) {
       context.missing(_invoiceIdMeta);
     }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_deviceIdMeta);
+    }
+    if (data.containsKey('series')) {
+      context.handle(
+        _seriesMeta,
+        series.isAcceptableOrUnknown(data['series']!, _seriesMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_seriesMeta);
+    }
+    if (data.containsKey('number')) {
+      context.handle(
+        _numberMeta,
+        number.isAcceptableOrUnknown(data['number']!, _numberMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_numberMeta);
+    }
+    if (data.containsKey('credit_note_no_text')) {
+      context.handle(
+        _creditNoteNoTextMeta,
+        creditNoteNoText.isAcceptableOrUnknown(
+          data['credit_note_no_text']!,
+          _creditNoteNoTextMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_creditNoteNoTextMeta);
+    }
     if (data.containsKey('date')) {
       context.handle(
         _dateMeta,
@@ -10595,6 +10769,54 @@ class $SalesReturnsTable extends SalesReturns
     } else if (isInserting) {
       context.missing(_totalPaiseMeta);
     }
+    if (data.containsKey('tax_paise')) {
+      context.handle(
+        _taxPaiseMeta,
+        taxPaise.isAcceptableOrUnknown(data['tax_paise']!, _taxPaiseMeta),
+      );
+    }
+    if (data.containsKey('round_off_paise')) {
+      context.handle(
+        _roundOffPaiseMeta,
+        roundOffPaise.isAcceptableOrUnknown(
+          data['round_off_paise']!,
+          _roundOffPaiseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('refund_cash_paise')) {
+      context.handle(
+        _refundCashPaiseMeta,
+        refundCashPaise.isAcceptableOrUnknown(
+          data['refund_cash_paise']!,
+          _refundCashPaiseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('refund_upi_paise')) {
+      context.handle(
+        _refundUpiPaiseMeta,
+        refundUpiPaise.isAcceptableOrUnknown(
+          data['refund_upi_paise']!,
+          _refundUpiPaiseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('refund_account_paise')) {
+      context.handle(
+        _refundAccountPaiseMeta,
+        refundAccountPaise.isAcceptableOrUnknown(
+          data['refund_account_paise']!,
+          _refundAccountPaiseMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_cancel')) {
+      context.handle(
+        _isCancelMeta,
+        isCancel.isAcceptableOrUnknown(data['is_cancel']!, _isCancelMeta),
+      );
+    }
     if (data.containsKey('note')) {
       context.handle(
         _noteMeta,
@@ -10607,11 +10829,21 @@ class $SalesReturnsTable extends SalesReturns
         createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
       );
     }
+    if (data.containsKey('approved_by')) {
+      context.handle(
+        _approvedByMeta,
+        approvedBy.isAcceptableOrUnknown(data['approved_by']!, _approvedByMeta),
+      );
+    }
     return context;
   }
 
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {deviceId, series, number},
+  ];
   @override
   SalesReturn map(Map<String, dynamic> data, {String? tablePrefix}) {
     final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
@@ -10645,6 +10877,26 @@ class $SalesReturnsTable extends SalesReturns
             DriftSqlType.string,
             data['${effectivePrefix}invoice_id'],
           )!,
+      deviceId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}device_id'],
+          )!,
+      series:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}series'],
+          )!,
+      number:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}number'],
+          )!,
+      creditNoteNoText:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}credit_note_no_text'],
+          )!,
       date:
           attachedDatabase.typeMapping.read(
             DriftSqlType.dateTime,
@@ -10655,6 +10907,36 @@ class $SalesReturnsTable extends SalesReturns
             DriftSqlType.int,
             data['${effectivePrefix}total_paise'],
           )!,
+      taxPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}tax_paise'],
+          )!,
+      roundOffPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}round_off_paise'],
+          )!,
+      refundCashPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}refund_cash_paise'],
+          )!,
+      refundUpiPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}refund_upi_paise'],
+          )!,
+      refundAccountPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}refund_account_paise'],
+          )!,
+      isCancel:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}is_cancel'],
+          )!,
       note: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}note'],
@@ -10662,6 +10944,10 @@ class $SalesReturnsTable extends SalesReturns
       createdBy: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}created_by'],
+      ),
+      approvedBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}approved_by'],
       ),
     );
   }
@@ -10679,10 +10965,36 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
   final DateTime updatedAt;
   final DateTime? deletedAt;
   final String invoiceId;
+
+  /// Credit note number in this device's series, e.g. "CN-A-0001".
+  final String deviceId;
+  final String series;
+  final int number;
+  final String creditNoteNoText;
   final DateTime date;
+
+  /// Everything given back to the customer (lines + round-off share).
   final int totalPaise;
+
+  /// GST contained in the lines returned (informational; prices include GST).
+  final int taxPaise;
+
+  /// Share of the bill's round-off, refunded with the return that completes the bill.
+  final int roundOffPaise;
+
+  /// How the money went back: handed over in cash, sent by UPI, or taken off
+  /// what the customer owes (a credit to their account). They add up to [totalPaise].
+  final int refundCashPaise;
+  final int refundUpiPaise;
+  final int refundAccountPaise;
+
+  /// True when the whole bill was cancelled (the bill is then marked cancelled).
+  final bool isCancel;
   final String? note;
   final String? createdBy;
+
+  /// The owner who approved it (the same person when the owner did it).
+  final String? approvedBy;
   const SalesReturn({
     required this.id,
     required this.shopId,
@@ -10690,10 +11002,21 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
     required this.updatedAt,
     this.deletedAt,
     required this.invoiceId,
+    required this.deviceId,
+    required this.series,
+    required this.number,
+    required this.creditNoteNoText,
     required this.date,
     required this.totalPaise,
+    required this.taxPaise,
+    required this.roundOffPaise,
+    required this.refundCashPaise,
+    required this.refundUpiPaise,
+    required this.refundAccountPaise,
+    required this.isCancel,
     this.note,
     this.createdBy,
+    this.approvedBy,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -10706,13 +11029,26 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
       map['deleted_at'] = Variable<DateTime>(deletedAt);
     }
     map['invoice_id'] = Variable<String>(invoiceId);
+    map['device_id'] = Variable<String>(deviceId);
+    map['series'] = Variable<String>(series);
+    map['number'] = Variable<int>(number);
+    map['credit_note_no_text'] = Variable<String>(creditNoteNoText);
     map['date'] = Variable<DateTime>(date);
     map['total_paise'] = Variable<int>(totalPaise);
+    map['tax_paise'] = Variable<int>(taxPaise);
+    map['round_off_paise'] = Variable<int>(roundOffPaise);
+    map['refund_cash_paise'] = Variable<int>(refundCashPaise);
+    map['refund_upi_paise'] = Variable<int>(refundUpiPaise);
+    map['refund_account_paise'] = Variable<int>(refundAccountPaise);
+    map['is_cancel'] = Variable<bool>(isCancel);
     if (!nullToAbsent || note != null) {
       map['note'] = Variable<String>(note);
     }
     if (!nullToAbsent || createdBy != null) {
       map['created_by'] = Variable<String>(createdBy);
+    }
+    if (!nullToAbsent || approvedBy != null) {
+      map['approved_by'] = Variable<String>(approvedBy);
     }
     return map;
   }
@@ -10728,13 +11064,27 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
               ? const Value.absent()
               : Value(deletedAt),
       invoiceId: Value(invoiceId),
+      deviceId: Value(deviceId),
+      series: Value(series),
+      number: Value(number),
+      creditNoteNoText: Value(creditNoteNoText),
       date: Value(date),
       totalPaise: Value(totalPaise),
+      taxPaise: Value(taxPaise),
+      roundOffPaise: Value(roundOffPaise),
+      refundCashPaise: Value(refundCashPaise),
+      refundUpiPaise: Value(refundUpiPaise),
+      refundAccountPaise: Value(refundAccountPaise),
+      isCancel: Value(isCancel),
       note: note == null && nullToAbsent ? const Value.absent() : Value(note),
       createdBy:
           createdBy == null && nullToAbsent
               ? const Value.absent()
               : Value(createdBy),
+      approvedBy:
+          approvedBy == null && nullToAbsent
+              ? const Value.absent()
+              : Value(approvedBy),
     );
   }
 
@@ -10750,10 +11100,21 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
       updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
       deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
       invoiceId: serializer.fromJson<String>(json['invoiceId']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      series: serializer.fromJson<String>(json['series']),
+      number: serializer.fromJson<int>(json['number']),
+      creditNoteNoText: serializer.fromJson<String>(json['creditNoteNoText']),
       date: serializer.fromJson<DateTime>(json['date']),
       totalPaise: serializer.fromJson<int>(json['totalPaise']),
+      taxPaise: serializer.fromJson<int>(json['taxPaise']),
+      roundOffPaise: serializer.fromJson<int>(json['roundOffPaise']),
+      refundCashPaise: serializer.fromJson<int>(json['refundCashPaise']),
+      refundUpiPaise: serializer.fromJson<int>(json['refundUpiPaise']),
+      refundAccountPaise: serializer.fromJson<int>(json['refundAccountPaise']),
+      isCancel: serializer.fromJson<bool>(json['isCancel']),
       note: serializer.fromJson<String?>(json['note']),
       createdBy: serializer.fromJson<String?>(json['createdBy']),
+      approvedBy: serializer.fromJson<String?>(json['approvedBy']),
     );
   }
   @override
@@ -10766,10 +11127,21 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
       'updatedAt': serializer.toJson<DateTime>(updatedAt),
       'deletedAt': serializer.toJson<DateTime?>(deletedAt),
       'invoiceId': serializer.toJson<String>(invoiceId),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'series': serializer.toJson<String>(series),
+      'number': serializer.toJson<int>(number),
+      'creditNoteNoText': serializer.toJson<String>(creditNoteNoText),
       'date': serializer.toJson<DateTime>(date),
       'totalPaise': serializer.toJson<int>(totalPaise),
+      'taxPaise': serializer.toJson<int>(taxPaise),
+      'roundOffPaise': serializer.toJson<int>(roundOffPaise),
+      'refundCashPaise': serializer.toJson<int>(refundCashPaise),
+      'refundUpiPaise': serializer.toJson<int>(refundUpiPaise),
+      'refundAccountPaise': serializer.toJson<int>(refundAccountPaise),
+      'isCancel': serializer.toJson<bool>(isCancel),
       'note': serializer.toJson<String?>(note),
       'createdBy': serializer.toJson<String?>(createdBy),
+      'approvedBy': serializer.toJson<String?>(approvedBy),
     };
   }
 
@@ -10780,10 +11152,21 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
     DateTime? updatedAt,
     Value<DateTime?> deletedAt = const Value.absent(),
     String? invoiceId,
+    String? deviceId,
+    String? series,
+    int? number,
+    String? creditNoteNoText,
     DateTime? date,
     int? totalPaise,
+    int? taxPaise,
+    int? roundOffPaise,
+    int? refundCashPaise,
+    int? refundUpiPaise,
+    int? refundAccountPaise,
+    bool? isCancel,
     Value<String?> note = const Value.absent(),
     Value<String?> createdBy = const Value.absent(),
+    Value<String?> approvedBy = const Value.absent(),
   }) => SalesReturn(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -10791,10 +11174,21 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
     updatedAt: updatedAt ?? this.updatedAt,
     deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
     invoiceId: invoiceId ?? this.invoiceId,
+    deviceId: deviceId ?? this.deviceId,
+    series: series ?? this.series,
+    number: number ?? this.number,
+    creditNoteNoText: creditNoteNoText ?? this.creditNoteNoText,
     date: date ?? this.date,
     totalPaise: totalPaise ?? this.totalPaise,
+    taxPaise: taxPaise ?? this.taxPaise,
+    roundOffPaise: roundOffPaise ?? this.roundOffPaise,
+    refundCashPaise: refundCashPaise ?? this.refundCashPaise,
+    refundUpiPaise: refundUpiPaise ?? this.refundUpiPaise,
+    refundAccountPaise: refundAccountPaise ?? this.refundAccountPaise,
+    isCancel: isCancel ?? this.isCancel,
     note: note.present ? note.value : this.note,
     createdBy: createdBy.present ? createdBy.value : this.createdBy,
+    approvedBy: approvedBy.present ? approvedBy.value : this.approvedBy,
   );
   SalesReturn copyWithCompanion(SalesReturnsCompanion data) {
     return SalesReturn(
@@ -10804,11 +11198,38 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
       updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
       deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
       invoiceId: data.invoiceId.present ? data.invoiceId.value : this.invoiceId,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      series: data.series.present ? data.series.value : this.series,
+      number: data.number.present ? data.number.value : this.number,
+      creditNoteNoText:
+          data.creditNoteNoText.present
+              ? data.creditNoteNoText.value
+              : this.creditNoteNoText,
       date: data.date.present ? data.date.value : this.date,
       totalPaise:
           data.totalPaise.present ? data.totalPaise.value : this.totalPaise,
+      taxPaise: data.taxPaise.present ? data.taxPaise.value : this.taxPaise,
+      roundOffPaise:
+          data.roundOffPaise.present
+              ? data.roundOffPaise.value
+              : this.roundOffPaise,
+      refundCashPaise:
+          data.refundCashPaise.present
+              ? data.refundCashPaise.value
+              : this.refundCashPaise,
+      refundUpiPaise:
+          data.refundUpiPaise.present
+              ? data.refundUpiPaise.value
+              : this.refundUpiPaise,
+      refundAccountPaise:
+          data.refundAccountPaise.present
+              ? data.refundAccountPaise.value
+              : this.refundAccountPaise,
+      isCancel: data.isCancel.present ? data.isCancel.value : this.isCancel,
       note: data.note.present ? data.note.value : this.note,
       createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+      approvedBy:
+          data.approvedBy.present ? data.approvedBy.value : this.approvedBy,
     );
   }
 
@@ -10821,27 +11242,49 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('invoiceId: $invoiceId, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('series: $series, ')
+          ..write('number: $number, ')
+          ..write('creditNoteNoText: $creditNoteNoText, ')
           ..write('date: $date, ')
           ..write('totalPaise: $totalPaise, ')
+          ..write('taxPaise: $taxPaise, ')
+          ..write('roundOffPaise: $roundOffPaise, ')
+          ..write('refundCashPaise: $refundCashPaise, ')
+          ..write('refundUpiPaise: $refundUpiPaise, ')
+          ..write('refundAccountPaise: $refundAccountPaise, ')
+          ..write('isCancel: $isCancel, ')
           ..write('note: $note, ')
-          ..write('createdBy: $createdBy')
+          ..write('createdBy: $createdBy, ')
+          ..write('approvedBy: $approvedBy')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     shopId,
     createdAt,
     updatedAt,
     deletedAt,
     invoiceId,
+    deviceId,
+    series,
+    number,
+    creditNoteNoText,
     date,
     totalPaise,
+    taxPaise,
+    roundOffPaise,
+    refundCashPaise,
+    refundUpiPaise,
+    refundAccountPaise,
+    isCancel,
     note,
     createdBy,
-  );
+    approvedBy,
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -10852,10 +11295,21 @@ class SalesReturn extends DataClass implements Insertable<SalesReturn> {
           other.updatedAt == this.updatedAt &&
           other.deletedAt == this.deletedAt &&
           other.invoiceId == this.invoiceId &&
+          other.deviceId == this.deviceId &&
+          other.series == this.series &&
+          other.number == this.number &&
+          other.creditNoteNoText == this.creditNoteNoText &&
           other.date == this.date &&
           other.totalPaise == this.totalPaise &&
+          other.taxPaise == this.taxPaise &&
+          other.roundOffPaise == this.roundOffPaise &&
+          other.refundCashPaise == this.refundCashPaise &&
+          other.refundUpiPaise == this.refundUpiPaise &&
+          other.refundAccountPaise == this.refundAccountPaise &&
+          other.isCancel == this.isCancel &&
           other.note == this.note &&
-          other.createdBy == this.createdBy);
+          other.createdBy == this.createdBy &&
+          other.approvedBy == this.approvedBy);
 }
 
 class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
@@ -10865,10 +11319,21 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
   final Value<DateTime> updatedAt;
   final Value<DateTime?> deletedAt;
   final Value<String> invoiceId;
+  final Value<String> deviceId;
+  final Value<String> series;
+  final Value<int> number;
+  final Value<String> creditNoteNoText;
   final Value<DateTime> date;
   final Value<int> totalPaise;
+  final Value<int> taxPaise;
+  final Value<int> roundOffPaise;
+  final Value<int> refundCashPaise;
+  final Value<int> refundUpiPaise;
+  final Value<int> refundAccountPaise;
+  final Value<bool> isCancel;
   final Value<String?> note;
   final Value<String?> createdBy;
+  final Value<String?> approvedBy;
   final Value<int> rowid;
   const SalesReturnsCompanion({
     this.id = const Value.absent(),
@@ -10877,10 +11342,21 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
     this.updatedAt = const Value.absent(),
     this.deletedAt = const Value.absent(),
     this.invoiceId = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.series = const Value.absent(),
+    this.number = const Value.absent(),
+    this.creditNoteNoText = const Value.absent(),
     this.date = const Value.absent(),
     this.totalPaise = const Value.absent(),
+    this.taxPaise = const Value.absent(),
+    this.roundOffPaise = const Value.absent(),
+    this.refundCashPaise = const Value.absent(),
+    this.refundUpiPaise = const Value.absent(),
+    this.refundAccountPaise = const Value.absent(),
+    this.isCancel = const Value.absent(),
     this.note = const Value.absent(),
     this.createdBy = const Value.absent(),
+    this.approvedBy = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SalesReturnsCompanion.insert({
@@ -10890,16 +11366,31 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
     required DateTime updatedAt,
     this.deletedAt = const Value.absent(),
     required String invoiceId,
+    required String deviceId,
+    required String series,
+    required int number,
+    required String creditNoteNoText,
     required DateTime date,
     required int totalPaise,
+    this.taxPaise = const Value.absent(),
+    this.roundOffPaise = const Value.absent(),
+    this.refundCashPaise = const Value.absent(),
+    this.refundUpiPaise = const Value.absent(),
+    this.refundAccountPaise = const Value.absent(),
+    this.isCancel = const Value.absent(),
     this.note = const Value.absent(),
     this.createdBy = const Value.absent(),
+    this.approvedBy = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
        createdAt = Value(createdAt),
        updatedAt = Value(updatedAt),
        invoiceId = Value(invoiceId),
+       deviceId = Value(deviceId),
+       series = Value(series),
+       number = Value(number),
+       creditNoteNoText = Value(creditNoteNoText),
        date = Value(date),
        totalPaise = Value(totalPaise);
   static Insertable<SalesReturn> custom({
@@ -10909,10 +11400,21 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
     Expression<DateTime>? updatedAt,
     Expression<DateTime>? deletedAt,
     Expression<String>? invoiceId,
+    Expression<String>? deviceId,
+    Expression<String>? series,
+    Expression<int>? number,
+    Expression<String>? creditNoteNoText,
     Expression<DateTime>? date,
     Expression<int>? totalPaise,
+    Expression<int>? taxPaise,
+    Expression<int>? roundOffPaise,
+    Expression<int>? refundCashPaise,
+    Expression<int>? refundUpiPaise,
+    Expression<int>? refundAccountPaise,
+    Expression<bool>? isCancel,
     Expression<String>? note,
     Expression<String>? createdBy,
+    Expression<String>? approvedBy,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -10922,10 +11424,22 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
       if (updatedAt != null) 'updated_at': updatedAt,
       if (deletedAt != null) 'deleted_at': deletedAt,
       if (invoiceId != null) 'invoice_id': invoiceId,
+      if (deviceId != null) 'device_id': deviceId,
+      if (series != null) 'series': series,
+      if (number != null) 'number': number,
+      if (creditNoteNoText != null) 'credit_note_no_text': creditNoteNoText,
       if (date != null) 'date': date,
       if (totalPaise != null) 'total_paise': totalPaise,
+      if (taxPaise != null) 'tax_paise': taxPaise,
+      if (roundOffPaise != null) 'round_off_paise': roundOffPaise,
+      if (refundCashPaise != null) 'refund_cash_paise': refundCashPaise,
+      if (refundUpiPaise != null) 'refund_upi_paise': refundUpiPaise,
+      if (refundAccountPaise != null)
+        'refund_account_paise': refundAccountPaise,
+      if (isCancel != null) 'is_cancel': isCancel,
       if (note != null) 'note': note,
       if (createdBy != null) 'created_by': createdBy,
+      if (approvedBy != null) 'approved_by': approvedBy,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -10937,10 +11451,21 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
     Value<DateTime>? updatedAt,
     Value<DateTime?>? deletedAt,
     Value<String>? invoiceId,
+    Value<String>? deviceId,
+    Value<String>? series,
+    Value<int>? number,
+    Value<String>? creditNoteNoText,
     Value<DateTime>? date,
     Value<int>? totalPaise,
+    Value<int>? taxPaise,
+    Value<int>? roundOffPaise,
+    Value<int>? refundCashPaise,
+    Value<int>? refundUpiPaise,
+    Value<int>? refundAccountPaise,
+    Value<bool>? isCancel,
     Value<String?>? note,
     Value<String?>? createdBy,
+    Value<String?>? approvedBy,
     Value<int>? rowid,
   }) {
     return SalesReturnsCompanion(
@@ -10950,10 +11475,21 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
       updatedAt: updatedAt ?? this.updatedAt,
       deletedAt: deletedAt ?? this.deletedAt,
       invoiceId: invoiceId ?? this.invoiceId,
+      deviceId: deviceId ?? this.deviceId,
+      series: series ?? this.series,
+      number: number ?? this.number,
+      creditNoteNoText: creditNoteNoText ?? this.creditNoteNoText,
       date: date ?? this.date,
       totalPaise: totalPaise ?? this.totalPaise,
+      taxPaise: taxPaise ?? this.taxPaise,
+      roundOffPaise: roundOffPaise ?? this.roundOffPaise,
+      refundCashPaise: refundCashPaise ?? this.refundCashPaise,
+      refundUpiPaise: refundUpiPaise ?? this.refundUpiPaise,
+      refundAccountPaise: refundAccountPaise ?? this.refundAccountPaise,
+      isCancel: isCancel ?? this.isCancel,
       note: note ?? this.note,
       createdBy: createdBy ?? this.createdBy,
+      approvedBy: approvedBy ?? this.approvedBy,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -10979,17 +11515,50 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
     if (invoiceId.present) {
       map['invoice_id'] = Variable<String>(invoiceId.value);
     }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (series.present) {
+      map['series'] = Variable<String>(series.value);
+    }
+    if (number.present) {
+      map['number'] = Variable<int>(number.value);
+    }
+    if (creditNoteNoText.present) {
+      map['credit_note_no_text'] = Variable<String>(creditNoteNoText.value);
+    }
     if (date.present) {
       map['date'] = Variable<DateTime>(date.value);
     }
     if (totalPaise.present) {
       map['total_paise'] = Variable<int>(totalPaise.value);
     }
+    if (taxPaise.present) {
+      map['tax_paise'] = Variable<int>(taxPaise.value);
+    }
+    if (roundOffPaise.present) {
+      map['round_off_paise'] = Variable<int>(roundOffPaise.value);
+    }
+    if (refundCashPaise.present) {
+      map['refund_cash_paise'] = Variable<int>(refundCashPaise.value);
+    }
+    if (refundUpiPaise.present) {
+      map['refund_upi_paise'] = Variable<int>(refundUpiPaise.value);
+    }
+    if (refundAccountPaise.present) {
+      map['refund_account_paise'] = Variable<int>(refundAccountPaise.value);
+    }
+    if (isCancel.present) {
+      map['is_cancel'] = Variable<bool>(isCancel.value);
+    }
     if (note.present) {
       map['note'] = Variable<String>(note.value);
     }
     if (createdBy.present) {
       map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (approvedBy.present) {
+      map['approved_by'] = Variable<String>(approvedBy.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -11006,10 +11575,21 @@ class SalesReturnsCompanion extends UpdateCompanion<SalesReturn> {
           ..write('updatedAt: $updatedAt, ')
           ..write('deletedAt: $deletedAt, ')
           ..write('invoiceId: $invoiceId, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('series: $series, ')
+          ..write('number: $number, ')
+          ..write('creditNoteNoText: $creditNoteNoText, ')
           ..write('date: $date, ')
           ..write('totalPaise: $totalPaise, ')
+          ..write('taxPaise: $taxPaise, ')
+          ..write('roundOffPaise: $roundOffPaise, ')
+          ..write('refundCashPaise: $refundCashPaise, ')
+          ..write('refundUpiPaise: $refundUpiPaise, ')
+          ..write('refundAccountPaise: $refundAccountPaise, ')
+          ..write('isCancel: $isCancel, ')
           ..write('note: $note, ')
           ..write('createdBy: $createdBy, ')
+          ..write('approvedBy: $approvedBy, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -11113,6 +11693,39 @@ class $SalesReturnLinesTable extends SalesReturnLines
       'REFERENCES items (id)',
     ),
   );
+  static const VerificationMeta _variantIdMeta = const VerificationMeta(
+    'variantId',
+  );
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+    'variant_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _unitNameMeta = const VerificationMeta(
+    'unitName',
+  );
+  @override
+  late final GeneratedColumn<String> unitName = GeneratedColumn<String>(
+    'unit_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _qtyEnteredMeta = const VerificationMeta(
+    'qtyEntered',
+  );
+  @override
+  late final GeneratedColumn<String> qtyEntered = GeneratedColumn<String>(
+    'qty_entered',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
   static const VerificationMeta _qtyBaseMeta = const VerificationMeta(
     'qtyBase',
   );
@@ -11135,6 +11748,18 @@ class $SalesReturnLinesTable extends SalesReturnLines
     type: DriftSqlType.int,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _taxPaiseMeta = const VerificationMeta(
+    'taxPaise',
+  );
+  @override
+  late final GeneratedColumn<int> taxPaise = GeneratedColumn<int>(
+    'tax_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -11145,8 +11770,12 @@ class $SalesReturnLinesTable extends SalesReturnLines
     returnId,
     invoiceLineId,
     itemId,
+    variantId,
+    unitName,
+    qtyEntered,
     qtyBase,
     lineTotalPaise,
+    taxPaise,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -11222,6 +11851,28 @@ class $SalesReturnLinesTable extends SalesReturnLines
     } else if (isInserting) {
       context.missing(_itemIdMeta);
     }
+    if (data.containsKey('variant_id')) {
+      context.handle(
+        _variantIdMeta,
+        variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta),
+      );
+    }
+    if (data.containsKey('unit_name')) {
+      context.handle(
+        _unitNameMeta,
+        unitName.isAcceptableOrUnknown(data['unit_name']!, _unitNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_unitNameMeta);
+    }
+    if (data.containsKey('qty_entered')) {
+      context.handle(
+        _qtyEnteredMeta,
+        qtyEntered.isAcceptableOrUnknown(data['qty_entered']!, _qtyEnteredMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_qtyEnteredMeta);
+    }
     if (data.containsKey('qty_base')) {
       context.handle(
         _qtyBaseMeta,
@@ -11240,6 +11891,12 @@ class $SalesReturnLinesTable extends SalesReturnLines
       );
     } else if (isInserting) {
       context.missing(_lineTotalPaiseMeta);
+    }
+    if (data.containsKey('tax_paise')) {
+      context.handle(
+        _taxPaiseMeta,
+        taxPaise.isAcceptableOrUnknown(data['tax_paise']!, _taxPaiseMeta),
+      );
     }
     return context;
   }
@@ -11289,6 +11946,20 @@ class $SalesReturnLinesTable extends SalesReturnLines
             DriftSqlType.string,
             data['${effectivePrefix}item_id'],
           )!,
+      variantId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_id'],
+      ),
+      unitName:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}unit_name'],
+          )!,
+      qtyEntered:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}qty_entered'],
+          )!,
       qtyBase:
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
@@ -11298,6 +11969,11 @@ class $SalesReturnLinesTable extends SalesReturnLines
           attachedDatabase.typeMapping.read(
             DriftSqlType.int,
             data['${effectivePrefix}line_total_paise'],
+          )!,
+      taxPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}tax_paise'],
           )!,
     );
   }
@@ -11317,8 +11993,16 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
   final String returnId;
   final String invoiceLineId;
   final String itemId;
+  final String? variantId;
+
+  /// Quantity as the line was sold (e.g. "1.5" with unit "m").
+  final String unitName;
+  final String qtyEntered;
   final int qtyBase;
+
+  /// What this part of the line refunds (GST included, discount already taken off).
   final int lineTotalPaise;
+  final int taxPaise;
   const SalesReturnLine({
     required this.id,
     required this.shopId,
@@ -11328,8 +12012,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
     required this.returnId,
     required this.invoiceLineId,
     required this.itemId,
+    this.variantId,
+    required this.unitName,
+    required this.qtyEntered,
     required this.qtyBase,
     required this.lineTotalPaise,
+    required this.taxPaise,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -11344,8 +12032,14 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
     map['return_id'] = Variable<String>(returnId);
     map['invoice_line_id'] = Variable<String>(invoiceLineId);
     map['item_id'] = Variable<String>(itemId);
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    map['unit_name'] = Variable<String>(unitName);
+    map['qty_entered'] = Variable<String>(qtyEntered);
     map['qty_base'] = Variable<int>(qtyBase);
     map['line_total_paise'] = Variable<int>(lineTotalPaise);
+    map['tax_paise'] = Variable<int>(taxPaise);
     return map;
   }
 
@@ -11362,8 +12056,15 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
       returnId: Value(returnId),
       invoiceLineId: Value(invoiceLineId),
       itemId: Value(itemId),
+      variantId:
+          variantId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(variantId),
+      unitName: Value(unitName),
+      qtyEntered: Value(qtyEntered),
       qtyBase: Value(qtyBase),
       lineTotalPaise: Value(lineTotalPaise),
+      taxPaise: Value(taxPaise),
     );
   }
 
@@ -11381,8 +12082,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
       returnId: serializer.fromJson<String>(json['returnId']),
       invoiceLineId: serializer.fromJson<String>(json['invoiceLineId']),
       itemId: serializer.fromJson<String>(json['itemId']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      unitName: serializer.fromJson<String>(json['unitName']),
+      qtyEntered: serializer.fromJson<String>(json['qtyEntered']),
       qtyBase: serializer.fromJson<int>(json['qtyBase']),
       lineTotalPaise: serializer.fromJson<int>(json['lineTotalPaise']),
+      taxPaise: serializer.fromJson<int>(json['taxPaise']),
     );
   }
   @override
@@ -11397,8 +12102,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
       'returnId': serializer.toJson<String>(returnId),
       'invoiceLineId': serializer.toJson<String>(invoiceLineId),
       'itemId': serializer.toJson<String>(itemId),
+      'variantId': serializer.toJson<String?>(variantId),
+      'unitName': serializer.toJson<String>(unitName),
+      'qtyEntered': serializer.toJson<String>(qtyEntered),
       'qtyBase': serializer.toJson<int>(qtyBase),
       'lineTotalPaise': serializer.toJson<int>(lineTotalPaise),
+      'taxPaise': serializer.toJson<int>(taxPaise),
     };
   }
 
@@ -11411,8 +12120,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
     String? returnId,
     String? invoiceLineId,
     String? itemId,
+    Value<String?> variantId = const Value.absent(),
+    String? unitName,
+    String? qtyEntered,
     int? qtyBase,
     int? lineTotalPaise,
+    int? taxPaise,
   }) => SalesReturnLine(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -11422,8 +12135,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
     returnId: returnId ?? this.returnId,
     invoiceLineId: invoiceLineId ?? this.invoiceLineId,
     itemId: itemId ?? this.itemId,
+    variantId: variantId.present ? variantId.value : this.variantId,
+    unitName: unitName ?? this.unitName,
+    qtyEntered: qtyEntered ?? this.qtyEntered,
     qtyBase: qtyBase ?? this.qtyBase,
     lineTotalPaise: lineTotalPaise ?? this.lineTotalPaise,
+    taxPaise: taxPaise ?? this.taxPaise,
   );
   SalesReturnLine copyWithCompanion(SalesReturnLinesCompanion data) {
     return SalesReturnLine(
@@ -11438,11 +12155,16 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
               ? data.invoiceLineId.value
               : this.invoiceLineId,
       itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      unitName: data.unitName.present ? data.unitName.value : this.unitName,
+      qtyEntered:
+          data.qtyEntered.present ? data.qtyEntered.value : this.qtyEntered,
       qtyBase: data.qtyBase.present ? data.qtyBase.value : this.qtyBase,
       lineTotalPaise:
           data.lineTotalPaise.present
               ? data.lineTotalPaise.value
               : this.lineTotalPaise,
+      taxPaise: data.taxPaise.present ? data.taxPaise.value : this.taxPaise,
     );
   }
 
@@ -11457,8 +12179,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
           ..write('returnId: $returnId, ')
           ..write('invoiceLineId: $invoiceLineId, ')
           ..write('itemId: $itemId, ')
+          ..write('variantId: $variantId, ')
+          ..write('unitName: $unitName, ')
+          ..write('qtyEntered: $qtyEntered, ')
           ..write('qtyBase: $qtyBase, ')
-          ..write('lineTotalPaise: $lineTotalPaise')
+          ..write('lineTotalPaise: $lineTotalPaise, ')
+          ..write('taxPaise: $taxPaise')
           ..write(')'))
         .toString();
   }
@@ -11473,8 +12199,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
     returnId,
     invoiceLineId,
     itemId,
+    variantId,
+    unitName,
+    qtyEntered,
     qtyBase,
     lineTotalPaise,
+    taxPaise,
   );
   @override
   bool operator ==(Object other) =>
@@ -11488,8 +12218,12 @@ class SalesReturnLine extends DataClass implements Insertable<SalesReturnLine> {
           other.returnId == this.returnId &&
           other.invoiceLineId == this.invoiceLineId &&
           other.itemId == this.itemId &&
+          other.variantId == this.variantId &&
+          other.unitName == this.unitName &&
+          other.qtyEntered == this.qtyEntered &&
           other.qtyBase == this.qtyBase &&
-          other.lineTotalPaise == this.lineTotalPaise);
+          other.lineTotalPaise == this.lineTotalPaise &&
+          other.taxPaise == this.taxPaise);
 }
 
 class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
@@ -11501,8 +12235,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
   final Value<String> returnId;
   final Value<String> invoiceLineId;
   final Value<String> itemId;
+  final Value<String?> variantId;
+  final Value<String> unitName;
+  final Value<String> qtyEntered;
   final Value<int> qtyBase;
   final Value<int> lineTotalPaise;
+  final Value<int> taxPaise;
   final Value<int> rowid;
   const SalesReturnLinesCompanion({
     this.id = const Value.absent(),
@@ -11513,8 +12251,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
     this.returnId = const Value.absent(),
     this.invoiceLineId = const Value.absent(),
     this.itemId = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.unitName = const Value.absent(),
+    this.qtyEntered = const Value.absent(),
     this.qtyBase = const Value.absent(),
     this.lineTotalPaise = const Value.absent(),
+    this.taxPaise = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SalesReturnLinesCompanion.insert({
@@ -11526,8 +12268,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
     required String returnId,
     required String invoiceLineId,
     required String itemId,
+    this.variantId = const Value.absent(),
+    required String unitName,
+    required String qtyEntered,
     required int qtyBase,
     required int lineTotalPaise,
+    this.taxPaise = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
@@ -11536,6 +12282,8 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
        returnId = Value(returnId),
        invoiceLineId = Value(invoiceLineId),
        itemId = Value(itemId),
+       unitName = Value(unitName),
+       qtyEntered = Value(qtyEntered),
        qtyBase = Value(qtyBase),
        lineTotalPaise = Value(lineTotalPaise);
   static Insertable<SalesReturnLine> custom({
@@ -11547,8 +12295,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
     Expression<String>? returnId,
     Expression<String>? invoiceLineId,
     Expression<String>? itemId,
+    Expression<String>? variantId,
+    Expression<String>? unitName,
+    Expression<String>? qtyEntered,
     Expression<int>? qtyBase,
     Expression<int>? lineTotalPaise,
+    Expression<int>? taxPaise,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -11560,8 +12312,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
       if (returnId != null) 'return_id': returnId,
       if (invoiceLineId != null) 'invoice_line_id': invoiceLineId,
       if (itemId != null) 'item_id': itemId,
+      if (variantId != null) 'variant_id': variantId,
+      if (unitName != null) 'unit_name': unitName,
+      if (qtyEntered != null) 'qty_entered': qtyEntered,
       if (qtyBase != null) 'qty_base': qtyBase,
       if (lineTotalPaise != null) 'line_total_paise': lineTotalPaise,
+      if (taxPaise != null) 'tax_paise': taxPaise,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -11575,8 +12331,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
     Value<String>? returnId,
     Value<String>? invoiceLineId,
     Value<String>? itemId,
+    Value<String?>? variantId,
+    Value<String>? unitName,
+    Value<String>? qtyEntered,
     Value<int>? qtyBase,
     Value<int>? lineTotalPaise,
+    Value<int>? taxPaise,
     Value<int>? rowid,
   }) {
     return SalesReturnLinesCompanion(
@@ -11588,8 +12348,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
       returnId: returnId ?? this.returnId,
       invoiceLineId: invoiceLineId ?? this.invoiceLineId,
       itemId: itemId ?? this.itemId,
+      variantId: variantId ?? this.variantId,
+      unitName: unitName ?? this.unitName,
+      qtyEntered: qtyEntered ?? this.qtyEntered,
       qtyBase: qtyBase ?? this.qtyBase,
       lineTotalPaise: lineTotalPaise ?? this.lineTotalPaise,
+      taxPaise: taxPaise ?? this.taxPaise,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -11621,11 +12385,23 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
     if (itemId.present) {
       map['item_id'] = Variable<String>(itemId.value);
     }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (unitName.present) {
+      map['unit_name'] = Variable<String>(unitName.value);
+    }
+    if (qtyEntered.present) {
+      map['qty_entered'] = Variable<String>(qtyEntered.value);
+    }
     if (qtyBase.present) {
       map['qty_base'] = Variable<int>(qtyBase.value);
     }
     if (lineTotalPaise.present) {
       map['line_total_paise'] = Variable<int>(lineTotalPaise.value);
+    }
+    if (taxPaise.present) {
+      map['tax_paise'] = Variable<int>(taxPaise.value);
     }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
@@ -11644,8 +12420,12 @@ class SalesReturnLinesCompanion extends UpdateCompanion<SalesReturnLine> {
           ..write('returnId: $returnId, ')
           ..write('invoiceLineId: $invoiceLineId, ')
           ..write('itemId: $itemId, ')
+          ..write('variantId: $variantId, ')
+          ..write('unitName: $unitName, ')
+          ..write('qtyEntered: $qtyEntered, ')
           ..write('qtyBase: $qtyBase, ')
           ..write('lineTotalPaise: $lineTotalPaise, ')
+          ..write('taxPaise: $taxPaise, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -16162,6 +16942,24 @@ final class $$DevicesTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$SalesReturnsTable, List<SalesReturn>>
+  _salesReturnsRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.salesReturns,
+    aliasName: $_aliasNameGenerator(db.devices.id, db.salesReturns.deviceId),
+  );
+
+  $$SalesReturnsTableProcessedTableManager get salesReturnsRefs {
+    final manager = $$SalesReturnsTableTableManager(
+      $_db,
+      $_db.salesReturns,
+    ).filter((f) => f.deviceId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_salesReturnsRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$DevicesTableFilterComposer
@@ -16229,6 +17027,31 @@ class $$DevicesTableFilterComposer
           }) => $$InvoicesTableFilterComposer(
             $db: $db,
             $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> salesReturnsRefs(
+    Expression<bool> Function($$SalesReturnsTableFilterComposer f) f,
+  ) {
+    final $$SalesReturnsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.salesReturns,
+      getReferencedColumn: (t) => t.deviceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SalesReturnsTableFilterComposer(
+            $db: $db,
+            $table: $db.salesReturns,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -16348,6 +17171,31 @@ class $$DevicesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> salesReturnsRefs<T extends Object>(
+    Expression<T> Function($$SalesReturnsTableAnnotationComposer a) f,
+  ) {
+    final $$SalesReturnsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.salesReturns,
+      getReferencedColumn: (t) => t.deviceId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SalesReturnsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.salesReturns,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$DevicesTableTableManager
@@ -16363,7 +17211,7 @@ class $$DevicesTableTableManager
           $$DevicesTableUpdateCompanionBuilder,
           (Device, $$DevicesTableReferences),
           Device,
-          PrefetchHooks Function({bool invoicesRefs})
+          PrefetchHooks Function({bool invoicesRefs, bool salesReturnsRefs})
         > {
   $$DevicesTableTableManager(_$AppDatabase db, $DevicesTable table)
     : super(
@@ -16430,10 +17278,16 @@ class $$DevicesTableTableManager
                         ),
                       )
                       .toList(),
-          prefetchHooksCallback: ({invoicesRefs = false}) {
+          prefetchHooksCallback: ({
+            invoicesRefs = false,
+            salesReturnsRefs = false,
+          }) {
             return PrefetchHooks(
               db: db,
-              explicitlyWatchedTables: [if (invoicesRefs) db.invoices],
+              explicitlyWatchedTables: [
+                if (invoicesRefs) db.invoices,
+                if (salesReturnsRefs) db.salesReturns,
+              ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
                 return [
@@ -16449,6 +17303,28 @@ class $$DevicesTableTableManager
                                 table,
                                 p0,
                               ).invoicesRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.deviceId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
+                  if (salesReturnsRefs)
+                    await $_getPrefetchedData<
+                      Device,
+                      $DevicesTable,
+                      SalesReturn
+                    >(
+                      currentTable: table,
+                      referencedTable: $$DevicesTableReferences
+                          ._salesReturnsRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$DevicesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).salesReturnsRefs,
                       referencedItemsForCurrentItem:
                           (item, referencedItems) => referencedItems.where(
                             (e) => e.deviceId == item.id,
@@ -16475,7 +17351,7 @@ typedef $$DevicesTableProcessedTableManager =
       $$DevicesTableUpdateCompanionBuilder,
       (Device, $$DevicesTableReferences),
       Device,
-      PrefetchHooks Function({bool invoicesRefs})
+      PrefetchHooks Function({bool invoicesRefs, bool salesReturnsRefs})
     >;
 typedef $$LocationsTableCreateCompanionBuilder =
     LocationsCompanion Function({
@@ -23967,10 +24843,21 @@ typedef $$SalesReturnsTableCreateCompanionBuilder =
       required DateTime updatedAt,
       Value<DateTime?> deletedAt,
       required String invoiceId,
+      required String deviceId,
+      required String series,
+      required int number,
+      required String creditNoteNoText,
       required DateTime date,
       required int totalPaise,
+      Value<int> taxPaise,
+      Value<int> roundOffPaise,
+      Value<int> refundCashPaise,
+      Value<int> refundUpiPaise,
+      Value<int> refundAccountPaise,
+      Value<bool> isCancel,
       Value<String?> note,
       Value<String?> createdBy,
+      Value<String?> approvedBy,
       Value<int> rowid,
     });
 typedef $$SalesReturnsTableUpdateCompanionBuilder =
@@ -23981,10 +24868,21 @@ typedef $$SalesReturnsTableUpdateCompanionBuilder =
       Value<DateTime> updatedAt,
       Value<DateTime?> deletedAt,
       Value<String> invoiceId,
+      Value<String> deviceId,
+      Value<String> series,
+      Value<int> number,
+      Value<String> creditNoteNoText,
       Value<DateTime> date,
       Value<int> totalPaise,
+      Value<int> taxPaise,
+      Value<int> roundOffPaise,
+      Value<int> refundCashPaise,
+      Value<int> refundUpiPaise,
+      Value<int> refundAccountPaise,
+      Value<bool> isCancel,
       Value<String?> note,
       Value<String?> createdBy,
+      Value<String?> approvedBy,
       Value<int> rowid,
     });
 
@@ -24005,6 +24903,25 @@ final class $$SalesReturnsTableReferences
       $_db.invoices,
     ).filter((f) => f.id.sqlEquals($_column));
     final item = $_typedResult.readTableOrNull(_invoiceIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $DevicesTable _deviceIdTable(_$AppDatabase db) =>
+      db.devices.createAlias(
+        $_aliasNameGenerator(db.salesReturns.deviceId, db.devices.id),
+      );
+
+  $$DevicesTableProcessedTableManager get deviceId {
+    final $_column = $_itemColumn<String>('device_id')!;
+
+    final manager = $$DevicesTableTableManager(
+      $_db,
+      $_db.devices,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_deviceIdTable($_db));
     if (item == null) return manager;
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: [item]),
@@ -24069,6 +24986,21 @@ class $$SalesReturnsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get series => $composableBuilder(
+    column: $table.series,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get creditNoteNoText => $composableBuilder(
+    column: $table.creditNoteNoText,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<DateTime> get date => $composableBuilder(
     column: $table.date,
     builder: (column) => ColumnFilters(column),
@@ -24079,6 +25011,36 @@ class $$SalesReturnsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<int> get taxPaise => $composableBuilder(
+    column: $table.taxPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get roundOffPaise => $composableBuilder(
+    column: $table.roundOffPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get refundCashPaise => $composableBuilder(
+    column: $table.refundCashPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get refundUpiPaise => $composableBuilder(
+    column: $table.refundUpiPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get refundAccountPaise => $composableBuilder(
+    column: $table.refundAccountPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCancel => $composableBuilder(
+    column: $table.isCancel,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnFilters(column),
@@ -24086,6 +25048,11 @@ class $$SalesReturnsTableFilterComposer
 
   ColumnFilters<String> get createdBy => $composableBuilder(
     column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get approvedBy => $composableBuilder(
+    column: $table.approvedBy,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24103,6 +25070,29 @@ class $$SalesReturnsTableFilterComposer
           }) => $$InvoicesTableFilterComposer(
             $db: $db,
             $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DevicesTableFilterComposer get deviceId {
+    final $$DevicesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.deviceId,
+      referencedTable: $db.devices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevicesTableFilterComposer(
+            $db: $db,
+            $table: $db.devices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -24172,6 +25162,21 @@ class $$SalesReturnsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get series => $composableBuilder(
+    column: $table.series,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get number => $composableBuilder(
+    column: $table.number,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get creditNoteNoText => $composableBuilder(
+    column: $table.creditNoteNoText,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get date => $composableBuilder(
     column: $table.date,
     builder: (column) => ColumnOrderings(column),
@@ -24182,6 +25187,36 @@ class $$SalesReturnsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<int> get taxPaise => $composableBuilder(
+    column: $table.taxPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get roundOffPaise => $composableBuilder(
+    column: $table.roundOffPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get refundCashPaise => $composableBuilder(
+    column: $table.refundCashPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get refundUpiPaise => $composableBuilder(
+    column: $table.refundUpiPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get refundAccountPaise => $composableBuilder(
+    column: $table.refundAccountPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCancel => $composableBuilder(
+    column: $table.isCancel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get note => $composableBuilder(
     column: $table.note,
     builder: (column) => ColumnOrderings(column),
@@ -24189,6 +25224,11 @@ class $$SalesReturnsTableOrderingComposer
 
   ColumnOrderings<String> get createdBy => $composableBuilder(
     column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get approvedBy => $composableBuilder(
+    column: $table.approvedBy,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -24206,6 +25246,29 @@ class $$SalesReturnsTableOrderingComposer
           }) => $$InvoicesTableOrderingComposer(
             $db: $db,
             $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DevicesTableOrderingComposer get deviceId {
+    final $$DevicesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.deviceId,
+      referencedTable: $db.devices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevicesTableOrderingComposer(
+            $db: $db,
+            $table: $db.devices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -24240,6 +25303,17 @@ class $$SalesReturnsTableAnnotationComposer
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
+  GeneratedColumn<String> get series =>
+      $composableBuilder(column: $table.series, builder: (column) => column);
+
+  GeneratedColumn<int> get number =>
+      $composableBuilder(column: $table.number, builder: (column) => column);
+
+  GeneratedColumn<String> get creditNoteNoText => $composableBuilder(
+    column: $table.creditNoteNoText,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get date =>
       $composableBuilder(column: $table.date, builder: (column) => column);
 
@@ -24248,11 +25322,42 @@ class $$SalesReturnsTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<int> get taxPaise =>
+      $composableBuilder(column: $table.taxPaise, builder: (column) => column);
+
+  GeneratedColumn<int> get roundOffPaise => $composableBuilder(
+    column: $table.roundOffPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get refundCashPaise => $composableBuilder(
+    column: $table.refundCashPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get refundUpiPaise => $composableBuilder(
+    column: $table.refundUpiPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get refundAccountPaise => $composableBuilder(
+    column: $table.refundAccountPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCancel =>
+      $composableBuilder(column: $table.isCancel, builder: (column) => column);
+
   GeneratedColumn<String> get note =>
       $composableBuilder(column: $table.note, builder: (column) => column);
 
   GeneratedColumn<String> get createdBy =>
       $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  GeneratedColumn<String> get approvedBy => $composableBuilder(
+    column: $table.approvedBy,
+    builder: (column) => column,
+  );
 
   $$InvoicesTableAnnotationComposer get invoiceId {
     final $$InvoicesTableAnnotationComposer composer = $composerBuilder(
@@ -24268,6 +25373,29 @@ class $$SalesReturnsTableAnnotationComposer
           }) => $$InvoicesTableAnnotationComposer(
             $db: $db,
             $table: $db.invoices,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$DevicesTableAnnotationComposer get deviceId {
+    final $$DevicesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.deviceId,
+      referencedTable: $db.devices,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$DevicesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.devices,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -24316,7 +25444,11 @@ class $$SalesReturnsTableTableManager
           $$SalesReturnsTableUpdateCompanionBuilder,
           (SalesReturn, $$SalesReturnsTableReferences),
           SalesReturn,
-          PrefetchHooks Function({bool invoiceId, bool salesReturnLinesRefs})
+          PrefetchHooks Function({
+            bool invoiceId,
+            bool deviceId,
+            bool salesReturnLinesRefs,
+          })
         > {
   $$SalesReturnsTableTableManager(_$AppDatabase db, $SalesReturnsTable table)
     : super(
@@ -24338,10 +25470,21 @@ class $$SalesReturnsTableTableManager
                 Value<DateTime> updatedAt = const Value.absent(),
                 Value<DateTime?> deletedAt = const Value.absent(),
                 Value<String> invoiceId = const Value.absent(),
+                Value<String> deviceId = const Value.absent(),
+                Value<String> series = const Value.absent(),
+                Value<int> number = const Value.absent(),
+                Value<String> creditNoteNoText = const Value.absent(),
                 Value<DateTime> date = const Value.absent(),
                 Value<int> totalPaise = const Value.absent(),
+                Value<int> taxPaise = const Value.absent(),
+                Value<int> roundOffPaise = const Value.absent(),
+                Value<int> refundCashPaise = const Value.absent(),
+                Value<int> refundUpiPaise = const Value.absent(),
+                Value<int> refundAccountPaise = const Value.absent(),
+                Value<bool> isCancel = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<String?> createdBy = const Value.absent(),
+                Value<String?> approvedBy = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SalesReturnsCompanion(
                 id: id,
@@ -24350,10 +25493,21 @@ class $$SalesReturnsTableTableManager
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
                 invoiceId: invoiceId,
+                deviceId: deviceId,
+                series: series,
+                number: number,
+                creditNoteNoText: creditNoteNoText,
                 date: date,
                 totalPaise: totalPaise,
+                taxPaise: taxPaise,
+                roundOffPaise: roundOffPaise,
+                refundCashPaise: refundCashPaise,
+                refundUpiPaise: refundUpiPaise,
+                refundAccountPaise: refundAccountPaise,
+                isCancel: isCancel,
                 note: note,
                 createdBy: createdBy,
+                approvedBy: approvedBy,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -24364,10 +25518,21 @@ class $$SalesReturnsTableTableManager
                 required DateTime updatedAt,
                 Value<DateTime?> deletedAt = const Value.absent(),
                 required String invoiceId,
+                required String deviceId,
+                required String series,
+                required int number,
+                required String creditNoteNoText,
                 required DateTime date,
                 required int totalPaise,
+                Value<int> taxPaise = const Value.absent(),
+                Value<int> roundOffPaise = const Value.absent(),
+                Value<int> refundCashPaise = const Value.absent(),
+                Value<int> refundUpiPaise = const Value.absent(),
+                Value<int> refundAccountPaise = const Value.absent(),
+                Value<bool> isCancel = const Value.absent(),
                 Value<String?> note = const Value.absent(),
                 Value<String?> createdBy = const Value.absent(),
+                Value<String?> approvedBy = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SalesReturnsCompanion.insert(
                 id: id,
@@ -24376,10 +25541,21 @@ class $$SalesReturnsTableTableManager
                 updatedAt: updatedAt,
                 deletedAt: deletedAt,
                 invoiceId: invoiceId,
+                deviceId: deviceId,
+                series: series,
+                number: number,
+                creditNoteNoText: creditNoteNoText,
                 date: date,
                 totalPaise: totalPaise,
+                taxPaise: taxPaise,
+                roundOffPaise: roundOffPaise,
+                refundCashPaise: refundCashPaise,
+                refundUpiPaise: refundUpiPaise,
+                refundAccountPaise: refundAccountPaise,
+                isCancel: isCancel,
                 note: note,
                 createdBy: createdBy,
+                approvedBy: approvedBy,
                 rowid: rowid,
               ),
           withReferenceMapper:
@@ -24394,6 +25570,7 @@ class $$SalesReturnsTableTableManager
                       .toList(),
           prefetchHooksCallback: ({
             invoiceId = false,
+            deviceId = false,
             salesReturnLinesRefs = false,
           }) {
             return PrefetchHooks(
@@ -24426,6 +25603,20 @@ class $$SalesReturnsTableTableManager
                             referencedColumn:
                                 $$SalesReturnsTableReferences
                                     ._invoiceIdTable(db)
+                                    .id,
+                          )
+                          as T;
+                }
+                if (deviceId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.deviceId,
+                            referencedTable: $$SalesReturnsTableReferences
+                                ._deviceIdTable(db),
+                            referencedColumn:
+                                $$SalesReturnsTableReferences
+                                    ._deviceIdTable(db)
                                     .id,
                           )
                           as T;
@@ -24477,7 +25668,11 @@ typedef $$SalesReturnsTableProcessedTableManager =
       $$SalesReturnsTableUpdateCompanionBuilder,
       (SalesReturn, $$SalesReturnsTableReferences),
       SalesReturn,
-      PrefetchHooks Function({bool invoiceId, bool salesReturnLinesRefs})
+      PrefetchHooks Function({
+        bool invoiceId,
+        bool deviceId,
+        bool salesReturnLinesRefs,
+      })
     >;
 typedef $$SalesReturnLinesTableCreateCompanionBuilder =
     SalesReturnLinesCompanion Function({
@@ -24489,8 +25684,12 @@ typedef $$SalesReturnLinesTableCreateCompanionBuilder =
       required String returnId,
       required String invoiceLineId,
       required String itemId,
+      Value<String?> variantId,
+      required String unitName,
+      required String qtyEntered,
       required int qtyBase,
       required int lineTotalPaise,
+      Value<int> taxPaise,
       Value<int> rowid,
     });
 typedef $$SalesReturnLinesTableUpdateCompanionBuilder =
@@ -24503,8 +25702,12 @@ typedef $$SalesReturnLinesTableUpdateCompanionBuilder =
       Value<String> returnId,
       Value<String> invoiceLineId,
       Value<String> itemId,
+      Value<String?> variantId,
+      Value<String> unitName,
+      Value<String> qtyEntered,
       Value<int> qtyBase,
       Value<int> lineTotalPaise,
+      Value<int> taxPaise,
       Value<int> rowid,
     });
 
@@ -24611,6 +25814,21 @@ class $$SalesReturnLinesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get unitName => $composableBuilder(
+    column: $table.unitName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get qtyEntered => $composableBuilder(
+    column: $table.qtyEntered,
+    builder: (column) => ColumnFilters(column),
+  );
+
   ColumnFilters<int> get qtyBase => $composableBuilder(
     column: $table.qtyBase,
     builder: (column) => ColumnFilters(column),
@@ -24618,6 +25836,11 @@ class $$SalesReturnLinesTableFilterComposer
 
   ColumnFilters<int> get lineTotalPaise => $composableBuilder(
     column: $table.lineTotalPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get taxPaise => $composableBuilder(
+    column: $table.taxPaise,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -24725,6 +25948,21 @@ class $$SalesReturnLinesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get unitName => $composableBuilder(
+    column: $table.unitName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get qtyEntered => $composableBuilder(
+    column: $table.qtyEntered,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<int> get qtyBase => $composableBuilder(
     column: $table.qtyBase,
     builder: (column) => ColumnOrderings(column),
@@ -24732,6 +25970,11 @@ class $$SalesReturnLinesTableOrderingComposer
 
   ColumnOrderings<int> get lineTotalPaise => $composableBuilder(
     column: $table.lineTotalPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get taxPaise => $composableBuilder(
+    column: $table.taxPaise,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -24829,6 +26072,17 @@ class $$SalesReturnLinesTableAnnotationComposer
   GeneratedColumn<DateTime> get deletedAt =>
       $composableBuilder(column: $table.deletedAt, builder: (column) => column);
 
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get unitName =>
+      $composableBuilder(column: $table.unitName, builder: (column) => column);
+
+  GeneratedColumn<String> get qtyEntered => $composableBuilder(
+    column: $table.qtyEntered,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<int> get qtyBase =>
       $composableBuilder(column: $table.qtyBase, builder: (column) => column);
 
@@ -24836,6 +26090,9 @@ class $$SalesReturnLinesTableAnnotationComposer
     column: $table.lineTotalPaise,
     builder: (column) => column,
   );
+
+  GeneratedColumn<int> get taxPaise =>
+      $composableBuilder(column: $table.taxPaise, builder: (column) => column);
 
   $$SalesReturnsTableAnnotationComposer get returnId {
     final $$SalesReturnsTableAnnotationComposer composer = $composerBuilder(
@@ -24956,8 +26213,12 @@ class $$SalesReturnLinesTableTableManager
                 Value<String> returnId = const Value.absent(),
                 Value<String> invoiceLineId = const Value.absent(),
                 Value<String> itemId = const Value.absent(),
+                Value<String?> variantId = const Value.absent(),
+                Value<String> unitName = const Value.absent(),
+                Value<String> qtyEntered = const Value.absent(),
                 Value<int> qtyBase = const Value.absent(),
                 Value<int> lineTotalPaise = const Value.absent(),
+                Value<int> taxPaise = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SalesReturnLinesCompanion(
                 id: id,
@@ -24968,8 +26229,12 @@ class $$SalesReturnLinesTableTableManager
                 returnId: returnId,
                 invoiceLineId: invoiceLineId,
                 itemId: itemId,
+                variantId: variantId,
+                unitName: unitName,
+                qtyEntered: qtyEntered,
                 qtyBase: qtyBase,
                 lineTotalPaise: lineTotalPaise,
+                taxPaise: taxPaise,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -24982,8 +26247,12 @@ class $$SalesReturnLinesTableTableManager
                 required String returnId,
                 required String invoiceLineId,
                 required String itemId,
+                Value<String?> variantId = const Value.absent(),
+                required String unitName,
+                required String qtyEntered,
                 required int qtyBase,
                 required int lineTotalPaise,
+                Value<int> taxPaise = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SalesReturnLinesCompanion.insert(
                 id: id,
@@ -24994,8 +26263,12 @@ class $$SalesReturnLinesTableTableManager
                 returnId: returnId,
                 invoiceLineId: invoiceLineId,
                 itemId: itemId,
+                variantId: variantId,
+                unitName: unitName,
+                qtyEntered: qtyEntered,
                 qtyBase: qtyBase,
                 lineTotalPaise: lineTotalPaise,
+                taxPaise: taxPaise,
                 rowid: rowid,
               ),
           withReferenceMapper:

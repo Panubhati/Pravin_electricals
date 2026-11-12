@@ -428,4 +428,42 @@ abstract final class S {
   static const speedTarget = 'Aim: under';
   static const speedAfter =
       'When you are done: Settings, Restore from a backup, choose your backup, and the fake data is gone.';
+
+  // Returns and cancelled bills (A7)
+  static const returnItems = 'Return items';
+  static const returnTitle = 'Return items';
+  static const returnAgainst = 'Against bill';
+  static const returnHow = 'Enter how much of each item is coming back, then choose how to give the money back.';
+  static const returnSold = 'Sold';
+  static const returnAlready = 'already returned';
+  static const returnQty = 'Back';
+  static const returnAll = 'All that is left';
+  static const returnLinesTotal = 'Items returned';
+  static const returnRefundTotal = 'Refund';
+  static const returnCompletes = 'This returns everything on the bill, so the round-off is given back too.';
+  static const returnGiveBack = 'Give the money back';
+  static const refundAllCash = 'All cash';
+  static const refundAllUpi = 'All UPI';
+  static const refundAllAccount = 'Off their account';
+  static const refundCash = 'Cash';
+  static const refundUpi = 'UPI';
+  static const refundAccount = 'Taken off what they owe';
+  static const refundAddsUp = 'The refund adds up';
+  static String refundRemaining(String left) => 'Still to give back: $left';
+  static const returnReason = 'Reason (optional)';
+  static const returnConfirm = 'Return and give money back';
+  static String returnApprovalWhat(String amount) => 'a return of $amount';
+  static String cancelApprovalWhat(String bill) => 'cancelling bill $bill';
+  static const cancelBill = 'Cancel bill';
+  static const keepBill = 'Keep the bill';
+  static String cancelBillWarning(String total) =>
+      'This takes the whole bill back: the stock returns, and $total goes back to the customer the way they paid. The bill stays on record marked cancelled.';
+  static const billCancelledNote = 'This bill was cancelled';
+  static const creditNotes = 'Credit notes';
+  static const creditNoteTitle = 'Credit note';
+  static const cancelledBadge = 'Cancelled';
+  static const returnedBadge = 'Returned';
+  static const ownerApprovalTitle = 'Owner approval needed';
+  static String ownerApprovalBody(String what) => 'The owner must approve $what. Owner, enter your PIN.';
+  static const ownerPinLabel = 'Owner PIN';
 }

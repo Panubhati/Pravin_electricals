@@ -4,6 +4,7 @@ import 'package:shop_app/core/bootstrap.dart';
 import 'package:shop_app/core/db/app_database.dart';
 import 'package:shop_app/core/db/repositories/data_check_models.dart';
 import 'package:shop_app/core/db/repositories/data_check_repository.dart';
+import 'package:shop_app/core/db/repositories/return_repository.dart';
 import 'package:shop_app/core/db/repositories/stock_repository.dart';
 
 import '../helpers/seed_rich_shop.dart';
@@ -37,7 +38,7 @@ void main() {
       final r = await run();
       expect(r.issues, isEmpty, reason: r.issues.join('\n'));
       expect(r.passed, isTrue);
-      expect(r.checksRun, 16);
+      expect(r.checksRun, 20);
       expect(r.records, greaterThan(20));
       expect(r.errorCount, 0);
       expect(r.warningCount, 0);
@@ -279,6 +280,103 @@ void main() {
     });
   });
 
+  group('credit notes (returns and cancelled bills)', () {
+    late ReturnRepository returns;
+    late String invoiceId, switchLine;
+
+    setUp(() async {
+      returns = ReturnRepository(s.ctx);
+      // Ramesh's bill A-0002 (10 switches: Rs 50 UPI + Rs 100 credit). Take 4 back.
+      final row = await db.customSelect("SELECT id FROM invoices WHERE invoice_no_text = 'A-0002'").getSingle();
+      invoiceId = row.read<String>('id');
+      switchLine = (await returns.returnable(invoiceId)).single.line.id;
+      await returns.postReturn(PostReturnInput(
+        invoiceId: invoiceId,
+        deviceId: s.deviceId,
+        series: s.series,
+        lines: [ReturnLineInput(switchLine, '4')],
+        refund: const RefundSplit(upiPaise: 2000, accountPaise: 4000),
+        createdBy: s.userId,
+        approvedBy: s.userId,
+      ));
+    });
+
+    test('a healthy shop with a return and a cancelled bill passes', () async {
+      final cashBill = await db.customSelect("SELECT id FROM invoices WHERE invoice_no_text = 'A-0003'").getSingle();
+      await returns.cancelBill(cashBill.read<String>('id'),
+          deviceId: s.deviceId, series: s.series, createdBy: s.userId, approvedBy: s.userId);
+      final r = await run();
+      expect(r.issues, isEmpty, reason: r.issues.join(', '));
+    });
+
+    test('a credit note whose total no longer matches its lines', () async {
+      await sql('UPDATE sales_returns SET total_paise = total_paise + 100');
+      final r = await run();
+      expect(codes(r), containsAll(['return_total', 'return_refund_split']));
+    });
+
+    test('a refund split that does not add up', () async {
+      await sql('UPDATE sales_returns SET refund_upi_paise = refund_upi_paise + 5');
+      expect(codes(await run()), contains('return_refund_split'));
+    });
+
+    test('GST that does not match the returned lines', () async {
+      await sql('UPDATE sales_returns SET tax_paise = tax_paise + 1');
+      expect(codes(await run()), contains('return_tax'));
+    });
+
+    test('a credit note with no lines', () async {
+      await noForeignKeys();
+      await sql('DELETE FROM sales_return_lines');
+      expect(codes(await run()), contains('return_lines_missing'));
+    });
+
+    test('more returned than was sold', () async {
+      await sql('UPDATE sales_return_lines SET qty_base = 99');
+      final r = await run();
+      expect(codes(r), contains('return_over'));
+    });
+
+    test('stock that did not go back when something was returned', () async {
+      await sql("DELETE FROM stock_movements WHERE movement_type = 'sale_return'");
+      expect(issue(await run(), 'return_stock_mismatch').message, contains('CN-A-0001'));
+    });
+
+    test('stock added for a returned line that does not exist', () async {
+      final item = await db.customSelect("SELECT id FROM items WHERE name = '6A switch'").getSingle();
+      final loc = await db.customSelect('SELECT id FROM locations LIMIT 1').getSingle();
+      await sql("INSERT INTO stock_movements (id, shop_id, created_at, updated_at, item_id, location_id, qty_base, movement_type, ref_type, ref_id, ts) "
+          "VALUES ('rg', '${s.shopId}', 1, 1, '${item.read<String>('id')}', '${loc.read<String>('id')}', 3, 'sale_return', 'sales_return', 'nothing', 1)");
+      expect(codes(await run()), contains('return_stock_orphan'));
+    });
+
+    test('a refund to the account that is missing from the customer account', () async {
+      await sql("DELETE FROM ledger_entries WHERE entry_type = 'return'");
+      expect(codes(await run()), contains('return_ledger'));
+    });
+
+    test('an account entry for a credit note that does not exist', () async {
+      final party = await db.customSelect("SELECT id FROM parties WHERE name = 'Ramesh'").getSingle();
+      await sql("INSERT INTO ledger_entries (id, shop_id, created_at, updated_at, party_id, entry_type, amount_paise, ref_type, ref_id, ts) "
+          "VALUES ('z', '${s.shopId}', 1, 1, '${party.read<String>('id')}', 'return', -100, 'sales_return', 'no-such-note', 1)");
+      expect(codes(await run()), contains('ledger_orphan'));
+    });
+
+    test('a bill marked cancelled when only part of it was returned', () async {
+      await sql("UPDATE invoices SET status = 'cancelled' WHERE invoice_no_text = 'A-0002'");
+      final r = await run();
+      expect(codes(r), containsAll(['cancel_not_complete', 'cancel_no_credit_note']));
+    });
+
+    test('a cancelling credit note on a bill that is not marked cancelled', () async {
+      final cashBill = await db.customSelect("SELECT id FROM invoices WHERE invoice_no_text = 'A-0003'").getSingle();
+      await returns.cancelBill(cashBill.read<String>('id'),
+          deviceId: s.deviceId, series: s.series, createdBy: s.userId, approvedBy: s.userId);
+      await sql("UPDATE invoices SET status = 'posted' WHERE invoice_no_text = 'A-0003'");
+      expect(codes(await run()), contains('cancel_not_marked'));
+    });
+  });
+
   group('reporting', () {
     test('too many of the same problem are listed briefly and counted', () async {
       await sql('UPDATE invoices SET total_paise = total_paise + 1');
@@ -307,7 +405,7 @@ void main() {
       final summary = (await run()).summary;
       final back = DataCheckSummary.fromJson(summary.toJson())!;
       expect(back.errors, summary.errors);
-      expect(back.checks, 16);
+      expect(back.checks, 20);
       expect(back.passed, isFalse);
       expect(DataCheckSummary.fromJson('garbage'), isNull);
       expect(DataCheckSummary.fromJson(null), isNull);

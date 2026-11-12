@@ -82,7 +82,7 @@ void main() {
       await open(tester, h, const DataCheckScreen());
       await waitUntil(tester, () => find.byKey(const Key('dataCheckHeadline')).evaluate().isNotEmpty);
       expect(_text(tester, 'dataCheckHeadline'), 'All your numbers agree');
-      expect(_text(tester, 'dataCheckScope'), startsWith('16 checks over '));
+      expect(_text(tester, 'dataCheckScope'), startsWith('20 checks over '));
       expect(find.text('Problems'), findsNothing);
     }, sample: false);
 
