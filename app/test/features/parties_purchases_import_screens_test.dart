@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:shop_app/core/db/repositories/item_repository.dart';
@@ -30,6 +32,9 @@ class FakeFileService implements FileService {
     if (error != null) throw error!;
     return csv;
   }
+
+  @override
+  Future<File?> pickBackupFile() async => null;
 
   @override
   Future<bool> saveText({required String fileName, required String content}) async {

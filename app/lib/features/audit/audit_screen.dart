@@ -19,7 +19,7 @@ const auditGroups = <String, Set<String>>{
   'discounts': {'discount'},
   'stock': {'stock_adjustment', 'stock_count'},
   'edits': {'edit', 'delete'},
-  'users': {'pin_set', 'pin_changed', 'pin_reset', 'user_created', 'user_deactivated', 'shop_updated', 'upi_changed'},
+  'users': {'pin_set', 'pin_changed', 'pin_reset', 'user_created', 'user_deactivated', 'shop_updated', 'upi_changed', 'backup_made', 'backup_restored'},
 };
 
 final auditProvider = FutureProvider.autoDispose.family<List<AuditEntry>, AuditQuery>(
@@ -45,6 +45,8 @@ const _actionLabels = {
   'user_deactivated': 'Staff removed',
   'shop_updated': 'Shop details changed',
   'upi_changed': 'UPI ID changed',
+  'backup_made': 'Backup made',
+  'backup_restored': 'Backup restored',
 };
 
 String auditActionLabel(String action) => _actionLabels[action] ?? action;

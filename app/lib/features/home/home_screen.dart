@@ -7,6 +7,7 @@ import '../../core/permissions.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
 import '../auth/lock_gate.dart';
+import '../backup/backup_banner.dart';
 import '../billing/bill_screen.dart';
 import '../bills/bills_screens.dart';
 import '../dashboard/dashboard_card.dart';
@@ -79,6 +80,7 @@ class HomeScreen extends ConsumerWidget {
         data: (s) => ListView(
           padding: const EdgeInsets.all(16),
           children: [
+            if (perms.canOpenSettings) const BackupBanner(),
             if (perms.canSeeReports) ...[
               const DashboardCard(),
               const SizedBox(height: 12),

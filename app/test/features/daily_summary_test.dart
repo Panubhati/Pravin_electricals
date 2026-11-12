@@ -14,6 +14,7 @@ class FakeNotifications implements NotificationService {
   FakeNotifications({this.allowed = true});
   bool allowed;
   final shown = <(String, String)>[];
+  final kinds = <NotificationKind>[];
   int permissionAsks = 0;
 
   @override
@@ -23,7 +24,11 @@ class FakeNotifications implements NotificationService {
   }
 
   @override
-  Future<void> show(String title, String body) async => shown.add((title, body));
+  Future<void> show(String title, String body,
+      {NotificationKind kind = NotificationKind.dailySummary}) async {
+    shown.add((title, body));
+    kinds.add(kind);
+  }
 }
 
 class FakeScheduler implements SummaryScheduler {

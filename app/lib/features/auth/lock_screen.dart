@@ -133,9 +133,12 @@ class _LockScreenState extends ConsumerState<LockScreen> {
 
 /// Enter a new PIN twice. Used for the first-run owner PIN and for recovery.
 class NewPinScreen extends StatefulWidget {
-  const NewPinScreen({super.key, required this.title, required this.onPin, this.help});
+  const NewPinScreen({super.key, required this.title, required this.onPin, this.help, this.footer});
   final String title;
   final String? help;
+
+  /// Extra content below the PIN pad (the first-run screen offers Restore).
+  final Widget? footer;
 
   /// Called once with the confirmed PIN.
   final Future<void> Function(String pin) onPin;
@@ -202,6 +205,10 @@ class _NewPinScreenState extends State<NewPinScreen> {
                   submitLabel: S.unlock,
                   onSubmit: _entered,
                 ),
+                if (widget.footer != null) ...[
+                  const SizedBox(height: 8),
+                  widget.footer!,
+                ],
               ],
             ),
           ),

@@ -15,16 +15,25 @@ class MainActivity : FlutterFragmentActivity() {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)
             .setMethodCallHandler { call, result ->
-                if (call.method != "sendToWhatsApp") {
-                    result.notImplemented()
-                    return@setMethodCallHandler
-                }
                 try {
-                    val bytes = call.argument<ByteArray>("bytes")!!
-                    val filename = call.argument<String>("filename")!!
-                    val number = call.argument<String>("number")!!
-                    val text = call.argument<String>("text")
-                    result.success(sendToWhatsApp(bytes, filename, number, text))
+                    when (call.method) {
+                        "sendToWhatsApp" -> {
+                            val bytes = call.argument<ByteArray>("bytes")!!
+                            val filename = call.argument<String>("filename")!!
+                            val number = call.argument<String>("number")!!
+                            val text = call.argument<String>("text")
+                            result.success(sendToWhatsApp(bytes, filename, number, text))
+                        }
+                        "shareFile" -> {
+                            shareBackup(
+                                call.argument<String>("path")!!,
+                                call.argument<String>("subject"),
+                                call.argument<String>("text"),
+                            )
+                            result.success(null)
+                        }
+                        else -> result.notImplemented()
+                    }
                 } catch (e: Exception) {
                     result.error("share_failed", e.message, null)
                 }
@@ -64,6 +73,28 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
         return false
+    }
+
+    /**
+     * Opens the share sheet (email, Drive, WhatsApp...) with a backup file from
+     * the app's private backups folder. Anything outside that folder is refused,
+     * so this channel can never be used to send other app files.
+     */
+    private fun shareBackup(path: String, subject: String?, text: String?) {
+        val file = File(path).canonicalFile
+        val allowed = File(filesDir, "backups").canonicalFile
+        require(file.path.startsWith(allowed.path + File.separator) && file.isFile) {
+            "Not a backup file"
+        }
+        val uri = FileProvider.getUriForFile(this, "$packageName.shareprovider", file)
+        val send = Intent(Intent.ACTION_SEND).apply {
+            type = "application/octet-stream"
+            putExtra(Intent.EXTRA_STREAM, uri)
+            if (!subject.isNullOrEmpty()) putExtra(Intent.EXTRA_SUBJECT, subject)
+            if (!text.isNullOrEmpty()) putExtra(Intent.EXTRA_TEXT, text)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(send, "Send backup").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     companion object {

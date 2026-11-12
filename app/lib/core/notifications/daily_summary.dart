@@ -27,8 +27,11 @@ abstract class NotificationService {
   /// Returns true when allowed.
   Future<bool> requestPermission();
 
-  Future<void> show(String title, String body);
+  Future<void> show(String title, String body, {NotificationKind kind = NotificationKind.dailySummary});
 }
+
+/// The notifications this app can show (each has its own channel on the phone).
+enum NotificationKind { dailySummary, backupReminder }
 
 /// Runs the summary once a day. Faked in tests.
 abstract class SummaryScheduler {

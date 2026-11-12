@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
+import '../backup/backup_actions.dart';
 import '../billing/bill_controller.dart';
 import 'lock_screen.dart';
 
@@ -134,6 +135,11 @@ class _FirstRunPin extends ConsumerWidget {
     return NewPinScreen(
       title: S.setupPinTitle,
       help: S.setupPinHelp,
+      footer: TextButton(
+        key: const Key('firstRunRestore'),
+        onPressed: () => restoreFromBackup(context, ref),
+        child: const Text(S.restoreFromBackupFirstRun),
+      ),
       onPin: (pin) async {
         final auth = ref.read(authRepositoryProvider);
         final owner = await auth.owner();

@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:file_picker/file_picker.dart';
@@ -15,6 +16,10 @@ abstract class FileService {
 
   /// Lets the user choose where to save [content]. Returns true if saved.
   Future<bool> saveText({required String fileName, required String content});
+
+  /// Lets the user choose a backup file. Returns a readable copy of it (Android
+  /// hands over a temporary copy), or null if cancelled.
+  Future<File?> pickBackupFile();
 }
 
 /// The real Android file dialogs (storage access framework: no permission needed).
@@ -29,6 +34,14 @@ class DeviceFileService implements FileService {
     final bytes = result?.files.firstOrNull?.bytes;
     if (bytes == null) return null;
     return decodeCsvBytes(bytes);
+  }
+
+  @override
+  Future<File?> pickBackupFile() async {
+    // Any file type: backup files come from email and Drive with all sorts of labels.
+    final result = await FilePicker.pickFiles(withData: false);
+    final path = result?.files.firstOrNull?.path;
+    return path == null ? null : File(path);
   }
 
   @override

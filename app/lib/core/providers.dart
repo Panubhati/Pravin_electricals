@@ -1,6 +1,9 @@
+import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'backup/backup_sharer.dart';
 import 'backup/database_location.dart';
+import '../app.dart';
 import 'bootstrap.dart';
 import 'db/app_database.dart';
 import 'db/repositories/audit_repository.dart';
@@ -117,4 +120,18 @@ final billSharerProvider = Provider<BillSharer>((ref) => DeviceBillSharer());
 /// Where the database file lives (the real phone folder; tests override it).
 final databaseLocationProvider = Provider<ShopDatabaseLocation>(
   (ref) => const DeviceDatabaseLocation(),
+);
+
+/// Starts the app over with a fresh database connection (used after a restore).
+/// The real one is `AppRoot.restart`; tests replace it to watch for the call.
+final appRestartProvider = Provider<void Function(BuildContext)>((ref) {
+  return (context) => AppRoot.restart(context);
+});
+
+/// Sends backup files to the share sheet. Overridden in tests.
+final backupSharerProvider = Provider<BackupSharer>((ref) => DeviceBackupSharer());
+
+/// When the last backup was made or restored, or null if never.
+final lastBackupProvider = FutureProvider.autoDispose<DateTime?>(
+  (ref) => ref.watch(settingsRepositoryProvider).lastBackupAt(),
 );

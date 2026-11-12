@@ -339,4 +339,43 @@ abstract final class S {
   static const sharedNoPhone = 'This customer has no phone number saved, so the share sheet opened instead';
   static const sharedNoWhatsApp = 'WhatsApp could not be opened, so the share sheet opened instead';
   static const shareFailed = 'Could not share the bill';
+
+  // Backup and restore (A6)
+  static const settingsBackup = 'Backup';
+  static const backUpNow = 'Back up now';
+  static const backUpNowHelp =
+      'Makes a copy of all your shop data and lets you send it to your own email or Google Drive. Do this often.';
+  static const lastBackupLabel = 'Last backup';
+  static const neverBackedUp = 'Never';
+  static const backupFailed = 'Could not make the backup';
+  static const backupFileWarning =
+      'The backup file holds all your bills, customers and PINs. Send it only to yourself.';
+  static const restoreFromBackup = 'Restore from a backup';
+  static const restoreFromBackupHelp = 'Replace everything on this phone with a backup file.';
+  static const restoreTitle = 'Restore this backup?';
+  static const undoRestoreTitle = 'Go back to the data from before the restore?';
+  static const backupContains = 'This backup contains:';
+  static const restoreReplacesWarning =
+      'Everything on this phone now (all bills, stock, customers and PINs) will be replaced. '
+      'A copy of the current data is kept so you can undo this.';
+  static const restoreFreshNote = 'This phone has no shop data yet, so nothing will be lost.';
+  static const restoreOnePhone =
+      'Use only one phone for billing at a time. The same backup on two phones would give the same bill numbers.';
+  static const restoreNow = 'Restore';
+  static const undoRestore = 'Go back';
+  static const restoring = 'Restoring your data. Please wait...';
+  static const restoreDone = 'Restored. Log in with the PIN you used before.';
+  static const restoreFailed = 'Could not restore the backup';
+  static const cannotUseBackup = 'This file cannot be used';
+  static const undoLastRestore = 'Undo last restore';
+  static const undoLastRestoreHelp = 'Brings back the data that the last restore replaced.';
+  static const backupReminder = 'Backup reminder';
+  static const backupReminderHelp = 'A notification and a note on the home screen when there has been no backup for 3 days.';
+  static const restoreFromBackupFirstRun = 'Restore from a backup instead';
+  static const backupReminderBanner = 'Back up your shop data';
+  static const backupReminderNever = 'You have not made a backup yet.';
+  static String backupReminderDays(int days) => 'Your last backup was $days days ago.';
+  static const backupNowShort = 'Back up';
+  static const ok = 'OK';
+  static const sendTestReminder = 'Send a test reminder now';
 }

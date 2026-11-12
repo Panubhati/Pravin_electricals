@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../audit/audit_screen.dart';
+import '../backup/backup_section.dart';
 import '../reports/reports_providers.dart';
 import 'shop_details_screen.dart';
 import 'staff_screen.dart';
@@ -283,6 +284,11 @@ class SettingsScreen extends ConsumerWidget {
                 }
               },
             ),
+            const Padding(
+              padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
+              child: SectionTitle(S.settingsBackup),
+            ),
+            const BackupSection(),
             const Padding(
               padding: EdgeInsets.fromLTRB(16, 8, 16, 0),
               child: SectionTitle(S.settingsRecords),

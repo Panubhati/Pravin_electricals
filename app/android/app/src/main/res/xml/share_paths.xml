@@ -2,4 +2,6 @@
 <paths>
     <!-- Temporary bill PDFs handed to WhatsApp; cleaned up daily. -->
     <cache-path name="shared_bills" path="shared_bills/" />
+    <!-- Backup files made by the app, handed to the share sheet. -->
+    <files-path name="backups" path="backups/" />
 </paths>
