@@ -3,7 +3,7 @@
 Offline-first Android app for an electrical shop: billing, stock, purchases and customer credit.
 The full build plan is in [AGENTS.md](AGENTS.md); design decisions are in [docs/decisions.md](docs/decisions.md); one document per finished milestone is in [docs/milestones/](docs/milestones/README.md).
 
-**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A6 (items, purchases, stock, parties, dashboard, reports, PIN roles, alerts, UPI QR, WhatsApp, bills history, backup and restore) are done; thermal printing waits for a printer.
+**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A6 are done; A7 (testing gate: Check my data, returns and cancel, Day check, speed and failure tests) has its tools finished and the owner's week of parallel use in progress. Thermal printing waits for a printer.
 
 ## Requirements
 - Flutter 3.29 (Dart 3.7), Android Studio with Android SDK 36, a JDK from Android Studio.
@@ -54,6 +54,10 @@ Settings, **UPI ID for QR codes**: customers scan a QR on the Pay screen and on 
 Settings, **Backup**: **Back up now** makes a checked copy and opens the share sheet; send it to your own email or Drive every few days
 (the home screen reminds you after 3 days). To restore, on a new phone tap **Restore from a backup instead** on the first screen, or use
 Settings, **Restore from a backup**; then log in with the PIN you had. `flutter install` and uninstalling wipe the data; `adb install -r` keeps it.
+
+## Testing gate (A7)
+**Settings, Check my data** proves stock, balances and bill totals agree (it also runs before each backup and after each restore). In Bills, open a bill to **Return items** or **Cancel bill**
+(a counter user needs the owner's PIN). **Reports, Day check** is the evening screen to compare with the paper book; the week's log is in `docs/stage-a-exit.md`.
 
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.

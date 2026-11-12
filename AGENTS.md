@@ -570,7 +570,7 @@ Manual (with the owner):
 - [x] A4 Owner dashboard, reports, local alerts
 - [x] A5 Printing and sharing (sharing, UPI QR, bills history done; thermal printing deferred to A5b)
 - [x] A6 Local backup and restore
-- [ ] A7 Testing gate and exit criteria
+- [ ] A7 Testing gate and exit criteria (tools and automated checks done; owner's week of parallel use in progress, see docs/stage-a-exit.md)
 - [ ] A8 OCR feasibility prototype (optional)
 
 **Stage B (cloud)**

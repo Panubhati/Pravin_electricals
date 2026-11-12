@@ -90,3 +90,13 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - The first-run screen offers Restore so a fresh phone can restore before any PIN exists.
 - Reminder: daily WorkManager task (about 10 AM) plus a home banner, when there is shop data and the last backup is over 3 days old (or never). The background task never creates a shop. Stage A backups are manual; automatic upload comes with Stage B.
 - Using one backup on two phones at once is unsupported (same invoice series); the restore screen says so.
+
+## 2026-11-12 A7 decisions
+- Check my data is read-only and reports problems (numbers that must agree) and notes (negative stock, future dates, missing bill numbers). Each check is one SQL query; the sale and purchase stock checks add bill lines and their movements into the same groups in one pass (joining two big grouped lists was ten times slower).
+- Schema v5: credit notes. `sales_returns` and `sales_return_lines` (never written before) were rebuilt with a credit note number (`CN-<series>-<n>`, unique per device), GST, round-off share, refund split (cash, UPI, to account), cancel flag and approver.
+- Refunds use the cumulative quantity returned per line (half up), so pieces always add up to the line total. The bill's round-off is refunded with the return that completes the bill. A cancel is only allowed when nothing was returned yet; it refunds the way the bill was paid and sets `invoices.status = cancelled` (the only change ever made to a posted bill).
+- A counter user needs the owner's PIN for a return or cancel; both people are recorded. Reports count returns on the day they are made; cancelled bills are not counted as bills.
+- A backup whose "last backup" time is in the future (clock was wrong) is treated as overdue, not as recent.
+- Storage errors (disk full, I/O error, database busy) map to plain messages; a save is all or nothing, proven by failing every write step on a real file database.
+- The demo shop and speed check are debug-only; loading it is refused unless a backup was made in the last hour.
+- A7 closes only after the owner's week of parallel use (docs/stage-a-exit.md).
