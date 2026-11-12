@@ -1,8 +1,6 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../core/debug/sample_data.dart';
 import '../../core/permissions.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
@@ -19,7 +17,6 @@ import '../parties/dues_screen.dart';
 import '../parties/parties_screen.dart';
 import '../purchase/purchases_screen.dart';
 import '../settings/settings_screen.dart';
-import '../speed/speed_screen.dart';
 import '../stock/stock_screen.dart';
 
 /// One tile on the home screen.
@@ -120,32 +117,6 @@ class HomeScreen extends ConsumerWidget {
                   ),
               ],
             ),
-            if (kDebugMode) ...[
-              const SizedBox(height: 16),
-              if (perms.canOpenSettings)
-                OutlinedButton(
-                  key: const Key('speedTools'),
-                  onPressed: () => Navigator.of(context)
-                      .push<void>(MaterialPageRoute(builder: (_) => const SpeedScreen())),
-                  child: const Text(S.speedTools),
-                ),
-              OutlinedButton(
-                onPressed: () async {
-                  final messenger = ScaffoldMessenger.of(context);
-                  final loaded = await SampleData.load(
-                    s.ctx,
-                    locationId: s.locationId,
-                  );
-                  ref.invalidate(stockBalancesProvider);
-                  messenger.showSnackBar(SnackBar(
-                    content: Text(loaded
-                        ? S.sampleDataLoaded
-                        : 'Items already exist, nothing loaded'),
-                  ));
-                },
-                child: const Text(S.loadSampleData),
-              ),
-            ],
           ],
         ),
       ),
