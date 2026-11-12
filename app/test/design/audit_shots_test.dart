@@ -34,6 +34,7 @@ import 'package:shop_app/features/sync/join_shop_screen.dart';
 import 'package:shop_app/features/sync/phones_screen.dart';
 import 'package:shop_app/features/sync/sync_providers.dart';
 import 'package:shop_app/features/audit/audit_screen.dart';
+import 'package:shop_app/shared/strings.dart';
 import 'package:shop_app/shared/theme.dart';
 
 import '../helpers/app_harness.dart';
@@ -44,6 +45,9 @@ import '../helpers/app_harness.dart';
 void main() {
   final dbPath = Platform.environment['AUDIT_DB'];
   final tall = Platform.environment['AUDIT_TALL'] != null;
+  // AUDIT_LANG=mr draws every screen in Marathi (into build/audit_mr/).
+  final marathi = Platform.environment['AUDIT_LANG'] == 'mr';
+  final outDir = marathi ? 'build/audit_mr' : 'build/audit';
 
   Future<void> loadFonts() async {
     final icons = FontLoader('MaterialIcons')
@@ -55,6 +59,10 @@ void main() {
       ..addFont(rootBundle.load('assets/fonts/NotoSans-Regular.ttf'))
       ..addFont(rootBundle.load('assets/fonts/NotoSans-Bold.ttf'));
     await loader.load();
+    final deva = FontLoader(AppTheme.marathiFont)
+      ..addFont(rootBundle.load('assets/fonts/NotoSansDevanagari-Regular.ttf'))
+      ..addFont(rootBundle.load('assets/fonts/NotoSansDevanagari-Bold.ttf'));
+    await deva.load();
   }
 
   final problems = <String>[];
@@ -84,6 +92,8 @@ void main() {
   void shot(String name, Future<Widget> Function(WidgetTester, Harness) build,
       {Future<void> Function(WidgetTester)? act, bool counter = false}) {
     testWidgets(name, (tester) async {
+      S.lang = marathi ? AppLang.mr : AppLang.en;
+      addTearDown(() => S.lang = AppLang.en);
       final h = await open(tester);
       final screen = await build(tester, h);
       final who = counter ? await h.addCounterUser(tester) : null;
@@ -104,7 +114,7 @@ void main() {
         final image = await boundary.toImage(pixelRatio: 1.4);
         return (await image.toByteData(format: ui.ImageByteFormat.png))!.buffer.asUint8List();
       });
-      File('build/audit/$name.png')
+      File('$outDir/$name.png')
         ..createSync(recursive: true)
         ..writeAsBytesSync(bytes!);
       FlutterError.onError = FlutterError.presentError;

@@ -32,7 +32,7 @@ class ImportScreen extends StatelessWidget {
               key: const Key('importItemsTile'),
               leading: const Icon(Icons.inventory_2_outlined),
               title: Text(S.importItems),
-              subtitle: const Text('Names, GST, prices, cost, minimum and opening stock'),
+              subtitle: Text(S.importItemsSub),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(
                   builder: (_) => const ImportFlowScreen(kind: ImportKind.items))),
@@ -44,7 +44,7 @@ class ImportScreen extends StatelessWidget {
               key: const Key('importPartiesTile'),
               leading: const Icon(Icons.people_outline),
               title: Text(S.importParties),
-              subtitle: const Text('Names, phone, GSTIN, credit limit and opening balance'),
+              subtitle: Text(S.importPartiesSub),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(
                   builder: (_) => const ImportFlowScreen(kind: ImportKind.parties))),
@@ -100,7 +100,7 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
             fileName: _isItems ? 'items_template.csv' : 'parties_template.csv',
             content: _isItems ? ItemImportService.templateCsv : PartyImportService.templateCsv,
           );
-      if (saved && mounted) toast(context, 'Template saved');
+      if (saved && mounted) toast(context, S.templateSaved);
     } catch (e) {
       if (mounted) toastError(context, e);
     }
@@ -184,22 +184,19 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
           if (r != null) ...[
             SectionTitle(S.importDone),
             Text(
-              'Imported ${r.created}. Skipped ${r.skipped} that already exist. '
-              '${r.errors} row${r.errors == 1 ? '' : 's'} had problems and '
-              '${r.errors == 1 ? 'was' : 'were'} not imported.',
+              S.importResult(r.created, r.skipped, r.errors),
               key: const Key('importResult'),
             ),
           ],
           if (v != null) ...[
-            const SectionTitle('Check before importing'),
+            SectionTitle(S.importCheckFirst),
             Text(
-              '${v.total} rows in the file: ${v.toCreate} will be imported, '
-              '${v.skipped.length} skipped, ${v.errors.length} need fixing.',
+              S.importSummary(v.total, v.toCreate, v.skipped.length, v.errors.length),
               key: const Key('importSummary'),
             ),
             if (v.errors.isNotEmpty) ...[
               const SizedBox(height: 12),
-              Text('Fix these in your file and choose it again:',
+              Text(S.importFixThese,
                   style: Theme.of(context).textTheme.titleSmall),
               for (final e in v.errors.take(100))
                 ListTile(
@@ -209,17 +206,17 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
                   leading: const Icon(Icons.error_outline, color: AppPalette.red),
                   title: Text(e.toString()),
                 ),
-              if (v.errors.length > 100) Text('...and ${v.errors.length - 100} more'),
+              if (v.errors.length > 100) Text(S.andMore(v.errors.length - 100)),
             ],
             if (v.skipped.isNotEmpty)
               ExpansionTile(
                 tilePadding: EdgeInsets.zero,
-                title: Text('${v.skipped.length} skipped'),
+                title: Text(S.skippedCount(v.skipped.length)),
                 children: [
                   for (final s in v.skipped.take(100))
                     ListTile(
                       dense: true,
-                      title: Text('Row ${s.rowNumber}: ${s.name}'),
+                      title: Text(S.rowName(s.rowNumber, s.name)),
                       subtitle: Text(s.reason),
                     ),
                 ],

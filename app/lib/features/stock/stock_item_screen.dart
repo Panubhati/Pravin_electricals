@@ -59,7 +59,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
     if (result == null || !mounted) return;
     try {
       final base = _toBase(result.qty);
-      if (base <= 0) throw DomainException('Enter a quantity more than 0');
+      if (base <= 0) throw DomainException(S.enterQtyMoreThanZero);
       final session = ref.read(sessionProvider).requireValue;
       await ref.read(stockRepositoryProvider).adjust(
             itemId: item.id,
@@ -84,7 +84,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
     );
     if (text == null || !mounted) return;
     try {
-      if (text.trim().isEmpty) throw DomainException('Enter the counted quantity');
+      if (text.trim().isEmpty) throw DomainException(S.enterCountedQty);
       final session = ref.read(sessionProvider).requireValue;
       await ref.read(stockRepositoryProvider).recordCount(
             itemId: item.id,
@@ -100,15 +100,15 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
     }
   }
 
-  static const _typeLabels = {
-    'purchase': 'Purchase',
-    'sale': 'Sale',
-    'sale_return': 'Sale return',
-    'purchase_return': 'Purchase return',
-    'transfer_in': 'Transfer in',
-    'transfer_out': 'Transfer out',
-    'adjustment': 'Adjustment',
-    'count': 'Stock count',
+  static Map<String, String> get _typeLabels => {
+    'purchase': S.movePurchase,
+    'sale': S.moveSale,
+    'sale_return': S.moveSaleReturn,
+    'purchase_return': S.movePurchaseReturn,
+    'transfer_in': S.moveTransferIn,
+    'transfer_out': S.moveTransferOut,
+    'adjustment': S.moveAdjustment,
+    'count': S.moveCount,
   };
 
   @override
@@ -132,7 +132,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
                           ),
                     ),
                     if (item.minStockBase > 0)
-                      Text('Minimum: ${formatStock(item, item.minStockBase)}'),
+                      Text(S.minimumStock(formatStock(item, item.minStockBase))),
                     const SizedBox(height: 12),
                     Row(children: [
                       Expanded(

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/backup/backup_reminder_rules.dart';
 import '../../core/providers.dart';
+import '../../shared/messages_mr.dart';
 import '../../shared/strings.dart';
 import 'backup_actions.dart';
 import 'backup_reminder.dart';
@@ -10,12 +11,13 @@ import '../../shared/theme.dart';
 
 /// What the banner and the reminder need to know right now. It re-reads when
 /// the last-backup time or the reminder switch changes.
-final backupReminderStateProvider = FutureProvider.autoDispose<BackupReminderState>((ref) {
-  ref.watch(lastBackupProvider);
-  ref.watch(backupReminderOnProvider);
-  final session = ref.watch(sessionProvider).requireValue;
-  return backupReminderState(ref.watch(databaseProvider), session);
-});
+final backupReminderStateProvider =
+    FutureProvider.autoDispose<BackupReminderState>((ref) {
+      ref.watch(lastBackupProvider);
+      ref.watch(backupReminderOnProvider);
+      final session = ref.watch(sessionProvider).requireValue;
+      return backupReminderState(ref.watch(databaseProvider), session);
+    });
 
 /// A note at the top of the owner's home screen when it is time to back up.
 class BackupBanner extends ConsumerStatefulWidget {
@@ -50,25 +52,36 @@ class _BackupBannerState extends ConsumerState<BackupBanner> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(S.backupReminderBanner, style: TextStyle(fontWeight: FontWeight.bold)),
-                  Text(state.message, key: const Key('backupBannerText')),
+                  Text(
+                    S.backupReminderBanner,
+                    style: TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    localizeMessage(state.message),
+                    key: const Key('backupBannerText'),
+                  ),
+                  const SizedBox(height: 8),
+                  // Below the text, so a longer language never squeezes it.
+                  Align(
+                    alignment: Alignment.centerRight,
+                    child: FilledButton(
+                      key: const Key('backupBannerButton'),
+                      onPressed:
+                          _busy
+                              ? null
+                              : () async {
+                                setState(() => _busy = true);
+                                try {
+                                  await backUpNow(context, ref);
+                                } finally {
+                                  if (mounted) setState(() => _busy = false);
+                                }
+                              },
+                      child: Text(S.backupNowShort),
+                    ),
+                  ),
                 ],
               ),
-            ),
-            const SizedBox(width: 8),
-            FilledButton(
-              key: const Key('backupBannerButton'),
-              onPressed: _busy
-                  ? null
-                  : () async {
-                      setState(() => _busy = true);
-                      try {
-                        await backUpNow(context, ref);
-                      } finally {
-                        if (mounted) setState(() => _busy = false);
-                      }
-                    },
-              child: Text(S.backupNowShort),
             ),
           ],
         ),

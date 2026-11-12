@@ -30,15 +30,15 @@ class ReportsScreen extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: 24),
         children: [
           CardGroup(children: [
-            tile(const Key('reportDailySales'), Icons.today_outlined, S.dailySales, 'Bills, payments and cash for a day',
+            tile(const Key('reportDailySales'), Icons.today_outlined, S.dailySales, S.reportDailySalesSub,
                 const DailySalesScreen()),
-            tile(const Key('reportDayCheck'), Icons.fact_check_outlined, S.dayCheckTitle, 'Compare with your paper book',
+            tile(const Key('reportDayCheck'), Icons.fact_check_outlined, S.dayCheckTitle, S.reportDayCheckSub,
                 const DayCheckScreen()),
           ]),
           CardGroup(children: [
-            tile(const Key('reportItemProfit'), Icons.trending_up, S.itemProfit, 'What each item earned',
+            tile(const Key('reportItemProfit'), Icons.trending_up, S.itemProfit, S.reportItemProfitSub,
                 const ItemProfitScreen()),
-            tile(const Key('reportStockValue'), Icons.inventory_outlined, S.stockValue, 'Stock on hand at cost price',
+            tile(const Key('reportStockValue'), Icons.inventory_outlined, S.stockValue, S.reportStockValueSub,
                 const StockValueScreen()),
           ]),
         ],
@@ -115,7 +115,7 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                   onPressed: _pick,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(isToday ? 'Today, ${formatDate(_day)}' : formatDate(_day),
+                    child: Text(isToday ? S.todayDate(formatDate(_day)) : formatDate(_day),
                         style: Theme.of(context).textTheme.titleMedium),
                   ),
                 ),
@@ -139,8 +139,8 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                 _line(S.gstIncluded, Money.format(d.gstPaise), muted: true),
                 SectionTitle(S.paidBy),
                 _line(S.cash, Money.format(d.mode('cash')), key: const Key('modeCash')),
-                _line('UPI', Money.format(d.mode('upi')), key: const Key('modeUpi')),
-                if (d.mode('card') > 0) _line('Card', Money.format(d.mode('card'))),
+                _line(S.modeUpi, Money.format(d.mode('upi')), key: const Key('modeUpi')),
+                if (d.mode('card') > 0) _line(S.modeCard, Money.format(d.mode('card'))),
                 _line(S.credit, Money.format(d.mode('credit')), key: const Key('modeCredit')),
               ],
             ),
@@ -227,10 +227,10 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
           Wrap(
             spacing: 8,
             children: [
-              for (final (p, label) in const [
-                (_Period.today, 'Today'),
-                (_Period.week, 'Last 7 days'),
-                (_Period.month, 'This month'),
+              for (final (p, label) in [
+                (_Period.today, S.periodToday),
+                (_Period.week, S.periodWeek),
+                (_Period.month, S.periodMonth),
               ])
                 ChoiceChip(
                   key: Key('period_${p.name}'),
@@ -240,14 +240,14 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                 ),
               ChoiceChip(
                 key: const Key('period_custom'),
-                label: const Text('Pick dates'),
+                label: Text(S.pickDates),
                 selected: _period == _Period.custom,
                 onSelected: (_) => _pickRange(),
               ),
             ],
           ),
           const SizedBox(height: 8),
-          Text('${formatDate(range.from)} to ${formatDate(range.to)}',
+          Text(S.dateRange(formatDate(range.from), formatDate(range.to)),
               style: const TextStyle(color: AppPalette.muted)),
           report.when(
             loading: () => const Padding(
@@ -287,8 +287,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                         ListTile(
                           key: Key('profitRow_${profitKeys.of(x.item.name, x.item.id)}'),
                           title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                          subtitle: Text('Sold ${formatStock(x.item, x.qtyBase)}  •  '
-                              'sales ${Money.format(x.taxableSalesPaise)}'),
+                          subtitle: Text(S.soldQtySales(formatStock(x.item, x.qtyBase), Money.format(x.taxableSalesPaise))),
                           trailing: Text(Money.format(x.profitPaise),
                               style: TextStyle(color: x.profitPaise < 0 ? AppPalette.red : null)),
                         ),
@@ -358,8 +357,7 @@ class StockValueScreen extends ConsumerWidget {
                     ListTile(
                       key: Key('valueRow_${valueKeys.of(x.item.name, x.item.id)}'),
                       title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                      subtitle: Text('${formatStock(x.item, x.balanceBase)} at '
-                          '${formatRate(x.item, x.costPaise!)}'),
+                      subtitle: Text(S.qtyAtRate(formatStock(x.item, x.balanceBase), formatRate(x.item, x.costPaise!))),
                       trailing: Text(Money.format(x.valuePaise)),
                     ),
                 ]),

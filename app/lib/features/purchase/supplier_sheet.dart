@@ -89,7 +89,7 @@ class _SupplierSheetState extends ConsumerState<_SupplierSheet> {
         ListTile(
           key: const Key('addSupplier'),
           leading: const Icon(Icons.person_add),
-          title: const Text('Add new supplier'),
+          title: Text(S.addNewSupplier),
           onTap: () => setState(() => _adding = true),
         ),
         const Divider(height: 1),

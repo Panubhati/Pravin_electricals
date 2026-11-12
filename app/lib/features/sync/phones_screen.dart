@@ -11,6 +11,7 @@ import '../../core/sync/pairing.dart';
 import '../../core/sync/phones.dart';
 import '../../core/sync/sync_service.dart';
 import '../../shared/format.dart';
+import '../../shared/messages_mr.dart';
 import '../../shared/strings.dart';
 import '../../shared/theme.dart';
 import '../../shared/widgets.dart';
@@ -94,7 +95,7 @@ class PhonesScreen extends ConsumerWidget {
               }),
             ),
             const SizedBox(height: 16),
-            const SectionTitle('Phones'),
+            SectionTitle(S.phonesSection),
             Card(
               child: Column(children: [
                 for (final r in rows) _PhoneTile(row: r),
@@ -151,11 +152,16 @@ class _StatusCard extends StatelessWidget {
           Container(width: 12, height: 12, decoration: BoxDecoration(color: look.color, shape: BoxShape.circle)),
           const SizedBox(width: 10),
           Expanded(child: Text(look.label, key: const Key('syncStateText'), style: text.titleMedium)),
-          TextButton.icon(
-            key: const Key('syncNow'),
-            onPressed: onSyncNow,
-            icon: const Icon(Icons.sync, size: 18),
-            label: Text(S.phonesSyncNow),
+          Flexible(
+            child: FittedBox(
+              fit: BoxFit.scaleDown,
+              child: TextButton.icon(
+                key: const Key('syncNow'),
+                onPressed: onSyncNow,
+                icon: const Icon(Icons.sync, size: 18),
+                label: Text(S.phonesSyncNow),
+              ),
+            ),
           ),
         ]),
         const SizedBox(height: 6),
@@ -169,7 +175,7 @@ class _StatusCard extends StatelessWidget {
         ],
         if (status.state == SyncHealth.problem && status.message != null) ...[
           const SizedBox(height: 6),
-          Text(status.message!, style: text.bodySmall?.copyWith(color: AppPalette.red)),
+          Text(localizeMessage(status.message!), style: text.bodySmall?.copyWith(color: AppPalette.red)),
         ],
         if (skewMinutes >= 2) ...[
           const SizedBox(height: 6),
@@ -303,7 +309,7 @@ class _AddPhoneScreenState extends ConsumerState<AddPhoneScreen> {
         if (joined.isEmpty || !mounted) return;
         _watch?.cancel();
         ref.invalidate(phonesProvider);
-        toast(context, S.addPhoneJoined(joined.first.label.isEmpty ? 'The new phone' : joined.first.label));
+        toast(context, S.addPhoneJoined(joined.first.label.isEmpty ? S.theNewPhone : joined.first.label));
         Navigator.of(context).pop();
       });
     } catch (e) {

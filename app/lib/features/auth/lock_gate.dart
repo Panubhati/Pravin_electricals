@@ -86,7 +86,7 @@ class _LockGateState extends ConsumerState<LockGate>
           (e, _) =>
               e is DeviceChoiceNeeded
                   ? _Standalone(child: DeviceChoiceScreen(devices: e.devices))
-                  : Center(child: Text('Could not open the database: $e')),
+                  : Center(child: Text(S.cannotOpenDb(e))),
       data: (_) {
         final hasPin = ref.watch(ownerHasPinProvider);
         return hasPin.when(

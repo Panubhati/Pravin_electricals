@@ -112,7 +112,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
     setState(() => _saving = true);
     try {
       final retail = _money(_retail);
-      if (retail == null) throw DomainException('Retail price is required');
+      if (retail == null) throw DomainException(S.retailRequired);
       final data = ItemFormData(
         itemId: widget.itemId,
         name: _name.text,
@@ -153,7 +153,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
 
   Future<void> _toggleActive(bool value) async {
     if (!value &&
-        !await confirm(context, message: S.deactivateConfirm, confirmLabel: 'Hide')) {
+        !await confirm(context, message: S.deactivateConfirm, confirmLabel: S.hide)) {
       return;
     }
     try {
@@ -302,17 +302,17 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                 ),
                 SectionTitle(S.prices),
                 _moneyField(const Key('itemRetail'), _retail,
-                    '${S.retailPrice} per $unit', perms.canEditPrices),
+                    S.priceFieldLabel(S.retailPrice, unit), perms.canEditPrices),
                 const SizedBox(height: 12),
                 _moneyField(const Key('itemContractor'), _contractor,
-                    '${S.contractorPrice} per $unit (optional)', perms.canEditPrices),
+                    S.priceFieldLabelOptional(S.contractorPrice, unit), perms.canEditPrices),
                 const SizedBox(height: 12),
                 _moneyField(const Key('itemDealer'), _dealer,
-                    '${S.dealerPrice} per $unit (optional)', perms.canEditPrices),
+                    S.priceFieldLabelOptional(S.dealerPrice, unit), perms.canEditPrices),
                 if (perms.canSeeCost) ...[
                   const SizedBox(height: 12),
                   _moneyField(const Key('itemCost'), _cost,
-                      '${S.costPrice} per $unit', perms.canEditPrices),
+                      S.priceFieldLabel(S.costPrice, unit), perms.canEditPrices),
                 ],
                 SectionTitle(S.stock),
                 TextField(
@@ -382,7 +382,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
           ListTile(
             contentPadding: EdgeInsets.zero,
             tileColor: Colors.transparent,
-            title: Text(v.label == kDefaultVariantLabel ? S.barcode.replaceAll(' (optional)', '') : v.label),
+            title: Text(v.label == kDefaultVariantLabel ? S.barcode.replaceAll(S.optionalSuffix, '') : v.label),
             subtitle: Text(v.barcode ?? ''),
             trailing: const Icon(Icons.edit_outlined),
             onTap: () => _variantDialog(variant: v),
@@ -404,13 +404,13 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
         ),
         if (d.structureLocked)
           Text(
-            'This item already has stock or bills.',
+            S.itemHasHistory,
             style: Theme.of(context).textTheme.bodySmall,
           ),
         // Cost is for the owner only: the line itself must not exist for staff.
         if (ref.read(permissionsProvider).canSeeCost)
           Text(
-            'Cost today: ${d.costPaise == null ? '-' : Money.format(d.costPaise!)}',
+            S.costToday(d.costPaise == null ? '-' : Money.format(d.costPaise!)),
             style: Theme.of(context).textTheme.bodySmall,
           ),
       ];

@@ -4,7 +4,7 @@ import 'package:intl/intl.dart';
 
 import '../db/repositories/return_repository.dart';
 import '../money.dart';
-import 'amount_in_words.dart';
+import 'bill_words.dart';
 
 /// Everything printed on a credit note, as plain text, from saved data. The PDF
 /// only draws it (and tests read it).
@@ -27,6 +27,7 @@ class CreditNoteView {
     required this.words,
     required this.reason,
     required this.isCancel,
+    this.words_ = BillWords.en,
   });
 
   final String shopName;
@@ -51,9 +52,14 @@ class CreditNoteView {
   final String? reason;
   final bool isCancel;
 
-  String get title => isCancel ? 'CREDIT NOTE (BILL CANCELLED)' : 'CREDIT NOTE';
+  /// The bill language this note was made in.
+  final BillWords words_;
 
-  static CreditNoteView from(ReturnDetails d) {
+
+  String get title => words_.creditNoteTitle(cancel: isCancel);
+
+  static CreditNoteView from(ReturnDetails d, {BillWords words = BillWords.en}) {
+    final w = words;
     final shop = _snapshot(d.invoice.shopSnapshotJson);
     String? clean(Object? v) {
       final s = (v as String?)?.trim();
@@ -67,17 +73,17 @@ class CreditNoteView {
       shopName: (shop['name'] as String?) ?? '',
       shopAddress: clean(shop['address']),
       shopContact: [
-        if (clean(shop['phone']) != null) 'Phone: ${clean(shop['phone'])}',
-        if (clean(shop['gstin']) != null) 'GSTIN: ${clean(shop['gstin'])}',
+        if (clean(shop['phone']) != null) w.phone(clean(shop['phone'])!),
+        if (clean(shop['gstin']) != null) w.gstin(clean(shop['gstin'])!),
       ].join('   '),
       noteNo: r.creditNoteNoText,
       dateText: DateFormat('dd-MM-yyyy').format(r.date),
       againstBill: d.invoice.invoiceNoText,
       billDateText: DateFormat('dd-MM-yyyy').format(d.invoice.date),
-      customerName: party?.name ?? 'Walk-in customer',
+      customerName: party?.name ?? w.walkIn,
       customerLines: [
         if (clean(party?.phone) != null) clean(party?.phone)!,
-        if (clean(party?.gstin) != null) 'GSTIN: ${clean(party?.gstin)}',
+        if (clean(party?.gstin) != null) w.gstin(clean(party?.gstin)!),
       ],
       lines: [
         for (final l in d.lines)
@@ -93,13 +99,14 @@ class CreditNoteView {
       total: Money.format(r.totalPaise),
       gstInside: money(r.taxPaise),
       refunds: [
-        if (r.refundCashPaise > 0) 'Cash: ${Money.format(r.refundCashPaise)}',
-        if (r.refundUpiPaise > 0) 'UPI: ${Money.format(r.refundUpiPaise)}',
-        if (r.refundAccountPaise > 0) 'Taken off your account: ${Money.format(r.refundAccountPaise)}',
+        if (r.refundCashPaise > 0) w.refundCash(Money.format(r.refundCashPaise)),
+        if (r.refundUpiPaise > 0) w.refundUpi(Money.format(r.refundUpiPaise)),
+        if (r.refundAccountPaise > 0) w.refundAccount(Money.format(r.refundAccountPaise)),
       ],
-      words: amountInWords(r.totalPaise),
+      words: w.words(r.totalPaise),
       reason: clean(r.note),
       isCancel: r.isCancel,
+      words_: w,
     );
   }
 }

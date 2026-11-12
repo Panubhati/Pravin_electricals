@@ -79,11 +79,11 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
     try {
       final gstin = _blank(_gstin)?.toUpperCase();
       if (gstin != null && !looksLikeGstin(gstin)) {
-        throw DomainException('GSTIN should be 15 characters, like 27AAAAA0000A1Z5');
+        throw DomainException(S.gstinFormat);
       }
       final state = _blank(_state);
       if (state != null && !RegExp(r'^\d{2}$').hasMatch(state)) {
-        throw DomainException('State code should be 2 digits, like 27');
+        throw DomainException(S.stateCodeFormat);
       }
       final credit = _credit.text.trim().isEmpty ? 0 : parseRupees(_credit.text);
       final session = ref.read(sessionProvider).requireValue;
@@ -189,10 +189,10 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                     value: _tier,
                     decoration: InputDecoration(
                         labelText: S.tier, border: OutlineInputBorder()),
-                    items: const [
-                      DropdownMenuItem(value: 'retail', child: Text('Retail')),
-                      DropdownMenuItem(value: 'contractor', child: Text('Contractor')),
-                      DropdownMenuItem(value: 'dealer', child: Text('Dealer')),
+                    items: [
+                      DropdownMenuItem(value: 'retail', child: Text(S.tierRetail)),
+                      DropdownMenuItem(value: 'contractor', child: Text(S.tierContractor)),
+                      DropdownMenuItem(value: 'dealer', child: Text(S.tierDealer)),
                     ],
                     onChanged: (v) => setState(() => _tier = v ?? _tier),
                   ),
@@ -238,8 +238,8 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
                     decoration: InputDecoration(
                       labelText: supplier
-                          ? '${S.openingBalance}: ${S.youOwe} (Rs)'
-                          : '${S.openingBalance}: ${S.owes} (Rs)',
+                          ? S.openingBalanceLabel(S.youOwe)
+                          : S.openingBalanceLabel(S.owes),
                       prefixText: '₹ ',
                       border: const OutlineInputBorder(),
                     ),

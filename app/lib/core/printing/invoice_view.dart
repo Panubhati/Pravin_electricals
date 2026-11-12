@@ -5,7 +5,7 @@ import 'package:intl/intl.dart';
 import '../../features/billing/domain/bill_calculator.dart';
 import '../db/repositories/invoice_repository.dart';
 import '../money.dart';
-import 'amount_in_words.dart';
+import 'bill_words.dart';
 import 'upi_link.dart';
 
 /// Everything printed on a tax invoice, as plain text, worked out from saved
@@ -68,7 +68,8 @@ class InvoiceView {
   final String? upiLink;
   final String? upiCaption;
 
-  static InvoiceView from(InvoiceDetails d, {UpiPayee? upi}) {
+  static InvoiceView from(InvoiceDetails d, {UpiPayee? upi, BillWords words = BillWords.en}) {
+    final w = words;
     final inv = d.invoice;
     final shop = _snapshot(inv.shopSnapshotJson);
     final party = d.party;
@@ -104,22 +105,22 @@ class InvoiceView {
 
     final due = inv.totalPaise - inv.paidPaise;
     final payTo = due > 0 ? due : inv.totalPaise;
-    final link = UpiLink.build(upi, amountPaise: payTo, note: 'Bill ${inv.invoiceNoText}');
+    final link = UpiLink.build(upi, amountPaise: payTo, note: w.upiNote(inv.invoiceNoText));
 
     return InvoiceView(
       shopName: (shop['name'] as String?) ?? '',
       shopAddress: clean(shop['address']),
       shopContact: [
-        if (clean(shop['phone']) != null) 'Phone: ${clean(shop['phone'])}',
-        if (clean(shop['gstin']) != null) 'GSTIN: ${clean(shop['gstin'])}',
+        if (clean(shop['phone']) != null) w.phone(clean(shop['phone'])!),
+        if (clean(shop['gstin']) != null) w.gstin(clean(shop['gstin'])!),
       ].join('   '),
-      billToName: party?.name ?? 'Walk-in customer',
+      billToName: party?.name ?? w.walkIn,
       billToLines: [
         if (clean(party?.phone) != null) clean(party?.phone)!,
         if (clean(party?.address) != null) clean(party?.address)!,
-        if (clean(party?.gstin) != null) 'GSTIN: ${clean(party?.gstin)}',
+        if (clean(party?.gstin) != null) w.gstin(clean(party?.gstin)!),
       ],
-      placeOfSupply: clean(party?.stateCode) == null ? null : 'Place of supply: ${clean(party?.stateCode)}',
+      placeOfSupply: clean(party?.stateCode) == null ? null : w.placeOfSupply(clean(party?.stateCode)!),
       invoiceNo: inv.invoiceNoText,
       dateText: DateFormat('dd-MM-yyyy').format(inv.date),
       lines: lines,
@@ -144,17 +145,17 @@ class InvoiceView {
       ],
       payments: [
         for (final p in d.payments)
-          '${_modeLabel(p.mode)}: ${Money.format(p.amountPaise)}${p.mode == 'credit' ? '  (due)' : ''}',
+          '${w.modeLabel(p.mode)}: ${Money.format(p.amountPaise)}${p.mode == 'credit' ? w.dueSuffix : ''}',
       ],
-      dueText: due > 0 ? 'Balance due: ${Money.format(due)}' : null,
-      words: amountInWords(inv.totalPaise),
+      dueText: due > 0 ? w.balanceDue(Money.format(due)) : null,
+      words: w.words(inv.totalPaise),
       terms: clean(shop['terms']),
       upiLink: link,
       upiCaption: link == null
           ? null
           : (due > 0
-              ? 'Scan to pay the balance ${Money.format(due)} by UPI'
-              : 'Pay by UPI (${Money.format(inv.totalPaise)})'),
+              ? w.scanToPayBalance(Money.format(due))
+              : w.payByUpi(Money.format(inv.totalPaise))),
     );
   }
 }
@@ -182,14 +183,6 @@ class GstRowView {
   });
   final String rate, taxable, cgst, sgst, igst;
 }
-
-String _modeLabel(String mode) => switch (mode) {
-      'cash' => 'Cash',
-      'upi' => 'UPI',
-      'credit' => 'Credit',
-      'card' => 'Card',
-      _ => mode,
-    };
 
 Map<String, Object?> _snapshot(String? json) {
   if (json == null || json.isEmpty) return const {};

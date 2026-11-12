@@ -51,7 +51,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
       final stamp = '${_day.year}${_day.month.toString().padLeft(2, '0')}${_day.day.toString().padLeft(2, '0')}';
       final file = File('${dir.path}/DayCheck_$stamp.txt');
       await file.writeAsString(text);
-      await ref.read(backupSharerProvider).shareFile(file, subject: '${session.shop.name} day check ${formatDate(_day)}');
+      await ref.read(backupSharerProvider).shareFile(file, subject: S.dayCheckShareSubject(session.shop.name, formatDate(_day)));
     } catch (e) {
       if (mounted) toastError(context, e);
     }
@@ -120,7 +120,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
                   onPressed: _pick,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(isToday ? 'Today, ${formatDate(_day)}' : formatDate(_day),
+                    child: Text(isToday ? S.todayDate(formatDate(_day)) : formatDate(_day),
                         style: Theme.of(context).textTheme.titleMedium),
                   ),
                 ),
@@ -151,16 +151,16 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
                   SectionTitle(S.dcHowPaid),
                   _group([
                     _line(S.cash, s.mode('cash'), key: const Key('dcCash')),
-                    _line('UPI', s.mode('upi'), key: const Key('dcUpi')),
-                    if (s.mode('card') != 0) _line('Card', s.mode('card')),
+                    _line(S.modeUpi, s.mode('upi'), key: const Key('dcUpi')),
+                    if (s.mode('card') != 0) _line(S.modeCard, s.mode('card')),
                     _line(S.credit, s.mode('credit'), key: const Key('dcCredit')),
                   ]),
                   SectionTitle(S.dcCollected),
                   _group([
                     _line(S.dcCollectedTotal, d.collectedPaise, bold: true, key: const Key('dcCollected')),
                     _line(S.cash, d.collectedByMode['cash'] ?? 0, muted: true),
-                    _line('UPI', d.collectedByMode['upi'] ?? 0, muted: true),
-                    _line('Bank', d.collectedByMode['bank'] ?? 0, muted: true),
+                    _line(S.modeUpi, d.collectedByMode['upi'] ?? 0, muted: true),
+                    _line(S.modeBank, d.collectedByMode['bank'] ?? 0, muted: true),
                   ]),
                   SectionTitle(S.dcPurchases),
                   _group([

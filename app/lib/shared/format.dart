@@ -1,3 +1,5 @@
+import 'strings.dart';
+import 'messages_mr.dart';
 import '../core/db/app_database.dart';
 import '../core/db/repositories/repo_context.dart';
 import '../core/money.dart';
@@ -23,23 +25,26 @@ String formatRate(Item item, int ratePaise) =>
 String rupeesForField(int paise) =>
     paise == 0 ? '' : Money.format(paise, symbol: false).replaceAll(',', '');
 
-/// A plain message for an error from a repository, shown to staff.
-String errorMessage(Object e) {
+/// A plain message for an error from a repository, shown to staff, in the
+/// screen language.
+String errorMessage(Object e) => localizeMessage(_errorMessageEn(e));
+
+String _errorMessageEn(Object e) {
   if (e is DomainException) return e.message;
   if (e is FormatException) return e.message;
   // Storage problems from SQLite, in words staff can act on. A save is all or
   // nothing, so in every case nothing half-saved is left behind.
   final text = '$e'.toLowerCase();
   if (text.contains('disk is full') || text.contains('sqlite_full') || text.contains('no space left')) {
-    return 'The phone is out of storage space. Free some space and try again. Nothing was saved.';
+    return S.diskFull;
   }
   if (text.contains('disk i/o error') || text.contains('sqlite_ioerr')) {
-    return 'The phone could not write to its storage. Nothing was saved. Try again, and restart the phone if it keeps happening.';
+    return S.diskIoError;
   }
   if (text.contains('database is locked') || text.contains('sqlite_busy')) {
-    return 'The shop data is busy. Wait a moment and try again.';
+    return S.dataBusy;
   }
-  return 'Something went wrong: $e';
+  return S.somethingWentWrong('$e');
 }
 
 /// "12 Nov 2026".
@@ -48,6 +53,7 @@ String formatDate(DateTime d) {
     'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
     'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
   ];
+  // Month names stay English in both languages (owner's choice, A10).
   return '${d.day} ${months[d.month - 1]} ${d.year}';
 }
 

@@ -270,7 +270,7 @@ class SettingsScreen extends ConsumerWidget {
                 rowKey: const Key('settingAutoLock'),
                 icon: Icons.lock_clock,
                 title: S.autoLock,
-                value: v.autoLock == 0 ? 'Always' : '${v.autoLock} min',
+                value: v.autoLock == 0 ? S.autoLockAlways : S.autoLockMinutesValue(v.autoLock),
                 onTap: () async {
                   final text = await _ask(context,
                       title: S.autoLock, initial: '${v.autoLock}', help: S.autoLockHelp, suffix: 'min');

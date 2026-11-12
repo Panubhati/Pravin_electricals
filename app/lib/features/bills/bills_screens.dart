@@ -265,19 +265,19 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   ListTile(
                     key: Key('line_${l.no}'),
                     title: Text(l.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                    subtitle: Text('${l.qty} at ₹${l.rate}${l.hsn.isEmpty ? '' : '  •  HSN ${l.hsn}'}'
-                        '${l.discount.isEmpty ? '' : '  •  less ${l.discount}'}'),
+                    subtitle: Text('${S.lineQtyAt(l.qty, l.rate)}${l.hsn.isEmpty ? '' : '  •  HSN ${l.hsn}'}'
+                        '${l.discount.isEmpty ? '' : '  •  ${S.lessAmount(l.discount)}'}'),
                     trailing: Text('₹${l.amount}'),
                   ),
               ]),
               const SizedBox(height: 16),
-              row('Subtotal', v.subtotal),
-              if (v.discount != null) row('Discount', v.discount!),
-              if (v.roundOff != null) row('Round off', v.roundOff!),
-              row('Total', v.total, bold: true, key: const Key('detailTotal')),
+              row(S.subtotal, v.subtotal),
+              if (v.discount != null) row(S.discountLabel, v.discount!),
+              if (v.roundOff != null) row(S.roundOff, v.roundOff!),
+              row(S.total, v.total, bold: true, key: const Key('detailTotal')),
               const SizedBox(height: 4),
               Text(v.words, style: style.bodySmall),
-              const SectionTitle('Payment'),
+              SectionTitle(S.payment),
               for (final p in v.payments) Text(p),
               if (v.dueText != null)
                 Text(v.dueText!,

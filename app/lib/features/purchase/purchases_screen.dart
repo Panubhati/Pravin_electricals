@@ -124,7 +124,7 @@ class PurchaseDetailScreen extends ConsumerWidget {
                   ListTile(
                     title: Text(d.itemNames[l.itemId] ?? '', maxLines: 2, overflow: TextOverflow.ellipsis),
                     subtitle: Text(
-                        '${l.qtyEntered} ${l.unitName} at ${Money.format(l.ratePaise)}  •  GST ${l.gstRateBp ~/ 100}%'),
+                        '${S.qtyAtRate('${l.qtyEntered} ${l.unitName}', Money.format(l.ratePaise))}  •  GST ${l.gstRateBp ~/ 100}%'),
                     trailing: Text(Money.format(l.lineTotalPaise)),
                   ),
               ]),

@@ -86,7 +86,7 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),
-                  child: const Text('Home'),
+                  child: Text(S.home),
                 ),
               ],
             ),

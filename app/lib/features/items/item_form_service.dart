@@ -1,3 +1,4 @@
+import '../../shared/strings.dart';
 import '../../core/db/repositories/item_repository.dart';
 import '../../core/db/repositories/repo_context.dart';
 import '../../core/db/repositories/stock_repository.dart';
@@ -80,27 +81,27 @@ class ItemFormService {
   }
 
   void _validate(ItemFormData d) {
-    if (d.name.trim().isEmpty) throw DomainException('Item name is required');
+    if (d.name.trim().isEmpty) throw DomainException(S.itemNameRequired);
     if (!validGstRatesBp.contains(d.gstRateBp)) {
-      throw DomainException('GST must be one of 0, 0.25, 3, 5, 12, 18 or 28');
+      throw DomainException(S.gstChoices);
     }
     if (d.retailPaise <= 0) {
-      throw DomainException('Retail price must be more than 0');
+      throw DomainException(S.retailMoreThanZero);
     }
     if ((d.contractorPaise ?? 1) <= 0 || (d.dealerPaise ?? 1) <= 0) {
-      throw DomainException('Prices must be more than 0 (leave blank for none)');
+      throw DomainException(S.pricesMoreThanZero);
     }
     final pack = d.packSize;
     if (pack != null) {
       if (d.isLength && pack <= 0) {
-        throw DomainException('Roll length must be more than 0');
+        throw DomainException(S.rollMoreThanZero);
       }
       if (!d.isLength && pack < 2) {
-        throw DomainException('Box size must be 2 or more pieces');
+        throw DomainException(S.boxTwoOrMore);
       }
     }
     if (d.minStockBase < 0 || d.openingStockBase < 0) {
-      throw DomainException('Stock quantities cannot be negative');
+      throw DomainException(S.stockNotNegative);
     }
   }
 

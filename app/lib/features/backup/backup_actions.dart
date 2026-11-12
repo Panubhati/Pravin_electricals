@@ -15,6 +15,7 @@ import '../../core/db/repositories/data_check_models.dart';
 import '../../core/import/file_service.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
+import '../../shared/messages_mr.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../datacheck/data_check_screen.dart';
@@ -51,10 +52,9 @@ Future<bool> backUpNow(BuildContext context, WidgetRef ref) async {
         .createBackup();
     await ref.read(backupSharerProvider).shareFile(
           File(backup.path),
-          subject: '${session.shop.name} backup',
-          text: 'Backup of ${session.shop.name}: ${backup.summary.bills} bills, '
-              '${backup.summary.customers} customers, ${backup.summary.items} items. '
-              'Keep this file safe: it contains all shop data.',
+          subject: S.backupShareSubject(session.shop.name),
+          text: S.backupShareBody(
+              session.shop.name, backup.summary.bills, backup.summary.customers, backup.summary.items),
         );
     await settings.setLastBackupAt(session.ctx.clock());
     await AuditRepository(session.ctx).record(
@@ -72,7 +72,7 @@ Future<bool> backUpNow(BuildContext context, WidgetRef ref) async {
     ref.invalidate(lastBackupProvider);
     return true;
   } on BackupException catch (e) {
-    if (context.mounted) toast(context, e.message);
+    if (context.mounted) toast(context, localizeMessage(e.message));
   } catch (e) {
     if (context.mounted) toast(context, '${S.backupFailed}: ${errorMessage(e)}');
   }
@@ -100,7 +100,7 @@ Future<void> restoreFromBackup(BuildContext context, WidgetRef ref) async {
   try {
     summary = restore.inspect(file, currentSchemaVersion: db.schemaVersion);
   } on BackupException catch (e) {
-    if (context.mounted) await _showProblem(context, e.message);
+    if (context.mounted) await _showProblem(context, localizeMessage(e.message));
     return;
   }
   if (!context.mounted) return;
@@ -121,7 +121,7 @@ Future<void> undoLastRestore(BuildContext context, WidgetRef ref) async {
   try {
     summary = restore.inspect(copy, currentSchemaVersion: db.schemaVersion);
   } on BackupException catch (e) {
-    if (context.mounted) await _showProblem(context, e.message);
+    if (context.mounted) await _showProblem(context, localizeMessage(e.message));
     return;
   }
   if (!context.mounted) return;
@@ -191,7 +191,7 @@ Future<void> _runRestore(
       await restored.close();
     }
   } on BackupException catch (e) {
-    problem = e.message;
+    problem = localizeMessage(e.message);
   } catch (e) {
     problem = '${S.restoreFailed}: ${errorMessage(e)}';
   }
@@ -241,8 +241,8 @@ Future<bool> _confirmRestore(
             Text(S.backupContains),
             const SizedBox(height: 8),
             Text(s.shopName, style: const TextStyle(fontWeight: FontWeight.bold), key: const Key('restoreShop')),
-            Text('${s.bills} bills, ${s.customers} customers, ${s.items} items', key: const Key('restoreCounts')),
-            if (s.lastBillAt != null) Text('Last bill: ${backupTime(s.lastBillAt!)}'),
+            Text(S.backupCounts(s.bills, s.customers, s.items), key: const Key('restoreCounts')),
+            if (s.lastBillAt != null) Text(S.lastBillAt(backupTime(s.lastBillAt!))),
             const SizedBox(height: 12),
             Text(replacingData ? S.restoreReplacesWarning : S.restoreFreshNote),
             const SizedBox(height: 8),

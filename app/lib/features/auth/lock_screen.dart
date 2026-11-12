@@ -72,7 +72,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => EmptyState('$e'),
           data: (list) {
-            if (list.isEmpty) return const EmptyState('No users');
+            if (list.isEmpty) return EmptyState(S.noUsers);
             final selected = list.length == 1 ? list.first.id : _userId;
             if (_userId == null && selected != null) _userId = selected;
             final user = selected == null ? null : list.firstWhere((u) => u.id == selected);

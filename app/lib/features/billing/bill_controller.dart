@@ -66,7 +66,7 @@ BillResult computeBill(BillState bill, String? shopStateCode) {
   } on FormatException {
     return BillResult(error: S.invalidQty);
   } on ArgumentError {
-    return const BillResult(error: 'Discount is more than the line amount');
+    return BillResult(error: S.discountTooBig);
   }
 }
 
@@ -203,7 +203,7 @@ class BillNotifier extends Notifier<BillState> {
     final result = computeBill(state, session.shop.stateCode);
     final totals = result.totals;
     if (totals == null || totals.isEmpty) {
-      throw DomainException(result.error ?? 'The bill is empty');
+      throw DomainException(result.error ?? S.billIsEmpty);
     }
     final tooMuch = discountProblem(totals, ref.read(permissionsProvider));
     if (tooMuch != null) throw DomainException(tooMuch);

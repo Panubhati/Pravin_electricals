@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/db/repositories/data_check_models.dart';
 import '../../core/db/repositories/data_check_repository.dart';
 import '../../core/providers.dart';
+import '../../shared/messages_mr.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
@@ -70,7 +71,7 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
           '${r.ranAt.hour.toString().padLeft(2, '0')}${r.ranAt.minute.toString().padLeft(2, '0')}';
       final file = File('${dir.path}/DataCheck_$stamp.txt');
       await file.writeAsString(r.toReport(session.shop.name));
-      await ref.read(backupSharerProvider).shareFile(file, subject: '${session.shop.name} data check');
+      await ref.read(backupSharerProvider).shareFile(file, subject: S.dataCheckShareSubject(session.shop.name));
     } catch (e) {
       if (mounted) toastError(context, e);
     }
@@ -187,7 +188,7 @@ class _IssueTile extends StatelessWidget {
         key: Key('issue_$keyName'),
         leading: Icon(issue.isError ? Icons.error_outline : Icons.info_outline,
             color: issue.isError ? AppPalette.red : AppPalette.amber),
-        title: Text(issue.message),
+        title: Text(localizeMessage(issue.message)),
         trailing: issue.refId == null ? null : const Icon(Icons.chevron_right),
         onTap: issue.refId == null ? null : onTap,
       );

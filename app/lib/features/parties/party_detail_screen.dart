@@ -77,14 +77,14 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
     }
   }
 
-  static const _typeLabels = {
-    'invoice': 'Bill',
-    'payment': 'Payment received',
-    'return': 'Return',
-    'opening': 'Opening balance',
-    'adjustment': 'Adjustment',
-    'purchase': 'Purchase',
-    'supplier_payment': 'Payment made',
+  static Map<String, String> get _typeLabels => {
+    'invoice': S.ledgerBill,
+    'payment': S.ledgerPayment,
+    'return': S.ledgerReturn,
+    'opening': S.ledgerOpening,
+    'adjustment': S.ledgerAdjustment,
+    'purchase': S.ledgerPurchase,
+    'supplier_payment': S.ledgerSupplierPayment,
   };
 
   @override
@@ -280,7 +280,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
           key: const Key('paySave'),
           onPressed: () {
             if (_amount.text.trim().isEmpty) {
-              toast(context, 'Enter the amount');
+              toast(context, S.enterAmountShort);
               return;
             }
             Navigator.pop(

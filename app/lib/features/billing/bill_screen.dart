@@ -106,7 +106,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     } catch (e) {
       if (mounted) {
         setState(() => _saving = false);
-        _toast('Could not save the bill: ${errorMessage(e)}');
+        _toast(S.couldNotSaveBill(errorMessage(e)));
       }
     }
   }
@@ -394,7 +394,7 @@ class _CartTileState extends ConsumerState<_CartTile> {
             ),
             Text(
               '${Money.format(line.ratePaise)} / '
-              '${_pricingUnit(units, line.priceUnitFactor)}  (GST incl.)',
+              '${_pricingUnit(units, line.priceUnitFactor)}  ${S.gstInclShort}',
               style: Theme.of(context).textTheme.bodySmall,
             ),
             if (widget.availableBase != null &&

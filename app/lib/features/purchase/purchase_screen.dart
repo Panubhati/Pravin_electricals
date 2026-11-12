@@ -7,6 +7,7 @@ import '../../core/import/value_parsers.dart';
 import '../../core/money.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
+import '../../shared/messages_mr.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
@@ -110,7 +111,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
     for (final l in _lines) {
       try {
         if (l.rate.trim().isEmpty) {
-          return (totals: null, error: 'Enter the rate for ${l.item.name}');
+          return (totals: null, error: S.enterRateFor(l.item.name));
         }
         cart.add(PurchaseCartLine(
           itemId: l.item.id,
@@ -124,13 +125,13 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
           gstRateBp: parsePercentToBp(l.gst),
         ));
       } on FormatException catch (e) {
-        return (totals: null, error: '${l.item.name}: ${e.message}');
+        return (totals: null, error: '${l.item.name}: ${localizeMessage(e.message)}');
       }
     }
     try {
       return (totals: PurchaseCalculator.calculate(cart), error: null);
     } on FormatException catch (e) {
-      return (totals: null, error: e.message);
+      return (totals: null, error: localizeMessage(e.message));
     }
   }
 
@@ -157,7 +158,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
       return;
     }
     if (_invoiceNo.text.trim().isEmpty) {
-      toast(context, 'Enter the supplier bill number');
+      toast(context, S.enterSupplierBillNo);
       return;
     }
     final totals = result.totals;
@@ -468,7 +469,7 @@ class _PurchaseLineTileState extends State<_PurchaseLineTile> {
           Align(
             alignment: Alignment.centerRight,
             child: Text(
-              widget.lineTotal == null ? '' : '${Money.format(widget.lineTotal!)} (with GST)',
+              widget.lineTotal == null ? '' : S.withGst(Money.format(widget.lineTotal!)),
               style: Theme.of(context)
                   .textTheme
                   .titleSmall

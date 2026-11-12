@@ -125,7 +125,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
                 }
                 await notes.show(
                   S.backupReminderBanner,
-                  '${S.backupReminderNever} Open the app, Settings, Backup and restore.',
+                  '${S.backupReminderNever} ${S.backupReminderOpenHint}',
                   kind: NotificationKind.backupReminder,
                 );
               } catch (e) {

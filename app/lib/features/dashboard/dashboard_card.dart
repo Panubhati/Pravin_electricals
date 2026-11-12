@@ -121,7 +121,7 @@ class DashboardCard extends ConsumerWidget {
                       contentPadding: const EdgeInsets.symmetric(horizontal: 8),
                       title: Text(p.party.name),
                       subtitle: p.buckets.overdue > 0
-                          ? Text('${Money.format(p.buckets.overdue)} overdue (over 30 days)',
+                          ? Text(S.overdueOver30(Money.format(p.buckets.overdue)),
                               style: const TextStyle(color: AppPalette.red))
                           : null,
                       trailing: Text(Money.format(p.buckets.totalDue), style: AppText.amount(context)),

@@ -30,29 +30,29 @@ final auditProvider = FutureProvider.autoDispose.family<List<AuditEntry>, AuditQ
       ),
 );
 
-const _actionLabels = {
-  'price_change': 'Price changed',
-  'price_override': 'Price overridden',
-  'discount': 'Discount given',
-  'stock_adjustment': 'Stock adjusted',
-  'stock_count': 'Stock counted',
-  'edit': 'Edited',
-  'delete': 'Deleted',
-  'pin_set': 'PIN set',
-  'pin_changed': 'PIN changed',
-  'pin_reset': 'Owner PIN reset',
-  'user_created': 'Staff added',
-  'user_deactivated': 'Staff removed',
-  'shop_updated': 'Shop details changed',
-  'upi_changed': 'UPI ID changed',
-  'backup_made': 'Backup made',
-  'backup_restored': 'Backup restored',
-  'backup_made_with_problems': 'Backup made (check found problems)',
-  'sales_return': 'Items returned',
-  'bill_cancelled': 'Bill cancelled',
-  'purchase_cancelled': 'Purchase cancelled',
-  'sync_conflict': 'Changed on both phones',
-  'phone_removed': 'Phone removed',
+Map<String, String> get _actionLabels => {
+  'price_change': S.auditPriceChange,
+  'price_override': S.auditPriceOverride,
+  'discount': S.auditDiscount,
+  'stock_adjustment': S.auditStockAdjust,
+  'stock_count': S.auditStockCount,
+  'edit': S.auditEdit,
+  'delete': S.auditDelete,
+  'pin_set': S.auditPinSet,
+  'pin_changed': S.auditPinChanged,
+  'pin_reset': S.auditPinReset,
+  'user_created': S.auditUserCreated,
+  'user_deactivated': S.auditUserDeactivated,
+  'shop_updated': S.auditShopUpdated,
+  'upi_changed': S.auditUpiChanged,
+  'backup_made': S.auditBackupMade,
+  'backup_restored': S.auditBackupRestored,
+  'backup_made_with_problems': S.auditBackupProblems,
+  'sales_return': S.auditSalesReturn,
+  'bill_cancelled': S.auditBillCancelled,
+  'purchase_cancelled': S.auditPurchaseCancelled,
+  'sync_conflict': S.auditSyncConflict,
+  'phone_removed': S.auditPhoneRemoved,
 };
 
 String auditActionLabel(String action) => _actionLabels[action] ?? action;
@@ -80,7 +80,7 @@ List<String> describeChange(Map<String, Object?>? before, Map<String, Object?>? 
     } else if (!a.containsKey(k)) {
       continue;
     } else {
-      out.add('$label: ${_value(k, from, item)} to ${_value(k, to, item)}');
+      out.add(S.changedFromTo(label, _value(k, from, item), _value(k, to, item)));
     }
   }
   return out;
@@ -220,9 +220,9 @@ class _AuditTile extends StatelessWidget {
       subtitle: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('$time  •  ${e.userName ?? 'unknown'}'),
+          Text('$time  •  ${e.userName ?? S.auditUnknownUser}'),
           for (final l in lines.take(8)) Text(l),
-          if (lines.length > 8) Text('...and ${lines.length - 8} more'),
+          if (lines.length > 8) Text(S.andMore(lines.length - 8)),
         ],
       ),
     );

@@ -94,7 +94,7 @@ class HomeScreen extends ConsumerWidget {
       ),
       body: session.when(
         loading: () => const SkeletonList(),
-        error: (e, _) => EmptyState('Could not open the database: $e', icon: Icons.error_outline),
+        error: (e, _) => EmptyState(S.cannotOpenDb(e), icon: Icons.error_outline),
         data: (s) => ListView(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 32),
           children: [

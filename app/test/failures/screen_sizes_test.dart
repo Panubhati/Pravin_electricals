@@ -30,6 +30,8 @@ import 'package:shop_app/features/backup/backup_screen.dart';
 import 'package:shop_app/features/sync/join_shop_screen.dart';
 import 'package:shop_app/features/sync/phones_screen.dart';
 
+import 'package:shop_app/shared/strings.dart';
+
 import '../helpers/app_harness.dart';
 import '../helpers/seed_rich_shop.dart';
 
@@ -75,10 +77,19 @@ void main() {
     'PIN set-up': (_) => NewPinScreen(title: 'Set the owner PIN', help: 'Choose a PIN.', onPin: (_) async {}),
   };
 
-  for (final size in sizes.entries) {
-    for (final scale in textScales) {
+  // English everywhere; Marathi (A10, longer words) on the small phone.
+  final runs = [
+    for (final size in sizes.entries)
+      for (final scale in textScales) (size: size, scale: scale, lang: AppLang.en),
+    for (final scale in textScales) (size: sizes.entries.first, scale: scale, lang: AppLang.mr),
+  ];
+  for (final run in runs) {
+    final size = run.size, scale = run.scale;
+    {
       for (final screen in screens.entries) {
-        harnessTest('${screen.key} fits a ${size.key} at text size ${(scale * 100).round()}%', (tester, h) async {
+        final lang = run.lang == AppLang.mr ? ' in Marathi' : '';
+        harnessTest('${screen.key} fits a ${size.key} at text size ${(scale * 100).round()}%$lang', (tester, h) async {
+          S.lang = run.lang;
           await tester.runAsync(() => seedRichShop(h.session));
           final ids = await tester.runAsync(() => _Ids.load(h));
           tester.view.physicalSize = size.value;

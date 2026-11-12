@@ -1,48 +1,685 @@
 // Marathi text for S (A10). Keys are the S entry names; a missing key shows
-// the English text. Functions build sentences with numbers or names.
-// ignore_for_file: prefer_single_quotes
+// the English text (the completeness test lists any that are missing).
+// Style: everyday shop Marathi, short, with the English words people use
+// (बिल, स्टॉक, GST, UPI, PIN, बॅकअप). Item and customer names stay as typed.
+// To correct a word, change it here; docs/marathi-review.md lists them all.
 
-const mrStrings = <String, String>{};
+import 'strings.dart';
 
+const mrStrings = <String, String>{
+  'appTitle': 'प्रविण इलेक्ट्रिकल्स',
+  // Home and billing
+  'newBill': 'नवीन बिल',
+  'loadSampleData': 'नमुना डेटा भरा (debug)',
+  'sampleDataLoaded': 'नमुना डेटा भरला',
+  'billTitle': 'नवीन बिल',
+  'searchHint': 'वस्तू शोधा किंवा स्कॅन करा',
+  'scanBarcode': 'बारकोड स्कॅन करा',
+  'noResults': 'वस्तू सापडली नाही',
+  'cartEmpty': 'बिल सुरू करण्यासाठी वस्तू शोधा किंवा स्कॅन करा',
+  'noPrice': 'या वस्तूची किंमत ठरलेली नाही. आधी किंमत भरा.',
+  'qty': 'नग',
+  'unit': 'युनिट',
+  'discount': 'सूट ₹',
+  'remove': 'काढा',
+  'walkIn': 'रोख ग्राहक',
+  'chooseCustomer': 'ग्राहक निवडा',
+  'subtotal': 'बेरीज',
+  'discountLabel': 'सूट',
+  'roundOff': 'राउंड ऑफ',
+  'total': 'एकूण',
+  'gstIncluded': 'GST सहित',
+  'pay': 'पैसे घ्या',
+  'invalidQty': 'योग्य नग टाका',
+  'searchCustomer': 'नाव किंवा फोन शोधा',
+  'addCustomer': 'नवीन ग्राहक जोडा',
+  'customerName': 'ग्राहकाचे नाव',
+  'customerPhone': 'फोन (ऐच्छिक)',
+  'save': 'जतन करा',
+  'cancel': 'रद्द',
+  'paymentTitle': 'पैसे',
+  'cash': 'रोख',
+  'upi': 'UPI',
+  'credit': 'उधार',
+  'remaining': 'बाकी',
+  'fullCash': 'सर्व रोख',
+  'fullUpi': 'सर्व UPI',
+  'fullCredit': 'सर्व उधार',
+  'saveBill': 'बिल जतन करा',
+  'creditNeedsCustomer': 'उधार देण्यासाठी ग्राहक निवडा',
+  'overCreditLimit': 'हे ग्राहकाच्या उधार मर्यादेपेक्षा जास्त आहे.',
+  'continueAnyway': 'तरीही पुढे जा',
+  'billSaved': 'बिल जतन झाले',
+  'sharePdf': 'PDF पाठवा',
+  'newBillAgain': 'नवीन बिल',
+  'items': 'वस्तू',
+  'stock': 'स्टॉक',
+  'purchases': 'खरेदी',
+  'customers': 'ग्राहक',
+  'suppliers': 'पुरवठादार',
+  'dues': 'येणे-देणे',
+  'importData': 'फाइलमधून भरा',
+  // Items
+  'itemsTitle': 'वस्तू',
+  'addItem': 'वस्तू जोडा',
+  'editItem': 'वस्तू बदला',
+  'searchItems': 'वस्तू शोधा',
+  'showInactive': 'बंद वस्तू दाखवा',
+  'noItems': 'अजून वस्तू नाहीत. "वस्तू जोडा" दाबा, किंवा फाइलमधून भरा.',
+  'inactive': 'बंद',
+  'lowStock': 'स्टॉक कमी',
+  'outOfStock': 'स्टॉक संपला',
+  'negativeStock': 'स्टॉक शून्याखाली',
+  'noPriceChip': 'किंमत नाही',
+  'itemName': 'वस्तूचे नाव',
+  'brand': 'ब्रँड',
+  'category': 'प्रकार',
+  'hsn': 'HSN कोड',
+  'gstRate': 'GST दर',
+  'itemType': 'कसे विकतो?',
+  'typeLength': 'मीटरने',
+  'typePiece': 'नगाने',
+  'typeFixed': 'हे नंतर बदलता येत नाही.',
+  'rollLength': 'रोलची लांबी (मीटर)',
+  'boxSize': 'एका बॉक्समध्ये नग',
+  'prices': 'किंमती (GST सहित)',
+  'retailPrice': 'किरकोळ किंमत',
+  'contractorPrice': 'कॉन्ट्रॅक्टर किंमत',
+  'dealerPrice': 'डीलर किंमत',
+  'costPrice': 'खरेदी किंमत (GST शिवाय)',
+  'minStock': 'किमान स्टॉक (कमी झाल्यावर सूचना)',
+  'openingStock': 'आत्ता असलेला स्टॉक (ऐच्छिक)',
+  'barcode': 'बारकोड (ऐच्छिक)',
+  'variants': 'प्रकार आणि बारकोड',
+  'addVariant': 'प्रकार किंवा बारकोड जोडा',
+  'variantName': 'प्रकाराचे नाव (उदा. लाल)',
+  'itemSaved': 'वस्तू जतन झाली',
+  'activeSwitch': 'चालू (बिलामध्ये दिसते)',
+  'deactivateConfirm': 'ही वस्तू बिलातून लपवायची? तिचा जुना हिशोब राहील.',
+  'perMetre': 'प्रति मीटर',
+  'perPiece': 'प्रति नग',
+  // Stock
+  'stockTitle': 'स्टॉक',
+  'searchStock': 'स्टॉक शोधा',
+  'filterAll': 'सर्व',
+  'filterLow': 'कमी',
+  'filterNegative': 'शून्याखाली',
+  'noStockItems': 'दाखवण्यासारखे काही नाही.',
+  'adjustStock': 'बदल करा',
+  'countStock': 'मोजणी',
+  'history': 'इतिहास',
+  'noHistory': 'अजून स्टॉकमध्ये काही बदल नाही.',
+  'addStock': 'स्टॉक वाढवा',
+  'removeStock': 'स्टॉक कमी करा',
+  'quantity': 'नग',
+  'reason': 'कारण',
+  'reasonDamaged': 'खराब किंवा हरवले',
+  'reasonFound': 'जास्त सापडले',
+  'reasonCorrection': 'दुरुस्ती',
+  'reasonOther': 'इतर',
+  'countedQty': 'मोजलेले नग',
+  'systemQty': 'ॲपमध्ये',
+  'difference': 'फरक',
+  'confirmCount': 'मोजणी जतन करा',
+  'stockSaved': 'स्टॉक बदलला',
+  'onlyInStock': 'फक्त',
+  'inStockSuffix': 'स्टॉकमध्ये',
+  // People
+  'customersTitle': 'ग्राहक',
+  'suppliersTitle': 'पुरवठादार',
+  'addParty': 'जोडा',
+  'editParty': 'बदला',
+  'noParties': 'अजून कोणी नाही.',
+  'partyName': 'नाव',
+  'phone': 'फोन',
+  'gstin': 'GSTIN (ऐच्छिक)',
+  'stateCode': 'राज्य कोड (उदा. 27)',
+  'address': 'पत्ता (ऐच्छिक)',
+  'tier': 'किंमत गट',
+  'creditLimit': 'उधार मर्यादा (₹, नसेल तर 0)',
+  'kind': 'प्रकार',
+  'kindCustomer': 'ग्राहक',
+  'kindSupplier': 'पुरवठादार',
+  'kindBoth': 'ग्राहक आणि पुरवठादार',
+  'owes': 'येणे',
+  'youOwe': 'देणे',
+  'settled': 'हिशोब पूर्ण',
+  'advancePaid': 'आगाऊ',
+  'statement': 'खाते',
+  'recordPayment': 'पैसे जमा करा',
+  'recordSupplierPayment': 'पुरवठादाराला पैसे द्या',
+  'amount': 'रक्कम (₹)',
+  'paymentMode': 'कसे दिले',
+  'note': 'टीप (ऐच्छिक)',
+  'openingBalance': 'जुनी बाकी',
+  'paymentSaved': 'पैसे जमा झाले',
+  'balance': 'बाकी',
+  'duesTitle': 'येणे-देणे',
+  'receivables': 'ग्राहकांकडून येणे',
+  'payables': 'पुरवठादारांना देणे',
+  'noDues': 'काही बाकी नाही.',
+  'bucket0': '0-30 दिवस',
+  'bucket31': '31-60 दिवस',
+  'bucket61': '61-90 दिवस',
+  'bucket90': '90 दिवसांपेक्षा जास्त',
+  'totalDue': 'एकूण बाकी',
+  // Purchases
+  'purchasesTitle': 'खरेदी',
+  'newPurchase': 'नवीन खरेदी',
+  'noPurchases': 'अजून खरेदी नाही.',
+  'supplier': 'पुरवठादार',
+  'chooseSupplier': 'पुरवठादार निवडा',
+  'supplierInvoiceNo': 'पुरवठादाराचा बिल क्र.',
+  'supplierInvoiceDate': 'बिलाची तारीख',
+  'rateExGst': 'दर (GST शिवाय)',
+  'gstPercent': 'GST %',
+  'addLine': 'वस्तू जोडा',
+  'savePurchase': 'खरेदी जतन करा',
+  'purchaseSaved': 'खरेदी जतन झाली',
+  'taxableTotal': 'GST आधीची रक्कम',
+  'gstAmount': 'GST',
+  'grandTotal': 'एकूण',
+  'purchaseHint': 'या खरेदीत वस्तू जोडण्यासाठी शोधा',
+  // Import
+  'importTitle': 'फाइलमधून भरा',
+  'importItems': 'वस्तू भरा',
+  'importParties': 'ग्राहक आणि पुरवठादार भरा',
+  'chooseFile': 'CSV फाइल निवडा',
+  'downloadTemplate': 'नमुना फाइल घ्या',
+  'importNow': 'आता भरा',
+  'importDone': 'भरून झाले',
+  // PIN
+  'lockTitle': 'ॲप कोण वापरत आहे?',
+  'enterPin': 'PIN टाका',
+  'wrongPin': 'PIN चुकीचा, पुन्हा टाका',
+  'forgotPin': 'PIN विसरलात?',
+  'forgotPinReason': 'मालकाचा नवीन PIN ठेवण्यासाठी तुम्हीच आहात हे पडताळा',
+  'forgotPinFailed': 'फोनच्या लॉकने पडताळता आले नाही',
+  'setupPinTitle': 'मालकाचा PIN ठेवा',
+  'setupPinHelp': '4 ते 6 अंकी PIN निवडा. ॲप उघडताना तो लागेल. कामगारांना वेगळा PIN मिळतो.',
+  'newPin': 'नवीन PIN',
+  'confirmPin': 'पक्का करण्यासाठी PIN पुन्हा टाका',
+  'pinMismatch': 'दोन्ही PIN जुळले नाहीत. पुन्हा सुरू करा.',
+  'pinRules': 'PIN 4 ते 6 अंकी असावा',
+  'lockNow': 'लॉक',
+  'unlock': 'उघडा',
+  'askOwner': 'मालकाला विचारा',
+  // Reports
+  'reports': 'अहवाल',
+  'reportsTitle': 'अहवाल',
+  'dailySales': 'रोजची विक्री',
+  'itemProfit': 'वस्तूनिहाय नफा',
+  'stockValue': 'स्टॉकची किंमत',
+  'billsCount': 'बिले',
+  'salesTotal': 'विक्री',
+  'paidBy': 'कसे मिळाले',
+  'cashInHand': 'हातातील रोख',
+  'cashOpening': 'दिवसाच्या सुरुवातीची रोख',
+  'cashSales': 'रोख विक्री',
+  'cashReceived': 'ग्राहकांकडून मिळालेली रोख',
+  'cashPaidOut': 'पुरवठादारांना दिलेली रोख',
+  'cashClosing': 'आत्ता हातातील रोख',
+  'cashNote': 'फक्त रोख मोजली जाते. खर्च अजून नोंदवले जात नाहीत. सुरुवातीची रोख सेटिंग्जमध्ये भरा.',
+  'noSalesInPeriod': 'या काळात विक्री नाही',
+  'salesExGst': 'विक्री (GST शिवाय)',
+  'costOfGoods': 'विकलेल्या मालाची खरेदी किंमत',
+  'profit': 'नफा',
+  'margin': 'नफ्याचे प्रमाण',
+  'byItem': 'वस्तूनिहाय',
+  'costUnknown': 'खरेदी किंमत माहीत नाही',
+  'costUnknownStockHelp': 'एकूणमध्ये धरलेले नाही: या वस्तूंची खरेदी किंमत भरलेली नाही.',
+  'returnsNote': 'परत आलेला माल अजून धरलेला नाही.',
+  'noStockOnHand': 'स्टॉक नाही',
+  'stockValueTotal': 'स्टॉकची किंमत',
+  'stockValueNote': 'हातातील नग × शेवटची खरेदी किंमत, GST शिवाय.',
+  'todaySales': 'आजची विक्री',
+  'dashboardCash': 'हातातील रोख',
+  'lowStockItems': 'स्टॉक कमी',
+  'totalDues': 'ग्राहकांकडून येणे',
+  'biggestDues': 'मोठी येणी',
+  'noDuesYet': 'ग्राहकांकडून काही येणे नाही',
+  // Settings
+  'settings': 'सेटिंग्ज',
+  'settingsTitle': 'सेटिंग्ज',
+  'settingsShop': 'दुकान',
+  'settingsRules': 'नियम',
+  'settingsRecords': 'नोंदी',
+  'settingSaved': 'जतन झाले',
+  'shopDetails': 'दुकानाची माहिती',
+  'shopName': 'दुकानाचे नाव',
+  'shopAddress': 'पत्ता',
+  'shopTerms': 'बिलावर छापायच्या अटी',
+  'shopSaved': 'दुकानाची माहिती जतन झाली',
+  'staffAndPins': 'कामगार आणि PIN',
+  'addStaff': 'काउंटर कामगार जोडा',
+  'staffName': 'नाव',
+  'staffPin': 'PIN (4 ते 6 अंकी)',
+  'resetPin': 'नवीन PIN ठेवा',
+  'changeMyPin': 'माझा PIN बदला',
+  'removeStaff': 'काढा',
+  'removeStaffConfirm': 'या व्यक्तीला काढायचे? त्यांची जुनी बिले राहतील.',
+  'staffAdded': 'कामगार जोडला',
+  'pinChanged': 'PIN बदलला',
+  'ownerRole': 'मालक',
+  'counterRole': 'काउंटर',
+  'removedLabel': 'काढले',
+  'counterDiscountLimit': 'काउंटरवरील सूट मर्यादा',
+  'counterDiscountHelp': 'कामगार एका ओळीवर जास्तीत जास्त किती टक्के सूट देऊ शकतो.',
+  'enterWholeNumber0to100': '0 ते 100 मधील पूर्ण अंक टाका',
+  'enterWholeNumber0to120': '0 ते 120 मधील पूर्ण अंक टाका',
+  'enterAmount': '5000 किंवा 5000.50 अशी रक्कम टाका',
+  'openingCash': 'सुरुवातीची रोख',
+  'openingCashHelp': 'ॲप वापरायला सुरुवात केली तेव्हा गल्ल्यात असलेली रोख.',
+  'autoLock': 'आपोआप लॉक',
+  'autoLockHelp': 'ॲप मागे गेल्यावर किती मिनिटांनी PIN विचारायचा. 0 म्हणजे लगेच.',
+  'auditLog': 'बदलांची नोंद',
+  'auditHelp': 'कोणी किंमत बदलली, सूट दिली, स्टॉक बदलला किंवा माहिती बदलली',
+  'auditEmpty': 'अजून काही नोंद नाही',
+  'auditPrices': 'किंमती',
+  'auditDiscounts': 'सूट',
+  'auditStock': 'स्टॉक',
+  'auditEdits': 'बदल',
+  'auditUsers': 'कामगार आणि दुकान',
+  'pickDates': 'तारखा निवडा',
+  'settingsAlerts': 'सूचना',
+  'dailySummary': 'रोजचा सारांश',
+  'dailySummaryHelp': 'रोज संध्याकाळी आजची विक्री, रोख आणि येणे यांची फोनवर सूचना.',
+  'summaryTime': 'सारांशाची वेळ',
+  'summaryTimeHelp': 'दिवसाचा तास, 0 ते 23 (21 म्हणजे रात्री 9). Android काही मिनिटे उशिरा पाठवू शकतो.',
+  'summaryTestNow': 'आता एक चाचणी सारांश पाठवा',
+  'notificationsBlocked': 'आधी फोनच्या सेटिंग्जमध्ये या ॲपच्या सूचना चालू करा',
+  'enterWholeNumber0to23': '0 ते 23 मधील पूर्ण अंक टाका',
+  'upiSetting': 'QR साठी UPI ID',
+  'upiNotSet': 'भरलेले नाही',
+  'upiId': 'UPI ID (उदा. shop@okhdfc)',
+  'upiName': 'ग्राहकांना दिसणारे नाव (ऐच्छिक)',
+  'upiSaved': 'UPI ID जतन झाला',
+  'upiOwnerHint': 'इथे पैसे घेण्याचा QR दाखवण्यासाठी सेटिंग्जमध्ये UPI ID भरा.',
+  // Bills
+  'bills': 'बिले',
+  'billsTitle': 'बिले',
+  'searchBills': 'बिल क्र. किंवा ग्राहक शोधा',
+  'noBills': 'अजून बिले नाहीत',
+  'billDetail': 'बिल',
+  'whatsapp': 'WhatsApp',
+  'sharedViaSheet': 'या ग्राहकासाठी WhatsApp उपलब्ध नाही, म्हणून पाठवण्याचे पर्याय उघडले',
+  'dueLabel': 'बाकी',
+  'sharedNoPhone': 'या ग्राहकाचा फोन नंबर नाही, म्हणून पाठवण्याचे पर्याय उघडले',
+  'sharedNoWhatsApp': 'WhatsApp उघडले नाही, म्हणून पाठवण्याचे पर्याय उघडले',
+  'shareFailed': 'बिल पाठवता आले नाही',
+  // Backup
+  'settingsBackup': 'बॅकअप',
+  'backUpNow': 'आता बॅकअप घ्या',
+  'lastBackupLabel': 'शेवटचा बॅकअप',
+  'neverBackedUp': 'कधीच नाही',
+  'backupFailed': 'बॅकअप घेता आला नाही',
+  'backupFileWarning': 'बॅकअप फाइलमध्ये तुमची सर्व बिले, ग्राहक आणि PIN असतात. ती फक्त स्वतःलाच पाठवा.',
+  'restoreFromBackup': 'बॅकअपमधून परत आणा',
+  'restoreFromBackupHelp': 'या फोनवरील सर्व माहिती बॅकअप फाइलने बदलली जाईल.',
+  'restoreTitle': 'हा बॅकअप परत आणायचा?',
+  'undoRestoreTitle': 'परत आणण्यापूर्वीची माहिती पुन्हा आणायची?',
+  'backupContains': 'या बॅकअपमध्ये आहे:',
+  'restoreFreshNote': 'या फोनवर अजून दुकानाची माहिती नाही, त्यामुळे काहीही जाणार नाही.',
+  'restoreNow': 'परत आणा',
+  'undoRestore': 'मागे जा',
+  'restoring': 'तुमची माहिती परत आणत आहे. कृपया थांबा...',
+  'restoreDone': 'परत आणले. आधीचा PIN वापरून उघडा.',
+  'restoreFailed': 'बॅकअप परत आणता आला नाही',
+  'cannotUseBackup': 'ही फाइल वापरता येत नाही',
+  'undoLastRestore': 'शेवटचे परत आणणे रद्द करा',
+  'undoLastRestoreHelp': 'शेवटच्या वेळी बदललेली माहिती परत आणते.',
+  'backupReminder': 'बॅकअपची आठवण',
+  'restoreFromBackupFirstRun': 'त्याऐवजी बॅकअपमधून परत आणा',
+  'backupReminderBanner': 'दुकानाच्या माहितीचा बॅकअप घ्या',
+  'backupReminderNever': 'तुम्ही अजून बॅकअप घेतलेला नाही.',
+  'backupNowShort': 'बॅकअप घ्या',
+  'ok': 'ठीक आहे',
+  'sendTestReminder': 'आता एक चाचणी आठवण पाठवा',
+  // Check my data
+  'dataCheckTitle': 'डेटा तपासा',
+  'dataCheckNeverRun': 'कधी तपासले नाही. स्टॉक, बाकी आणि बिलांची बेरीज जुळते का ते तपासते.',
+  'dataCheckPassed': 'तुमचे सर्व आकडे जुळतात',
+  'dataCheckPassedShort': 'सर्व आकडे जुळतात',
+  'dataCheckNoteHelp': 'काय जुळत नाही ते पाहण्यासाठी दाबा.',
+  'dataCheckFailed': 'डेटा तपासता आला नाही',
+  'problemsFound': 'अडचणी',
+  'notesFound': 'टिपा',
+  'shareReport': 'अहवाल पाठवा',
+  'runAgain': 'पुन्हा तपासा',
+  'backupProblemsTitle': 'तुमच्या डेटामध्ये अडचणी आहेत',
+  'backUpAnyway': 'तरीही बॅकअप घ्या',
+  // Debug speed tools (owner rarely sees)
+  'speedTools': 'वेग तपासणी (debug)',
+  'speedTitle': 'वेग तपासणी',
+  'speedShopNow': 'या फोनमध्ये आत्ता',
+  'speedLoad': 'मोठे नमुना दुकान भरा',
+  'speedRun': 'वेग तपासा',
+  'speedLoadConfirm': 'नमुना दुकान भरा',
+  'speedLoaded': 'नमुना दुकान भरले. आता वेग तपासा.',
+  'speedRunning': 'स्क्रीनचा वेळ मोजत आहे...',
+  'speedFailed': 'पूर्ण झाले नाही',
+  'speedResults': 'निकाल',
+  'speedTarget': 'लक्ष्य: याच्या आत',
+  // Returns
+  'returnItems': 'माल परत घ्या',
+  'returnTitle': 'माल परत घ्या',
+  'returnAgainst': 'बिल क्र.',
+  'returnHow': 'प्रत्येक वस्तू किती परत आली ते टाका, मग पैसे कसे परत द्यायचे ते निवडा.',
+  'returnSold': 'विकले',
+  'returnAlready': 'आधीच परत आले',
+  'returnQty': 'परत',
+  'returnAll': 'उरलेले सर्व',
+  'returnLinesTotal': 'परत आलेला माल',
+  'returnRefundTotal': 'परत द्यायचे पैसे',
+  'returnCompletes': 'या बिलावरचे सर्व परत येत आहे, म्हणून राउंड ऑफ पण परत दिला जातो.',
+  'returnGiveBack': 'पैसे परत द्या',
+  'refundAllCash': 'सर्व रोख',
+  'refundAllUpi': 'सर्व UPI',
+  'refundAllAccount': 'त्यांच्या खात्यातून',
+  'refundCash': 'रोख',
+  'refundUpi': 'UPI',
+  'refundAccount': 'त्यांच्या बाकीतून वजा',
+  'refundAddsUp': 'परतीची रक्कम जुळते',
+  'returnReason': 'कारण (ऐच्छिक)',
+  'returnConfirm': 'माल परत घ्या आणि पैसे द्या',
+  'cancelBill': 'बिल रद्द करा',
+  'keepBill': 'बिल ठेवा',
+  'billCancelledNote': 'हे बिल रद्द झाले',
+  'creditNotes': 'क्रेडिट नोट',
+  'creditNoteTitle': 'क्रेडिट नोट',
+  'cancelledBadge': 'रद्द',
+  'returnedBadge': 'परत',
+  'ownerApprovalTitle': 'मालकाची परवानगी हवी',
+  'ownerPinLabel': 'मालकाचा PIN',
+  // Day check
+  'dayCheckTitle': 'दिवसाचा हिशोब',
+  'shareSummary': 'सारांश पाठवा',
+  'dcSales': 'विक्री',
+  'dcCancelled': 'रद्द बिले',
+  'dcSalesGross': 'बिलांवरील विक्री',
+  'dcReturns': 'परत घेतलेले (परत माल आणि रद्द)',
+  'dcNetSales': 'निव्वळ विक्री',
+  'dcHowPaid': 'पैसे कसे मिळाले',
+  'dcCollected': 'ग्राहकांकडून वसुली',
+  'dcCollectedTotal': 'जुन्या बाकीपोटी मिळाले',
+  'dcPurchases': 'खरेदी',
+  'dcPurchasesEntered': 'नोंदवलेली पुरवठादार बिले',
+  'dcPurchasesTotal': 'एकूण खरेदी',
+  'dcPaidSuppliers': 'पुरवठादारांना दिले',
+  'dcCashRefunds': 'ग्राहकांना परत दिलेली रोख',
+  'dcCheckedAt': 'पाहिले',
+  'stockSpotCheck': 'स्टॉक तपासणी',
+  'spotAddItem': 'तपासायची वस्तू शोधा',
+  'spotAppSays': 'ॲपमध्ये',
+  'spotCounted': 'तुम्ही मोजले',
+  'spotMatches': 'जुळते',
+  'spotDifference': 'फरक',
+  'spotAllMatch': 'तुम्ही मोजलेले सर्व जुळते',
+  'spotApply': 'मोजणी लागू करा',
+  'spotApplyHelp': 'लागू केल्यावर ॲपमधील स्टॉक तुम्ही मोजल्याप्रमाणे होतो आणि मोजणी म्हणून नोंद होते.',
+  'spotApplied': 'स्टॉक तुमच्या मोजणीप्रमाणे केला',
+  // Home groups
+  'homeNewBillHint': 'शोधा, स्कॅन करा, पैसे घ्या, पाठवा',
+  'homeGroupSell': 'विक्री',
+  'homeGroupStock': 'स्टॉक आणि खरेदी',
+  'homeGroupPeople': 'लोक आणि पैसे',
+  'homeGroupShop': 'दुकान',
+  'homeToday': 'आज',
+  // Phones and sync
+  'deviceNewLabel': 'नवीन फोन',
+  'deviceChoiceTitle': 'हा कोणता फोन आहे?',
+  'deviceChoiceHelp':
+      'या दुकानाच्या माहितीत एकापेक्षा जास्त फोन आहेत, आणि हा फोन कोणता ते त्याला माहीत नाही. नवीन फोनवर बॅकअप परत आणल्यावर असे होते.',
+  'deviceChoiceReplace': 'हा फोन याची जागा घेतो',
+  'deviceChoiceNew': 'हा नवीन फोन आहे',
+  'deviceChoiceNewHelp': 'नवीन फोनला स्वतःचे बिल क्रमांक मिळतात, त्यामुळे दोन फोनचे बिल क्रमांक कधीच सारखे होत नाहीत.',
+  'deviceReplaceYes': 'हो, बदला',
+  'phonesTitle': 'फोन आणि Wi-Fi सिंक',
+  'phonesSettingHelp': 'दोन फोनवर बिल करा; दुकानाच्या Wi-Fi वर माहिती एकत्र राहते',
+  'phonesThisPhone': 'हा फोन',
+  'phonesNoneYet': 'अजून फक्त हाच फोन. एकाच वेळी दोन फोनवर बिल करण्यासाठी दुसरा फोन जोडा.',
+  'phonesAdd': 'फोन जोडा',
+  'phonesSyncNow': 'आता सिंक करा',
+  'phonesRemove': 'हा फोन दुकानातून काढा',
+  'phonesRemoved': 'फोन काढला',
+  'phonesRename': 'नाव बदला',
+  'phonesRenameTitle': 'या फोनचे नाव',
+  'phonesClashes': 'दोन्ही फोनवर एकाच वेळी झालेले बदल',
+  'phonesNeverSynced': 'अजून सिंक झाले नाही',
+  'syncOff': 'एकच फोन',
+  'syncSearching': 'दुसरा फोन शोधत आहे',
+  'syncSearchingHelp':
+      'दोन्ही फोनवर ॲप उघडे आणि एकाच दुकानाच्या Wi-Fi वर हवे. बिले इथे जतन होतात आणि नंतर दुसऱ्या फोनवर जातात.',
+  'syncSynced': 'सिंक झाले',
+  'syncProblem': 'सिंकमध्ये अडचण',
+  'addPhoneTitle': 'फोन जोडा',
+  'addPhoneSteps': '1. नवीन फोनवर ॲप इन्स्टॉल करा आणि दुकानाच्या Wi-Fi ला जोडा.\n'
+      '2. नवीन फोनवर ॲप उघडा आणि "दुकानात सामील व्हा" दाबा.\n'
+      '3. नवीन फोनने हा कोड स्कॅन करा.',
+  'addPhoneExpires': 'हा कोड एकदाच, 10 मिनिटे चालतो. नवीन फोन सामील होईपर्यंत ही स्क्रीन उघडी ठेवा.',
+  'addPhoneNoWifi': 'हा फोन Wi-Fi वर नाही. दुकानाच्या Wi-Fi ला जोडा आणि पुन्हा प्रयत्न करा.',
+  'joinShop': 'दुकानात सामील व्हा',
+  'joinShopFirstRun': 'दुकानात सामील व्हा (दुसरा फोन)',
+  'joinTitle': 'दुकानात सामील व्हा',
+  'joinHelp':
+      'मालकाच्या फोनवर सेटिंग्ज, फोन आणि Wi-Fi सिंक, फोन जोडा उघडा. मग तिथे दिसणारा कोड स्कॅन करा. या फोनवर दुकानाची सर्व माहिती येईल आणि स्वतःचे बिल क्रमांक मिळतील.',
+  'joinName': 'या फोनचे नाव',
+  'joinNameDefault': 'काउंटर फोन',
+  'joinScan': 'मालकाचा कोड स्कॅन करा',
+  'joinNotShopCode': 'हा दुकानाचा जोडणी कोड नाही. मालकाच्या फोनवरील कोड स्कॅन करा (सेटिंग्ज, फोन आणि Wi-Fi सिंक, फोन जोडा).',
+  'joining': 'मालकाच्या फोनवरून दुकानाची माहिती घेत आहे...',
+  'joinDone': 'हा फोन दुकानात सामील झाला. तुमच्या PIN ने उघडा.',
+  'joinReplaceWarn': 'या फोनवर आधी जे जतन आहे ते दुकानाच्या माहितीने बदलले जाईल (सुरक्षित प्रत ठेवली जाते).',
+  // Purchases (A8)
+  'purchaseCancel': 'ही खरेदी रद्द करा',
+  'purchaseCancelHelp':
+      'खरेदी चुकून नोंदवली असेल तेव्हा वापरा, उदा. एकच पुरवठादार बिल दोन्ही फोनवर नोंदवले. स्टॉक परत कमी होतो आणि पुरवठादाराला ही रक्कम देणे राहत नाही.',
+  'purchaseCancelReason': 'कारण (ऐच्छिक)',
+  'purchaseCancelled': 'खरेदी रद्द झाली',
+  'purchaseTwiceBadge': 'दोनदा नोंद',
+  'purchaseTwiceHelp': 'बहुधा दोन्ही फोनवर एकदा-एकदा. ते उघडा आणि जास्तीची नोंद रद्द करा.',
+  // Settings (compact)
+  'settingsBackupTitle': 'बॅकअप आणि परत आणणे',
+  'settingsData': 'डेटा',
+  'settingsBillingRules': 'बिलाचे नियम',
+  'settingsShopDetailsSub': 'नाव, GSTIN, पत्ता, बिलावरील अटी',
+  'settingsStaffSub': 'काउंटर कामगार आणि PIN',
+  'settingsPhonesOne': 'एक फोन',
+  'settingsAuditSub': 'कोणी काय आणि केव्हा बदलले',
+  'settingsAlertsTitle': 'रोजचा सारांश',
+  'settingsOff': 'बंद',
+  'settingsNeverBackedUp': 'कधीच बॅकअप घेतला नाही',
+  'backupGroupBackUp': 'बॅकअप घ्या',
+  'backupGroupRestore': 'परत आणा',
+  'backupGroupReminder': 'आठवण',
+  'settingsPhonesRow': 'फोन आणि सिंक',
+  'settingsLanguageGroup': 'भाषा',
+  'settingsAppLanguage': 'भाषा / Language (हा फोन)',
+  'settingsBillLanguage': 'बिलाची भाषा (PDF आणि WhatsApp)',
+  'settingsBillLanguageHelp': 'पूर्ण दुकानासाठी. ग्राहक आणि तुमचे अकाउंटंट यांना बिले याच भाषेत मिळतात.',
+  // Activity log names
+  'auditPriceChange': 'किंमत बदलली',
+  'auditPriceOverride': 'बिलावर किंमत बदलली',
+  'auditDiscount': 'सूट दिली',
+  'auditStockAdjust': 'स्टॉक बदलला',
+  'auditStockCount': 'स्टॉक मोजला',
+  'auditEdit': 'बदल केला',
+  'auditDelete': 'काढले',
+  'auditPinSet': 'PIN ठेवला',
+  'auditPinChanged': 'PIN बदलला',
+  'auditPinReset': 'मालकाचा PIN नव्याने ठेवला',
+  'auditUserCreated': 'कामगार जोडला',
+  'auditUserDeactivated': 'कामगार काढला',
+  'auditShopUpdated': 'दुकानाची माहिती बदलली',
+  'auditUpiChanged': 'UPI ID बदलला',
+  'auditBackupMade': 'बॅकअप घेतला',
+  'auditBackupRestored': 'बॅकअप परत आणला',
+  'auditBackupProblems': 'बॅकअप घेतला (तपासणीत अडचणी)',
+  'auditSalesReturn': 'माल परत घेतला',
+  'auditBillCancelled': 'बिल रद्द केले',
+  'auditPurchaseCancelled': 'खरेदी रद्द केली',
+  'auditSyncConflict': 'दोन्ही फोनवर बदल',
+  'auditPhoneRemoved': 'फोन काढला',
+  'auditUnknownUser': 'माहीत नाही',
+  // Moved from screens
+  'noUsers': 'वापरकर्ते नाहीत',
+  'home': 'मुख्य पान',
+  'gstInclShort': '(GST सहित)',
+  'discountTooBig': 'सूट त्या ओळीच्या रकमेपेक्षा जास्त आहे',
+  'billIsEmpty': 'बिल रिकामे आहे',
+  'payment': 'पैसे',
+  'modeUpi': 'UPI',
+  'modeCard': 'कार्ड',
+  'modeBank': 'बँक',
+  'periodToday': 'आज',
+  'periodWeek': 'मागील 7 दिवस',
+  'periodMonth': 'हा महिना',
+  'reportDailySalesSub': 'एका दिवसाची बिले, पैसे आणि रोख',
+  'reportDayCheckSub': 'तुमच्या वहीशी जुळवा',
+  'reportItemProfitSub': 'प्रत्येक वस्तूवर किती नफा',
+  'reportStockValueSub': 'खरेदी किमतीने हातातील स्टॉक',
+  'importItemsSub': 'नाव, GST, किंमती, खरेदी किंमत, किमान आणि सुरुवातीचा स्टॉक',
+  'importPartiesSub': 'नाव, फोन, GSTIN, उधार मर्यादा आणि जुनी बाकी',
+  'templateSaved': 'नमुना फाइल जतन झाली',
+  'importCheckFirst': 'भरण्याआधी तपासा',
+  'importFixThese': 'हे तुमच्या फाइलमध्ये दुरुस्त करा आणि पुन्हा निवडा:',
+  'retailRequired': 'किरकोळ किंमत हवी',
+  'hide': 'लपवा',
+  'optionalSuffix': ' (ऐच्छिक)',
+  'itemHasHistory': 'या वस्तूचा स्टॉक किंवा बिले आधीच आहेत.',
+  'itemNameRequired': 'वस्तूचे नाव हवे',
+  'gstChoices': 'GST 0, 0.25, 3, 5, 12, 18 किंवा 28 यापैकी असावा',
+  'retailMoreThanZero': 'किरकोळ किंमत 0 पेक्षा जास्त हवी',
+  'pricesMoreThanZero': 'किंमती 0 पेक्षा जास्त हव्यात (नसेल तर रिकामे ठेवा)',
+  'rollMoreThanZero': 'रोलची लांबी 0 पेक्षा जास्त हवी',
+  'boxTwoOrMore': 'बॉक्समध्ये 2 किंवा जास्त नग हवेत',
+  'stockNotNegative': 'स्टॉक शून्याखाली असू शकत नाही',
+  'ledgerBill': 'बिल',
+  'ledgerPayment': 'पैसे मिळाले',
+  'ledgerReturn': 'माल परत',
+  'ledgerOpening': 'जुनी बाकी',
+  'ledgerAdjustment': 'दुरुस्ती',
+  'ledgerPurchase': 'खरेदी',
+  'ledgerSupplierPayment': 'पैसे दिले',
+  'enterAmountShort': 'रक्कम टाका',
+  'gstinFormat': 'GSTIN 15 अक्षरांचा असावा, उदा. 27AAAAA0000A1Z5',
+  'stateCodeFormat': 'राज्य कोड 2 अंकी असावा, उदा. 27',
+  'tierRetail': 'किरकोळ',
+  'tierContractor': 'कॉन्ट्रॅक्टर',
+  'tierDealer': 'डीलर',
+  'enterSupplierBillNo': 'पुरवठादाराचा बिल क्र. टाका',
+  'addNewSupplier': 'नवीन पुरवठादार जोडा',
+  'autoLockAlways': 'लगेच',
+  'enterQtyMoreThanZero': '0 पेक्षा जास्त नग टाका',
+  'enterCountedQty': 'मोजलेले नग टाका',
+  'moveSale': 'विक्री',
+  'moveSaleReturn': 'विक्री परत',
+  'movePurchase': 'खरेदी',
+  'movePurchaseReturn': 'खरेदी परत',
+  'moveTransferIn': 'आत आले',
+  'moveTransferOut': 'बाहेर गेले',
+  'moveAdjustment': 'दुरुस्ती',
+  'moveCount': 'मोजणी',
+  'phonesSection': 'फोन',
+  'theNewPhone': 'नवीन फोन',
+  'backupReminderOpenHint': 'ॲप उघडा, सेटिंग्ज, बॅकअप आणि परत आणणे.',
+  'diskFull': 'फोनमध्ये जागा संपली. थोडी जागा मोकळी करा आणि पुन्हा प्रयत्न करा. काहीही जतन झाले नाही.',
+  'diskIoError':
+      'फोनला माहिती लिहिता आली नाही. काहीही जतन झाले नाही. पुन्हा प्रयत्न करा, आणि सारखे होत असेल तर फोन बंद-चालू करा.',
+  'dataBusy': 'दुकानाची माहिती व्यस्त आहे. थोडे थांबा आणि पुन्हा प्रयत्न करा.',
+  // Longer help texts
+  'backUpNowHelp': 'दुकानाच्या सर्व माहितीची प्रत बनवते आणि ती तुमच्या ईमेल किंवा Google Drive ला पाठवता येते. हे वारंवार करा.',
+  'backupReminderHelp': '3 दिवस बॅकअप घेतला नाही तर फोनवर सूचना आणि मुख्य पानावर आठवण.',
+  'costUnknownHelp':
+      'बिलाच्या दिवशी या वस्तूंची खरेदी किंमत नव्हती, म्हणून ही विक्री नफ्यात धरलेली नाही. पुढच्या विक्रीसाठी खरेदी नोंदवा किंवा खरेदी किंमत भरा.',
+  'dataCheckAdvice':
+      'अडचण उघडण्यासाठी तिच्यावर दाबा. आत्ता काहीही बदलू नका: कारण शोधता यावे म्हणून तुमच्या डेव्हलपरला सांगा. अहवाल पाठवण्यासाठी "अहवाल पाठवा" दाबा.',
+  'dcCompareHelp': 'हे आकडे तुमच्या वहीशेजारी ठेवा. एखादा जुळत नसेल तर दिवस बंद करण्याआधी कोणते बिल किंवा पैसे त्याला कारण आहेत ते शोधा.',
+  'importHelp': 'आधी तुमची Excel शीट CSV म्हणून जतन करा (File > Save As > CSV). कॉलम पाहण्यासाठी नमुना फाइल घ्या.',
+  'restoreOnePhone': 'एका वेळी एकाच फोनवर बिल करा. एकच बॅकअप दोन फोनवर असेल तर बिल क्रमांक सारखे येतील.',
+  'restoreReplacesWarning':
+      'या फोनवरील आत्ताची सर्व माहिती (सर्व बिले, स्टॉक, ग्राहक आणि PIN) बदलली जाईल. आत्ताच्या माहितीची प्रत ठेवली जाते, त्यामुळे हे मागे घेता येते.',
+  'speedAfter': 'झाल्यावर: सेटिंग्ज, बॅकअपमधून परत आणा, तुमचा बॅकअप निवडा, आणि नमुना माहिती निघून जाईल.',
+  'speedIntro':
+      'तुमच्या माहितीवर एक मोठे नमुना दुकान (सुमारे 400 वस्तू, 200 ग्राहक आणि 30 दिवसांची बिले) भरते आणि या फोनवर स्क्रीनचा वेळ मोजते. आधी बॅकअप घ्या आणि नंतर तो परत आणून नमुना माहिती काढा.',
+  'speedLoadWarning':
+      'यामुळे या फोनवर शेकडो नमुना वस्तू, ग्राहक आणि बिले भरली जातील. तुमची खरी माहिती राहते, पण नमुना माहिती काढण्यासाठी नंतर बॅकअप परत आणावा लागेल. पुढे जायचे?',
+  'speedNeedBackup': 'आधी बॅकअप घ्या (सेटिंग्ज, बॅकअप, आता बॅकअप घ्या) आणि तो ईमेल किंवा Drive मध्ये आहे का ते पाहा. मग एका तासाच्या आत परत या.',
+  'spotIntro': 'काही वस्तू निवडा, त्या कपाटात मोजा, आणि ॲपशी जुळतात का ते पाहा. "मोजणी लागू करा" दाबल्याशिवाय काहीही बदलत नाही.',
+  'upiHelp':
+      'ग्राहक QR स्कॅन करून या UPI ID वर पैसे देतात. तो पैसे घेण्याच्या स्क्रीनवर आणि प्रत्येक बिल PDF वर दिसतो. QR बंद करण्यासाठी रिकामे ठेवा.',
+};
+
+/// Sentences with numbers or names, in Marathi.
 abstract final class SMr {
-  static String discountTooHigh(int pct) => 'Staff can give up to $pct% discount. Ask the owner.';
-  static String lockedWait(int seconds) => 'Too many wrong tries. Try again in $seconds seconds.';
-  static String upiScanToPay(String amount) => 'Customer scans to pay $amount';
-  static String backupReminderDays(int days) => 'Your last backup was $days days ago.';
-  static String dataCheckProblems(int n) => 'Found $n problem${n == 1 ? '' : 's'} in your data';
-  static String dataCheckScope(int checks, int records) => '$checks checks over $records records';
-  static String dataCheckNotes(int n) => '$n note${n == 1 ? '' : 's'} to look at (not errors)';
-  static String andMoreProblems(int n) => '...and $n more problems of the same kind';
-  static String restoredWithProblems(int n) =>
-      'The check found $n problem${n == 1 ? '' : 's'}. Open Settings, Check my data.';
+  static String discountTooHigh(int pct) => 'कामगार $pct% पर्यंत सूट देऊ शकतो. मालकाला विचारा.';
+  static String lockedWait(int seconds) => 'खूप वेळा चुकीचा PIN. $seconds सेकंदांनी पुन्हा प्रयत्न करा.';
+  static String upiScanToPay(String amount) => 'ग्राहक स्कॅन करून $amount देतील';
+  static String backupReminderDays(int days) => 'तुमचा शेवटचा बॅकअप $days दिवसांपूर्वी घेतला होता.';
+  static String dataCheckProblems(int n) => 'तुमच्या डेटामध्ये $n अडचणी सापडल्या';
+  static String dataCheckScope(int checks, int records) => '$records नोंदींवर $checks तपासण्या';
+  static String dataCheckNotes(int n) => '$n टिपा पाहण्यासारख्या (चुका नाहीत)';
+  static String andMoreProblems(int n) => '...आणि याच प्रकारच्या आणखी $n अडचणी';
+  static String restoredWithProblems(int n) => 'पण तपासणीत $n अडचणी सापडल्या. सेटिंग्ज, डेटा तपासा उघडा.';
   static String backupProblemsBody(int n) =>
-      'The data check found $n problem${n == 1 ? '' : 's'}. A backup still keeps everything, '
-      'but it will contain the same problems. Back up anyway?';
-  static String refundRemaining(String left) => 'Still to give back: $left';
-  static String returnApprovalWhat(String amount) => 'a return of $amount';
-  static String cancelApprovalWhat(String bill) => 'cancelling bill $bill';
+      'डेटा तपासणीत $n अडचणी सापडल्या. बॅकअपमध्ये त्याच अडचणी जातील. आधी डेटा तपासा, किंवा तरीही बॅकअप घ्या.';
+  static String refundRemaining(String left) => 'अजून परत द्यायचे: $left';
+  static String returnApprovalWhat(String amount) => '$amount चा माल परत';
+  static String cancelApprovalWhat(String bill) => 'बिल $bill रद्द करणे';
   static String cancelBillWarning(String total) =>
-      'This takes the whole bill back: the stock returns, and $total goes back to the customer the way they paid. The bill stays on record marked cancelled.';
-  static String ownerApprovalBody(String what) => 'The owner must approve $what. Owner, enter your PIN.';
-  static String spotDifferences(int n) => n == 1 ? '1 item differs from the app' : '$n items differ from the app';
-  static String spotApplyConfirm(int n) => 'Set the stock of $n item${n == 1 ? '' : 's'} to what you counted?';
-  static String homeHello(String name) => 'Hello, $name';
-  static String devicePhone(String letter) => 'Phone $letter';
-  static String deviceReplaceTitle(String letter) => 'Replace phone $letter?';
+      'सर्व माल परत येईल आणि $total ज्या पद्धतीने मिळाले त्याच पद्धतीने परत दिले जातील. हे परत बदलता येत नाही.';
+  static String ownerApprovalBody(String what) => '$what साठी मालकाची परवानगी हवी. मालक, तुमचा PIN टाका.';
+  static String spotDifferences(int n) => n == 1 ? '1 वस्तू ॲपशी जुळत नाही' : '$n वस्तू ॲपशी जुळत नाहीत';
+  static String spotApplyConfirm(int n) => '$n वस्तूंचा स्टॉक तुम्ही मोजल्याप्रमाणे करायचा?';
+  static String homeHello(String name) => 'नमस्कार, $name';
+  static String devicePhone(String letter) => 'फोन $letter';
+  static String deviceReplaceTitle(String letter) => 'फोन $letter ची जागा घ्यायची?';
   static String deviceReplaceWarn(String letter) =>
-      'Only do this if phone $letter is lost, broken or no longer used. If phone $letter is still billing, two phones would give out the same bill numbers.';
+      'फोन $letter हरवला, खराब झाला किंवा आता वापरत नसाल तरच हे करा. फोन $letter अजून बिल करत असेल तर दोन फोन सारखे बिल क्रमांक देतील.';
   static String phonesRemoveConfirm(String name) =>
-      'Remove $name? Its bills stay in the shop, but it will no longer sync. To use it again, add it again from this screen.';
+      '$name काढायचा? त्याची बिले दुकानात राहतील, पण तो सिंक होणार नाही. पुन्हा वापरायचा असेल तर याच स्क्रीनवरून परत जोडा.';
   static String phonesClashesHelp(int n) =>
-      '$n time${n == 1 ? '' : 's'} in the last 7 days the same thing was changed on both phones before they synced. The later change was kept; both are in the activity log.';
+      'मागील 7 दिवसांत $n वेळा एकच गोष्ट दोन्ही फोनवर सिंक होण्याआधी बदलली. नंतरचा बदल ठेवला; दोन्ही बदलांच्या नोंदीत आहेत.';
   static String phonesClockWarn(int minutes) =>
-      "The two phones' clocks differ by about $minutes minutes. Set both to automatic date and time, or the newer change may not win.";
-  static String phonesLastSync(String when) => 'Last synced $when';
-  static String addPhoneJoined(String name) => '$name joined the shop';
+      'दोन्ही फोनच्या घड्याळात सुमारे $minutes मिनिटांचा फरक आहे. दोन्हीवर तारीख-वेळ आपोआप ठेवा, नाहीतर नवीन बदल मागे पडू शकतो.';
+  static String phonesLastSync(String when) => 'शेवटचे सिंक $when';
+  static String addPhoneJoined(String name) => '$name दुकानात सामील झाला';
   static String purchaseCancelConfirm(String no, String total) =>
-      'Cancel purchase $no ($total)? Its stock comes back out and the supplier’s account is reduced by $total. This cannot be undone.';
-  static String purchaseCancelWhat(String no) => 'cancel supplier bill $no';
-  static String purchaseTwiceNote(int n) =>
-      n == 1 ? 'A supplier bill was entered twice' : '$n supplier bills were entered twice';
-  static String settingsPhonesMany(int n) => '$n phones';
+      'खरेदी $no ($total) रद्द करायची? तिचा स्टॉक परत कमी होईल आणि पुरवठादाराचे देणे $total ने कमी होईल. हे परत बदलता येत नाही.';
+  static String purchaseCancelWhat(String no) => 'पुरवठादार बिल $no रद्द करणे';
+  static String purchaseTwiceNote(int n) => n == 1 ? 'एक पुरवठादार बिल दोनदा नोंदवले' : '$n पुरवठादार बिले दोनदा नोंदवली';
+  static String settingsPhonesMany(int n) => '$n फोन';
+  static String andMore(int n) => '...आणि आणखी $n';
+  static String cannotOpenDb(Object e) => 'दुकानाची माहिती उघडता आली नाही: $e';
+  static String couldNotSaveBill(String why) => 'बिल जतन झाले नाही: $why';
+  static String lineQtyAt(String qty, String rate) => '$qty × ₹$rate';
+  static String lessAmount(String amount) => 'सूट $amount';
+  static String overdueOver30(String amount) => '$amount थकीत (30 दिवसांपेक्षा जास्त)';
+  static String todayDate(String date) => 'आज, $date';
+  static String dateRange(String from, String to) => '$from ते $to';
+  static String soldQtySales(String qty, String sales) => 'विकले $qty  •  विक्री $sales';
+  static String qtyAtRate(String qty, String rate) => '$qty × $rate';
+  static String importResult(int created, int skipped, int errors) =>
+      '$created भरले. आधीच असलेले $skipped सोडले. $errors ओळींमध्ये अडचण होती, त्या भरल्या नाहीत.';
+  static String importSummary(int total, int create, int skipped, int errors) =>
+      'फाइलमध्ये $total ओळी: $create भरल्या जातील, $skipped सोडल्या, $errors दुरुस्त करायच्या.';
+  static String skippedCount(int n) => '$n सोडल्या';
+  static String rowName(int row, String name) => 'ओळ $row: $name';
+  static String priceFieldLabel(String price, String unit) => '$price प्रति $unit';
+  static String priceFieldLabelOptional(String price, String unit) => '$price प्रति $unit (ऐच्छिक)';
+  static String costToday(String cost) => 'आजची खरेदी किंमत: $cost';
+  static String openingBalanceLabel(String side) => '${S.openingBalance}: $side (₹)';
+  static String enterRateFor(String item) => '$item चा दर टाका';
+  static String withGst(String amount) => '$amount (GST सहित)';
+  static String autoLockMinutesValue(int n) => '$n मिनिटे';
+  static String minimumStock(String qty) => 'किमान: $qty';
+  static String backupShareSubject(String shop) => '$shop बॅकअप';
+  static String backupShareBody(String shop, int bills, int customers, int items) =>
+      '$shop चा बॅकअप: $bills बिले, $customers ग्राहक, $items वस्तू. ही फाइल सांभाळून ठेवा: यात दुकानाची सर्व माहिती आहे.';
+  static String backupCounts(int bills, int customers, int items) => '$bills बिले, $customers ग्राहक, $items वस्तू';
+  static String lastBillAt(String when) => 'शेवटचे बिल: $when';
+  static String dataCheckShareSubject(String shop) => '$shop डेटा तपासणी';
+  static String dayCheckShareSubject(String shop, String date) => '$shop दिवसाचा हिशोब $date';
+  static String changedFromTo(String label, String from, String to) => '$label: $from वरून $to';
+  static String somethingWentWrong(String e) => 'काहीतरी चुकले: $e';
 }
