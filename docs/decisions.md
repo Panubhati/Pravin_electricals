@@ -81,3 +81,12 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Printed content is built as plain text first (`InvoiceView`) and the PDF only draws it, so the content is testable.
 - WhatsApp to a customer's number uses a small Android channel (jid extra on a WhatsApp or WhatsApp Business share intent, FileProvider); it falls back to the share sheet when there is no phone number or no WhatsApp. The PDF is a temporary cache file, deleted after a day.
 - Bills history is open to counter staff too; it shows no cost. Posted bills are still never edited; cancel and return screens are not in A5.
+
+## 2026-11-12 A6 decisions
+- Backup is a plain copy of the database file (owner chose no password) made with SQLite `VACUUM INTO` and verified (integrity, row counts per table, sums of stock, ledger, bills and purchases) before it is offered. A failed copy is deleted, never shared.
+- Restore is file-level: validate, keep `before_restore_*.sqlite` (three newest), stage, swap by rename, roll back on any failure. Older backups are upgraded by Drift when the app reopens; newer ones are refused. Safety copy names never overwrite.
+- A restore counts as a backup made now and is audited (`backup_restored`); making one is audited (`backup_made`). `last_backup_at` and `backup_reminder_on` live in `app_settings`; no schema change.
+- Restore takes effect by restarting the app's providers (`AppRoot.restart`), which opens a fresh database connection. After restore the PINs and users are the backup's.
+- The first-run screen offers Restore so a fresh phone can restore before any PIN exists.
+- Reminder: daily WorkManager task (about 10 AM) plus a home banner, when there is shop data and the last backup is over 3 days old (or never). The background task never creates a shop. Stage A backups are manual; automatic upload comes with Stage B.
+- Using one backup on two phones at once is unsupported (same invoice series); the restore screen says so.

@@ -3,7 +3,7 @@
 Offline-first Android app for an electrical shop: billing, stock, purchases and customer credit.
 The full build plan is in [AGENTS.md](AGENTS.md); design decisions are in [docs/decisions.md](docs/decisions.md); one document per finished milestone is in [docs/milestones/](docs/milestones/README.md).
 
-**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A5 (items, purchases, stock, parties, dashboard, reports, PIN roles, alerts, UPI QR, WhatsApp and bills history) are done; thermal printing waits for a printer.
+**Current stage:** Stage A (local SQLite only, no server). Milestones A0 to A6 (items, purchases, stock, parties, dashboard, reports, PIN roles, alerts, UPI QR, WhatsApp, bills history, backup and restore) are done; thermal printing waits for a printer.
 
 ## Requirements
 - Flutter 3.29 (Dart 3.7), Android Studio with Android SDK 36, a JDK from Android Studio.
@@ -49,6 +49,11 @@ summary notification and the audit log. Update the phone with `adb install -r` t
 ## Sharing bills and UPI (A5)
 Settings, **UPI ID for QR codes**: customers scan a QR on the Pay screen and on every PDF. After saving a bill tap **Share PDF** or
 **WhatsApp** (straight to the customer's number). **Bills** on Home lists old bills to share again.
+
+## Backup and restore (A6)
+Settings, **Backup**: **Back up now** makes a checked copy and opens the share sheet; send it to your own email or Drive every few days
+(the home screen reminds you after 3 days). To restore, on a new phone tap **Restore from a backup instead** on the first screen, or use
+Settings, **Restore from a backup**; then log in with the PIN you had. `flutter install` and uninstalling wipe the data; `adb install -r` keeps it.
 
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.

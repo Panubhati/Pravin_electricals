@@ -11,7 +11,7 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A3 Items, purchases, stock, parties | done | [A3-items-purchases-stock-parties.md](A3-items-purchases-stock-parties.md) |
 | A4 Owner dashboard, reports, local alerts, PIN roles | done | [A4-dashboard-reports-roles.md](A4-dashboard-reports-roles.md) |
 | A5 Sharing, UPI QR, PDF polish, bills history (printing deferred) | done | [A5-sharing-upi-bills.md](A5-sharing-upi-bills.md) |
-| A6 Local backup and restore | planned | |
+| A6 Local backup and restore | done | [A6-backup-restore.md](A6-backup-restore.md) |
 | A7 Testing gate and exit criteria | planned | |
 | A8 OCR feasibility prototype (optional) | planned | |
 

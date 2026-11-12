@@ -569,7 +569,7 @@ Manual (with the owner):
 - [x] A3 Items, purchases, stock, parties
 - [x] A4 Owner dashboard, reports, local alerts
 - [x] A5 Printing and sharing (sharing, UPI QR, bills history done; thermal printing deferred to A5b)
-- [ ] A6 Local backup and restore
+- [x] A6 Local backup and restore
 - [ ] A7 Testing gate and exit criteria
 - [ ] A8 OCR feasibility prototype (optional)
 
