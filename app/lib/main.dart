@@ -13,8 +13,31 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // Lets Android run the daily summary when the app is closed.
   await initBackgroundWork();
-  runApp(
-    ProviderScope(
+  runApp(const AppRoot());
+}
+
+/// Holds the app's providers and the database. [restart] throws all of that
+/// away and starts again from a fresh database connection, which is how a
+/// restored backup takes effect.
+class AppRoot extends StatefulWidget {
+  const AppRoot({super.key});
+
+  static void restart(BuildContext context) =>
+      context.findAncestorStateOfType<_AppRootState>()?._restart();
+
+  @override
+  State<AppRoot> createState() => _AppRootState();
+}
+
+class _AppRootState extends State<AppRoot> {
+  Key _key = UniqueKey();
+
+  void _restart() => setState(() => _key = UniqueKey());
+
+  @override
+  Widget build(BuildContext context) {
+    return ProviderScope(
+      key: _key,
       overrides: [
         databaseProvider.overrideWith((ref) {
           final db = AppDatabase(openShopDatabase());
@@ -23,8 +46,8 @@ Future<void> main() async {
         }),
       ],
       child: const ShopApp(),
-    ),
-  );
+    );
+  }
 }
 
 class ShopApp extends StatelessWidget {

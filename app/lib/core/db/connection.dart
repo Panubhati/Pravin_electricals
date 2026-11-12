@@ -2,14 +2,15 @@ import 'dart:io';
 
 import 'package:drift/drift.dart';
 import 'package:drift/native.dart';
-import 'package:path/path.dart' as p;
-import 'package:path_provider/path_provider.dart';
+
+import '../backup/database_location.dart';
 
 /// Opens the on-phone SQLite file. Tests use NativeDatabase.memory() instead.
-LazyDatabase openShopDatabase({String fileName = 'shop.sqlite'}) {
+LazyDatabase openShopDatabase({
+  ShopDatabaseLocation location = const DeviceDatabaseLocation(),
+}) {
   return LazyDatabase(() async {
-    final dir = await getApplicationDocumentsDirectory();
-    final file = File(p.join(dir.path, fileName));
+    final File file = await location.databaseFile();
     return NativeDatabase.createInBackground(file);
   });
 }

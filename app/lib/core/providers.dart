@@ -1,5 +1,6 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'backup/database_location.dart';
 import 'bootstrap.dart';
 import 'db/app_database.dart';
 import 'db/repositories/audit_repository.dart';
@@ -112,3 +113,8 @@ final upiPayeeProvider = FutureProvider.autoDispose<UpiPayee?>((ref) {
 
 /// Hands bill PDFs to WhatsApp or the share sheet. Overridden in tests.
 final billSharerProvider = Provider<BillSharer>((ref) => DeviceBillSharer());
+
+/// Where the database file lives (the real phone folder; tests override it).
+final databaseLocationProvider = Provider<ShopDatabaseLocation>(
+  (ref) => const DeviceDatabaseLocation(),
+);

@@ -12,6 +12,8 @@ class SettingKeys {
   static const autoLockMinutes = 'auto_lock_minutes';
   static const dailySummaryOn = 'daily_summary_on';
   static const dailySummaryHour = 'daily_summary_hour';
+  static const lastBackupAt = 'last_backup_at';
+  static const backupReminderOn = 'backup_reminder_on';
   static const upiId = 'upi_id';
   static const upiName = 'upi_name';
 }
@@ -111,4 +113,16 @@ class SettingsRepository {
       );
     });
   }
+
+  /// When the owner last made (or restored from) a backup, or null if never.
+  Future<DateTime?> lastBackupAt() async {
+    final ms = int.tryParse(await get(SettingKeys.lastBackupAt) ?? '');
+    return ms == null ? null : DateTime.fromMillisecondsSinceEpoch(ms);
+  }
+
+  Future<void> setLastBackupAt(DateTime when) =>
+      set(SettingKeys.lastBackupAt, '${when.millisecondsSinceEpoch}');
+
+  /// The backup reminder is on unless the owner turned it off.
+  Future<bool> backupReminderOn() async => (await get(SettingKeys.backupReminderOn)) != '0';
 }
