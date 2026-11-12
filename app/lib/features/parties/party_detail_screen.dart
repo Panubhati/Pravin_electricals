@@ -151,7 +151,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                     child: FilledButton(
                       key: const Key('paymentButton'),
                       onPressed: () => _pay(toSupplier: false),
-                      child: const Text(S.recordPayment),
+                      child: Text(S.recordPayment),
                     ),
                   ),
                 if (p.kind == 'both') const SizedBox(width: 12),
@@ -160,7 +160,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                     child: FilledButton.tonal(
                       key: const Key('supplierPaymentButton'),
                       onPressed: () => _pay(toSupplier: true),
-                      child: const Text(S.recordSupplierPayment),
+                      child: Text(S.recordSupplierPayment),
                     ),
                   ),
               ]),
@@ -169,7 +169,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
           const Divider(height: 1),
           Expanded(
             child: _statement.isEmpty
-                ? const EmptyState(S.noHistory)
+                ? EmptyState(S.noHistory)
                 : ListView.separated(
                     itemCount: _statement.length,
                     separatorBuilder: (_, __) => const Divider(height: 1),
@@ -252,7 +252,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
             controller: _amount,
             autofocus: true,
             keyboardType: const TextInputType.numberWithOptions(decimal: true),
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
                 labelText: S.amount, prefixText: '₹ ', border: OutlineInputBorder()),
           ),
           const SizedBox(height: 12),
@@ -269,13 +269,13 @@ class _PaymentDialogState extends State<_PaymentDialog> {
           TextField(
             key: const Key('payNote'),
             controller: _note,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
                 labelText: S.note, border: OutlineInputBorder()),
           ),
         ]),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
         FilledButton(
           key: const Key('paySave'),
           onPressed: () {
@@ -292,7 +292,7 @@ class _PaymentDialogState extends State<_PaymentDialog> {
               ),
             );
           },
-          child: const Text(S.save),
+          child: Text(S.save),
         ),
       ],
     );

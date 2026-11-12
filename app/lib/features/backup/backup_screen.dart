@@ -9,7 +9,7 @@ class BackupScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-        appBar: AppBar(title: const Text(S.settingsBackupTitle)),
+        appBar: AppBar(title: Text(S.settingsBackupTitle)),
         body: ListView(
           padding: const EdgeInsets.only(bottom: 24),
           children: const [BackupSection()],

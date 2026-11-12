@@ -65,7 +65,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           ListTile(
             key: const Key('backupNow'),
             leading: const Icon(Icons.cloud_upload_outlined),
-            title: const Text(S.backUpNow),
+            title: Text(S.backUpNow),
             subtitle: Text(
               lastAt == null
                   ? '${S.lastBackupLabel}: ${S.neverBackedUp}'
@@ -85,7 +85,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           ListTile(
             key: const Key('restoreBackup'),
             leading: const Icon(Icons.settings_backup_restore),
-            title: const Text(S.restoreFromBackup),
+            title: Text(S.restoreFromBackup),
             trailing: const Icon(Icons.chevron_right, color: AppPalette.muted),
             onTap: _busy ? null : () => _run(() => restoreFromBackup(context, ref)),
           ),
@@ -93,7 +93,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
             ListTile(
               key: const Key('undoRestore'),
               leading: const Icon(Icons.undo),
-              title: const Text(S.undoLastRestore),
+              title: Text(S.undoLastRestore),
               trailing: const Icon(Icons.chevron_right, color: AppPalette.muted),
               onTap: _busy ? null : () => _run(() => undoLastRestore(context, ref)),
             ),
@@ -102,7 +102,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           SwitchListTile(
             key: const Key('backupReminderSwitch'),
             secondary: const Icon(Icons.notifications_active_outlined),
-            title: const Text(S.backupReminder),
+            title: Text(S.backupReminder),
             value: reminderOn,
             onChanged: (on) async {
               try {
@@ -115,7 +115,7 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
           ListTile(
             key: const Key('backupReminderTest'),
             leading: const Icon(Icons.send_outlined),
-            title: const Text(S.sendTestReminder),
+            title: Text(S.sendTestReminder),
             onTap: () async {
               try {
                 final notes = ref.read(notificationServiceProvider);

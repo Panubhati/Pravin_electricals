@@ -123,17 +123,17 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
     final resultKeys = RowKeys(), rowKeys = RowKeys();
     final diffs = _differing;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.stockSpotCheck)),
+      appBar: AppBar(title: Text(S.stockSpotCheck)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(S.spotIntro),
+          Text(S.spotIntro),
           const SizedBox(height: 12),
           TextField(
             key: const Key('spotSearch'),
             controller: _search,
             onChanged: _onQuery,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               hintText: S.spotAddItem,
               prefixIcon: Icon(Icons.search),
               border: OutlineInputBorder(),
@@ -160,10 +160,10 @@ class _StockSpotCheckScreenState extends ConsumerState<StockSpotCheckScreen> {
             FilledButton(
               key: const Key('spotApply'),
               onPressed: (diffs.isEmpty || _applying) ? null : _apply,
-              child: const Text(S.spotApply),
+              child: Text(S.spotApply),
             ),
             const SizedBox(height: 4),
-            const Text(S.spotApplyHelp, style: TextStyle(color: AppPalette.muted)),
+            Text(S.spotApplyHelp, style: TextStyle(color: AppPalette.muted)),
           ],
         ],
       ),

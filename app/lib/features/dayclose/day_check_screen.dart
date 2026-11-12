@@ -96,7 +96,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
     final isToday = startOfDay(DateTime.now()) == _day;
     return Scaffold(
       appBar: AppBar(
-        title: const Text(S.dayCheckTitle),
+        title: Text(S.dayCheckTitle),
         actions: [
           if (async.valueOrNull != null)
             IconButton(
@@ -140,7 +140,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SectionTitle(S.dcSales),
+                  SectionTitle(S.dcSales),
                   _group([
                     _count(S.billsCount, s.billCount, key: const Key('dcBills')),
                     if (s.cancelCount > 0) _count(S.dcCancelled, s.cancelCount, key: const Key('dcCancelled')),
@@ -148,27 +148,27 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
                     if (s.returnsPaise > 0) _line(S.dcReturns, s.returnsPaise, prefix: '- ', key: const Key('dcReturns')),
                     _line(S.dcNetSales, s.totalPaise, bold: true, key: const Key('dcNet')),
                   ]),
-                  const SectionTitle(S.dcHowPaid),
+                  SectionTitle(S.dcHowPaid),
                   _group([
                     _line(S.cash, s.mode('cash'), key: const Key('dcCash')),
                     _line('UPI', s.mode('upi'), key: const Key('dcUpi')),
                     if (s.mode('card') != 0) _line('Card', s.mode('card')),
                     _line(S.credit, s.mode('credit'), key: const Key('dcCredit')),
                   ]),
-                  const SectionTitle(S.dcCollected),
+                  SectionTitle(S.dcCollected),
                   _group([
                     _line(S.dcCollectedTotal, d.collectedPaise, bold: true, key: const Key('dcCollected')),
                     _line(S.cash, d.collectedByMode['cash'] ?? 0, muted: true),
                     _line('UPI', d.collectedByMode['upi'] ?? 0, muted: true),
                     _line('Bank', d.collectedByMode['bank'] ?? 0, muted: true),
                   ]),
-                  const SectionTitle(S.dcPurchases),
+                  SectionTitle(S.dcPurchases),
                   _group([
                     _count(S.dcPurchasesEntered, d.purchaseCount, key: const Key('dcPurchaseCount')),
                     _line(S.dcPurchasesTotal, d.purchaseTotalPaise, key: const Key('dcPurchaseTotal')),
                     _line(S.dcPaidSuppliers, d.supplierPaidPaise, key: const Key('dcSupplierPaid')),
                   ]),
-                  const SectionTitle(S.cashInHand),
+                  SectionTitle(S.cashInHand),
                   _group([
                     _line(S.cashOpening, d.cash.openingPaise),
                     _line('+ ${S.cashSales}', d.cash.cashSalesPaise),
@@ -179,14 +179,14 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
                     _line(S.cashClosing, d.cash.closingPaise, bold: true, key: const Key('dcCashClosing')),
                   ]),
                   const SizedBox(height: 16),
-                  const Text(S.dcCompareHelp, style: TextStyle(color: AppPalette.muted)),
+                  Text(S.dcCompareHelp, style: TextStyle(color: AppPalette.muted)),
                   const SizedBox(height: 16),
                   OutlinedButton.icon(
                     key: const Key('dcStockCheck'),
                     onPressed: () => Navigator.of(context)
                         .push<void>(MaterialPageRoute(builder: (_) => const StockSpotCheckScreen())),
                     icon: const Icon(Icons.inventory_2_outlined),
-                    label: const Text(S.stockSpotCheck),
+                    label: Text(S.stockSpotCheck),
                   ),
                   Text('${S.dcCheckedAt} ${backupTime(DateTime.now())}',
                       style: const TextStyle(color: AppPalette.muted, fontSize: 12)),

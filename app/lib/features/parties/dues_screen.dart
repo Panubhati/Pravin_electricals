@@ -23,7 +23,7 @@ class DuesScreen extends ConsumerWidget {
     final showPayables = ref.watch(permissionsProvider).canSeePurchases;
     if (!showPayables) {
       return Scaffold(
-        appBar: AppBar(title: const Text(S.duesTitle)),
+        appBar: AppBar(title: Text(S.duesTitle)),
         body: const _DuesList(payable: false),
       );
     }
@@ -31,8 +31,8 @@ class DuesScreen extends ConsumerWidget {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text(S.duesTitle),
-          bottom: const TabBar(tabs: [
+          title: Text(S.duesTitle),
+          bottom: TabBar(tabs: [
             Tab(key: Key('tabReceivables'), text: S.receivables),
             Tab(key: Key('tabPayables'), text: S.payables),
           ]),
@@ -58,7 +58,7 @@ class _DuesList extends ConsumerWidget {
       loading: () => const Center(child: CircularProgressIndicator()),
       error: (e, _) => EmptyState(errorMessage(e)),
       data: (list) {
-        if (list.isEmpty) return const EmptyState(S.noDues);
+        if (list.isEmpty) return EmptyState(S.noDues);
         final total = DuesRepository.total(list);
         return ListView(
           children: [

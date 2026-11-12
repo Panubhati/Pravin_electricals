@@ -145,7 +145,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
           TextButton(
             key: const Key('saveParty'),
             onPressed: _saving || _loading ? null : _save,
-            child: const Text(S.save),
+            child: Text(S.save),
           ),
         ],
       ),
@@ -158,7 +158,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                   key: const Key('partyName'),
                   controller: _name,
                   textCapitalization: TextCapitalization.words,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.partyName, border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
@@ -166,16 +166,16 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                   key: const Key('partyPhone'),
                   controller: _phone,
                   keyboardType: TextInputType.phone,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.phone, border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
                 DropdownButtonFormField<String>(
                   key: const Key('partyKind'),
                   value: _kind,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.kind, border: OutlineInputBorder()),
-                  items: const [
+                  items: [
                     DropdownMenuItem(value: 'customer', child: Text(S.kindCustomer)),
                     DropdownMenuItem(value: 'supplier', child: Text(S.kindSupplier)),
                     DropdownMenuItem(value: 'both', child: Text(S.kindBoth)),
@@ -187,7 +187,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                   DropdownButtonFormField<String>(
                     key: const Key('partyTier'),
                     value: _tier,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                         labelText: S.tier, border: OutlineInputBorder()),
                     items: const [
                       DropdownMenuItem(value: 'retail', child: Text('Retail')),
@@ -201,7 +201,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                     key: const Key('partyCredit'),
                     controller: _credit,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                         labelText: S.creditLimit,
                         prefixText: '₹ ',
                         border: OutlineInputBorder()),
@@ -212,7 +212,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                   key: const Key('partyGstin'),
                   controller: _gstin,
                   textCapitalization: TextCapitalization.characters,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.gstin, border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
@@ -220,14 +220,14 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
                   key: const Key('partyState'),
                   controller: _state,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.stateCode, border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
                 TextField(
                   key: const Key('partyAddress'),
                   controller: _address,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.address, border: OutlineInputBorder()),
                 ),
                 if (!_editing) ...[

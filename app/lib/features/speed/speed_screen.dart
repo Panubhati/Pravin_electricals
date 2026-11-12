@@ -116,11 +116,11 @@ class _SpeedScreenState extends ConsumerState<SpeedScreen> {
   Widget build(BuildContext context) {
     final results = _results;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.speedTitle)),
+      appBar: AppBar(title: Text(S.speedTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(S.speedIntro),
+          Text(S.speedIntro),
           const SizedBox(height: 12),
           Text('${S.speedShopNow}: $_size', key: const Key('speedSize')),
           const SizedBox(height: 16),
@@ -128,14 +128,14 @@ class _SpeedScreenState extends ConsumerState<SpeedScreen> {
             key: const Key('speedLoad'),
             onPressed: _busy ? null : _load,
             icon: const Icon(Icons.storage),
-            label: const Text(S.speedLoad),
+            label: Text(S.speedLoad),
           ),
           const SizedBox(height: 8),
           OutlinedButton.icon(
             key: const Key('speedRun'),
             onPressed: _busy ? null : _run,
             icon: const Icon(Icons.speed),
-            label: const Text(S.speedRun),
+            label: Text(S.speedRun),
           ),
           if (_progress != null) ...[
             const SizedBox(height: 12),
@@ -147,7 +147,7 @@ class _SpeedScreenState extends ConsumerState<SpeedScreen> {
             Text(_status!, key: const Key('speedStatus')),
           ],
           if (results != null) ...[
-            const SectionTitle(S.speedResults),
+            SectionTitle(S.speedResults),
             for (final r in results)
               ListTile(
                 key: Key('speed_${r.name}'),

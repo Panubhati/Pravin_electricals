@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/bootstrap.dart';
 import '../sync/device_choice_screen.dart';
+import '../language/language_switch.dart';
 import '../sync/join_shop_screen.dart';
 import '../sync/sync_providers.dart';
 
@@ -156,10 +157,11 @@ class _FirstRunPin extends ConsumerWidget {
       footer: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          const Padding(padding: EdgeInsets.only(bottom: 8), child: LanguageSwitch()),
           TextButton(
             key: const Key('firstRunRestore'),
             onPressed: () => restoreFromBackup(context, ref),
-            child: const Text(S.restoreFromBackupFirstRun),
+            child: Text(S.restoreFromBackupFirstRun),
           ),
           TextButton(
             key: const Key('firstRunJoin'),
@@ -167,7 +169,7 @@ class _FirstRunPin extends ConsumerWidget {
                 () => Navigator.of(context).push<void>(
                   MaterialPageRoute(builder: (_) => const JoinShopScreen()),
                 ),
-            child: const Text(S.joinShopFirstRun),
+            child: Text(S.joinShopFirstRun),
           ),
         ],
       ),

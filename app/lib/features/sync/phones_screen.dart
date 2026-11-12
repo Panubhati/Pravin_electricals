@@ -78,7 +78,7 @@ class PhonesScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.phonesTitle)),
+      appBar: AppBar(title: Text(S.phonesTitle)),
       body: phones.when(
         loading: () => const SkeletonList(),
         error: (e, _) => EmptyState(errorMessage(e), icon: Icons.error_outline),
@@ -113,7 +113,7 @@ class PhonesScreen extends ConsumerWidget {
                 ref.invalidate(phonesProvider);
               },
               icon: const Icon(Icons.add),
-              label: const Text(S.phonesAdd),
+              label: Text(S.phonesAdd),
             ),
             if (clashes > 0) ...[
               const SizedBox(height: 16),
@@ -121,7 +121,7 @@ class PhonesScreen extends ConsumerWidget {
                 child: ListTile(
                   key: const Key('syncClashes'),
                   leading: const Icon(Icons.call_split, color: AppPalette.amber),
-                  title: const Text(S.phonesClashes),
+                  title: Text(S.phonesClashes),
                   subtitle: Text(S.phonesClashesHelp(clashes)),
                   onTap: () =>
                       Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const AuditScreen())),
@@ -155,7 +155,7 @@ class _StatusCard extends StatelessWidget {
             key: const Key('syncNow'),
             onPressed: onSyncNow,
             icon: const Icon(Icons.sync, size: 18),
-            label: const Text(S.phonesSyncNow),
+            label: Text(S.phonesSyncNow),
           ),
         ]),
         const SizedBox(height: 6),
@@ -204,9 +204,9 @@ class _PhoneTile extends ConsumerWidget {
         key: Key('phoneMenu_${d.invoiceSeriesPrefix}'),
         onSelected: (v) => v == 'rename' ? _rename(context, ref) : _remove(context, ref),
         itemBuilder: (_) => [
-          const PopupMenuItem(value: 'rename', child: Text(S.phonesRename)),
+          PopupMenuItem(value: 'rename', child: Text(S.phonesRename)),
           if (!row.isThisPhone)
-            PopupMenuItem(key: Key('removePhone_${d.invoiceSeriesPrefix}'), value: 'remove', child: const Text(S.phonesRemove)),
+            PopupMenuItem(key: Key('removePhone_${d.invoiceSeriesPrefix}'), value: 'remove', child: Text(S.phonesRemove)),
         ],
       ),
     );
@@ -217,11 +217,11 @@ class _PhoneTile extends ConsumerWidget {
     final name = await showDialog<String>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text(S.phonesRenameTitle),
+        title: Text(S.phonesRenameTitle),
         content: TextField(key: const Key('phoneName'), controller: controller, autofocus: true),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c), child: const Text(S.cancel)),
-          FilledButton(onPressed: () => Navigator.pop(c, controller.text), child: const Text(S.save)),
+          TextButton(onPressed: () => Navigator.pop(c), child: Text(S.cancel)),
+          FilledButton(onPressed: () => Navigator.pop(c, controller.text), child: Text(S.save)),
         ],
       ),
     );
@@ -240,12 +240,12 @@ class _PhoneTile extends ConsumerWidget {
       builder: (c) => AlertDialog(
         content: Text(S.phonesRemoveConfirm(phoneName(row.device))),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text(S.cancel)),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(S.cancel)),
           FilledButton(
             key: const Key('removePhoneConfirm'),
             style: FilledButton.styleFrom(backgroundColor: AppPalette.red),
             onPressed: () => Navigator.pop(c, true),
-            child: const Text(S.phonesRemove),
+            child: Text(S.phonesRemove),
           ),
         ],
       ),
@@ -324,7 +324,7 @@ class _AddPhoneScreenState extends ConsumerState<AddPhoneScreen> {
     final text = Theme.of(context).textTheme;
     final invite = _invite;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.addPhoneTitle)),
+      appBar: AppBar(title: Text(S.addPhoneTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [

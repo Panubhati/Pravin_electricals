@@ -1,5 +1,6 @@
 import 'package:drift/drift.dart';
 
+import '../../../shared/strings.dart' show AppLang;
 import '../../printing/upi_link.dart';
 import '../app_database.dart';
 import 'audit_repository.dart';
@@ -9,6 +10,9 @@ import 'repo_context.dart';
 /// Well-known setting keys.
 class SettingKeys {
   static const openingCashPaise = 'opening_cash_paise';
+
+  /// Language of bill PDFs and WhatsApp messages: 'en' or 'mr' (shop-wide).
+  static const billLanguage = 'bill_language';
   static const counterMaxDiscountPct = 'counter_max_discount_pct';
   static const autoLockMinutes = 'auto_lock_minutes';
   static const dailySummaryOn = 'daily_summary_on';
@@ -92,6 +96,11 @@ class SettingsRepository {
 
   /// Sets (or clears, with an empty [vpa]) the shop's UPI ID and payee name.
   /// This decides where customers' money goes, so every change is audited.
+  /// Bills are in English unless the owner chose Marathi.
+  Future<AppLang> billLanguage() async => (await get(SettingKeys.billLanguage)) == 'mr' ? AppLang.mr : AppLang.en;
+
+  Future<void> setBillLanguage(AppLang lang) => set(SettingKeys.billLanguage, lang.name);
+
   Future<void> setUpi({required String vpa, String name = '', String? userId}) async {
     final id = vpa.trim();
     final payee = name.trim();

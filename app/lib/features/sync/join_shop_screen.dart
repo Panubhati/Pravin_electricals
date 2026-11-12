@@ -59,7 +59,7 @@ class _JoinShopScreenState extends ConsumerState<JoinShopScreen> {
       // Nothing may hold the database file open while it is replaced.
       await ref.read(databaseProvider).close();
       await installJoinedShop(package: package, invite: invite, location: location, identity: identity, label: label);
-      messenger.showSnackBar(const SnackBar(content: Text(S.joinDone), duration: Duration(seconds: 6)));
+      messenger.showSnackBar(SnackBar(content: Text(S.joinDone), duration: Duration(seconds: 6)));
       if (restartContext.mounted) restart(restartContext);
     } catch (e) {
       if (!mounted) return;
@@ -77,7 +77,7 @@ class _JoinShopScreenState extends ConsumerState<JoinShopScreen> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.joinTitle)),
+      appBar: AppBar(title: Text(S.joinTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -87,11 +87,11 @@ class _JoinShopScreenState extends ConsumerState<JoinShopScreen> {
             key: const Key('joinName'),
             controller: _name,
             enabled: !_busy,
-            decoration: const InputDecoration(labelText: S.joinName, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: S.joinName, border: OutlineInputBorder()),
           ),
           const SizedBox(height: 16),
           if (_busy)
-            const Row(children: [
+            Row(children: [
               CircularProgressIndicator(),
               SizedBox(width: 16),
               Expanded(child: Text(S.joining)),
@@ -101,7 +101,7 @@ class _JoinShopScreenState extends ConsumerState<JoinShopScreen> {
               key: const Key('joinScan'),
               onPressed: _scanAndJoin,
               icon: const Icon(Icons.qr_code_scanner),
-              label: const Text(S.joinScan),
+              label: Text(S.joinScan),
             ),
           if (_error != null) ...[
             const SizedBox(height: 12),

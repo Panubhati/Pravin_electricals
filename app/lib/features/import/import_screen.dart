@@ -21,17 +21,17 @@ class ImportScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(S.importTitle)),
+      appBar: AppBar(title: Text(S.importTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(S.importHelp),
+          Text(S.importHelp),
           const SizedBox(height: 16),
           Card(
             child: ListTile(
               key: const Key('importItemsTile'),
               leading: const Icon(Icons.inventory_2_outlined),
-              title: const Text(S.importItems),
+              title: Text(S.importItems),
               subtitle: const Text('Names, GST, prices, cost, minimum and opening stock'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(
@@ -43,7 +43,7 @@ class ImportScreen extends StatelessWidget {
             child: ListTile(
               key: const Key('importPartiesTile'),
               leading: const Icon(Icons.people_outline),
-              title: const Text(S.importParties),
+              title: Text(S.importParties),
               subtitle: const Text('Names, phone, GSTIN, credit limit and opening balance'),
               trailing: const Icon(Icons.chevron_right),
               onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(
@@ -162,27 +162,27 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
-          const Text(S.importHelp),
+          Text(S.importHelp),
           const SizedBox(height: 16),
           OutlinedButton.icon(
             key: const Key('downloadTemplate'),
             onPressed: _busy ? null : _downloadTemplate,
             icon: const Icon(Icons.download),
-            label: const Text(S.downloadTemplate),
+            label: Text(S.downloadTemplate),
           ),
           const SizedBox(height: 12),
           FilledButton.icon(
             key: const Key('chooseFile'),
             onPressed: _busy ? null : _choose,
             icon: const Icon(Icons.upload_file),
-            label: const Text(S.chooseFile),
+            label: Text(S.chooseFile),
           ),
           if (_busy) const Padding(
             padding: EdgeInsets.all(16),
             child: Center(child: CircularProgressIndicator()),
           ),
           if (r != null) ...[
-            const SectionTitle(S.importDone),
+            SectionTitle(S.importDone),
             Text(
               'Imported ${r.created}. Skipped ${r.skipped} that already exist. '
               '${r.errors} row${r.errors == 1 ? '' : 's'} had problems and '

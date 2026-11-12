@@ -53,7 +53,7 @@ class _PartiesScreenState extends ConsumerState<PartiesScreen> {
         onPressed: () => _open(() => Navigator.of(context).push<bool>(MaterialPageRoute(
             builder: (_) => PartyFormScreen(defaultKind: widget.kind)))),
         icon: const Icon(Icons.person_add),
-        label: const Text(S.addParty),
+        label: Text(S.addParty),
       ),
       body: Column(
         children: [
@@ -62,7 +62,7 @@ class _PartiesScreenState extends ConsumerState<PartiesScreen> {
             child: TextField(
               key: const Key('partySearch'),
               onChanged: (v) => setState(() => _query = v),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: S.searchCustomer,
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -74,7 +74,7 @@ class _PartiesScreenState extends ConsumerState<PartiesScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (parties) {
-                if (parties.isEmpty) return const EmptyState(S.noParties);
+                if (parties.isEmpty) return EmptyState(S.noParties);
                 return ListView.separated(
                   padding: const EdgeInsets.only(bottom: 88),
                   itemCount: parties.length,

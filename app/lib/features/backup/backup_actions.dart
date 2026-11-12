@@ -148,7 +148,7 @@ Future<void> _runRestore(
   showDialog<void>(
     context: context,
     barrierDismissible: false,
-    builder: (_) => const PopScope(
+    builder: (_) => PopScope(
       canPop: false,
       child: AlertDialog(
         content: Row(children: [
@@ -215,10 +215,10 @@ Future<void> _runRestore(
 Future<void> _showProblem(BuildContext context, String message) => showDialog<void>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text(S.cannotUseBackup),
+        title: Text(S.cannotUseBackup),
         content: Text(message, key: const Key('backupProblem')),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text(S.ok)),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(S.ok)),
         ],
       ),
     );
@@ -238,7 +238,7 @@ Future<bool> _confirmRestore(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(S.backupContains),
+            Text(S.backupContains),
             const SizedBox(height: 8),
             Text(s.shopName, style: const TextStyle(fontWeight: FontWeight.bold), key: const Key('restoreShop')),
             Text('${s.bills} bills, ${s.customers} customers, ${s.items} items', key: const Key('restoreCounts')),
@@ -246,7 +246,7 @@ Future<bool> _confirmRestore(
             const SizedBox(height: 12),
             Text(replacingData ? S.restoreReplacesWarning : S.restoreFreshNote),
             const SizedBox(height: 8),
-            const Text(S.restoreOnePhone, style: TextStyle(color: AppPalette.muted)),
+            Text(S.restoreOnePhone, style: TextStyle(color: AppPalette.muted)),
           ],
         ),
       ),
@@ -254,7 +254,7 @@ Future<bool> _confirmRestore(
         TextButton(
             key: const Key('restoreCancel'),
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text(S.cancel)),
+            child: Text(S.cancel)),
         FilledButton(
           key: const Key('restoreConfirm'),
           style: FilledButton.styleFrom(backgroundColor: AppPalette.red),
@@ -271,18 +271,18 @@ Future<bool> _confirmBackupDespiteProblems(BuildContext context, int problems) a
   final go = await showDialog<bool>(
     context: context,
     builder: (ctx) => AlertDialog(
-      title: const Text(S.backupProblemsTitle),
+      title: Text(S.backupProblemsTitle),
       content: Text(S.backupProblemsBody(problems), key: const Key('backupProblemsBody')),
       actions: [
         TextButton(
           key: const Key('backupProblemsCancel'),
           onPressed: () => Navigator.pop(ctx, false),
-          child: const Text(S.cancel),
+          child: Text(S.cancel),
         ),
         FilledButton(
           key: const Key('backupProblemsGo'),
           onPressed: () => Navigator.pop(ctx, true),
-          child: const Text(S.backUpAnyway),
+          child: Text(S.backUpAnyway),
         ),
       ],
     ),

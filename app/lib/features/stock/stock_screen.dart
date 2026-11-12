@@ -32,7 +32,7 @@ class _StockScreenState extends ConsumerState<StockScreen> {
     final balances = ref.watch(stockBalancesProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.stockTitle)),
+      appBar: AppBar(title: Text(S.stockTitle)),
       body: Column(
         children: [
           Padding(
@@ -40,7 +40,7 @@ class _StockScreenState extends ConsumerState<StockScreen> {
             child: TextField(
               key: const Key('stockSearch'),
               onChanged: (v) => setState(() => _query = v),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: S.searchStock,
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -78,7 +78,7 @@ class _StockScreenState extends ConsumerState<StockScreen> {
                     StockFilter.negative => qty < 0,
                   };
                 }).toList();
-                if (shown.isEmpty) return const EmptyState(S.noStockItems);
+                if (shown.isEmpty) return EmptyState(S.noStockItems);
                 return ListView.separated(
                   itemCount: shown.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
@@ -92,8 +92,8 @@ class _StockScreenState extends ConsumerState<StockScreen> {
                       title: Text(item.name),
                       subtitle: Wrap(spacing: 6, children: [
                         if (item.brand != null) Text(item.brand!),
-                        if (negative) const StatusChip(S.negativeStock, color: AppPalette.red),
-                        if (low) const StatusChip(S.lowStock),
+                        if (negative) StatusChip(S.negativeStock, color: AppPalette.red),
+                        if (low) StatusChip(S.lowStock),
                       ]),
                       trailing: Text(
                         formatStock(item, qty),

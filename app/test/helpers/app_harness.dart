@@ -10,6 +10,7 @@ import 'package:shop_app/core/debug/sample_data.dart';
 import 'package:shop_app/core/providers.dart';
 import 'package:shop_app/features/auth/lock_gate.dart';
 import 'package:shop_app/features/home/home_screen.dart';
+import 'package:shop_app/shared/strings.dart';
 import 'package:shop_app/shared/theme.dart';
 
 /// An in-memory database with the shop set up, for widget tests.
@@ -133,6 +134,7 @@ void harnessTest(
   bool skip = false,
 }) {
   testWidgets(description, (tester) async {
+    addTearDown(() => S.lang = AppLang.en); // a test that switches to Marathi must not leak
     final h = await setupHarness(tester, sample: sample);
     await body(tester, h);
     await endTest(tester);

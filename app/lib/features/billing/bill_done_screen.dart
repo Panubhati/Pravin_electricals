@@ -38,7 +38,7 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
   Widget build(BuildContext context) {
     final details = ref.watch(_detailsProvider(widget.invoiceId));
     return Scaffold(
-      appBar: AppBar(title: const Text(S.billSaved), automaticallyImplyLeading: false),
+      appBar: AppBar(title: Text(S.billSaved), automaticallyImplyLeading: false),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(24),
@@ -67,14 +67,14 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
                   key: const Key('sharePdf'),
                   onPressed: _sharing ? null : () => _share(whatsapp: false),
                   icon: const Icon(Icons.share),
-                  label: const Text(S.sharePdf),
+                  label: Text(S.sharePdf),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
                   key: const Key('whatsappPdf'),
                   onPressed: _sharing ? null : () => _share(whatsapp: true),
                   icon: const Icon(Icons.chat_outlined),
-                  label: const Text(S.whatsapp),
+                  label: Text(S.whatsapp),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton(
@@ -82,7 +82,7 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
                   onPressed: () => Navigator.of(context).pushReplacement(
                     MaterialPageRoute<void>(builder: (_) => const BillScreen()),
                   ),
-                  child: const Text(S.newBillAgain),
+                  child: Text(S.newBillAgain),
                 ),
                 TextButton(
                   onPressed: () => Navigator.of(context).popUntil((r) => r.isFirst),

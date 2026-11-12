@@ -78,7 +78,7 @@ class _SupplierSheetState extends ConsumerState<_SupplierSheet> {
   Widget _list() => Column(children: [
         TextField(
           key: const Key('supplierSearch'),
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
             prefixIcon: Icon(Icons.search),
             hintText: S.searchCustomer,
             border: OutlineInputBorder(),
@@ -112,32 +112,32 @@ class _SupplierSheetState extends ConsumerState<_SupplierSheet> {
           controller: _name,
           autofocus: true,
           textCapitalization: TextCapitalization.words,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
               labelText: S.partyName, border: OutlineInputBorder()),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _phone,
           keyboardType: TextInputType.phone,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
               labelText: S.phone, border: OutlineInputBorder()),
         ),
         const SizedBox(height: 12),
         TextField(
           controller: _gstin,
           textCapitalization: TextCapitalization.characters,
-          decoration: const InputDecoration(
+          decoration: InputDecoration(
               labelText: S.gstin, border: OutlineInputBorder()),
         ),
         const SizedBox(height: 16),
         FilledButton(
           key: const Key('saveNewSupplier'),
           onPressed: _create,
-          child: const Text(S.save),
+          child: Text(S.save),
         ),
         TextButton(
           onPressed: () => setState(() => _adding = false),
-          child: const Text(S.cancel),
+          child: Text(S.cancel),
         ),
       ]);
 }

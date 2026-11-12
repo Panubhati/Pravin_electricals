@@ -52,7 +52,7 @@ class _OwnerPinDialogState extends ConsumerState<_OwnerPinDialog> {
   Widget build(BuildContext context) {
     return AlertDialog(
       key: const Key('ownerApprovalDialog'),
-      title: const Text(S.ownerApprovalTitle),
+      title: Text(S.ownerApprovalTitle),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -67,7 +67,7 @@ class _OwnerPinDialogState extends ConsumerState<_OwnerPinDialog> {
         TextButton(
           key: const Key('ownerApprovalCancel'),
           onPressed: () => Navigator.of(context).pop(false),
-          child: const Text(S.cancel),
+          child: Text(S.cancel),
         ),
       ],
     );

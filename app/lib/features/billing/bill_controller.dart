@@ -64,7 +64,7 @@ BillResult computeBill(BillState bill, String? shopStateCode) {
       ),
     );
   } on FormatException {
-    return const BillResult(error: S.invalidQty);
+    return BillResult(error: S.invalidQty);
   } on ArgumentError {
     return const BillResult(error: 'Discount is more than the line amount');
   }

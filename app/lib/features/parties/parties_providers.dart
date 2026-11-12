@@ -45,7 +45,7 @@ class BalanceLabel {
 /// Ledger balance as words. Customers: positive means they owe you. Suppliers:
 /// negative means you owe them. Anything the other way round is an advance.
 BalanceLabel balanceLabel(int balancePaise, {required bool supplierView}) {
-  if (balancePaise == 0) return const BalanceLabel(S.settled, null);
+  if (balancePaise == 0) return BalanceLabel(S.settled, null);
   final owedToShop = balancePaise > 0;
   final abs = Money.format(balancePaise.abs());
   if (supplierView) {

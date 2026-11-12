@@ -164,7 +164,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     final lines = ref.watch(returnableProvider(widget.invoiceId));
     final details = ref.watch(invoiceDetailsProvider(widget.invoiceId));
     return Scaffold(
-      appBar: AppBar(title: const Text(S.returnTitle)),
+      appBar: AppBar(title: Text(S.returnTitle)),
       body: lines.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(errorMessage(e)),
@@ -188,7 +188,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
         Text('${S.returnAgainst} ${d.invoice.invoiceNoText}', style: Theme.of(context).textTheme.titleMedium),
         if (d.party != null) Text(d.party!.name),
         const SizedBox(height: 4),
-        const Text(S.returnHow, style: TextStyle(color: AppPalette.muted)),
+        Text(S.returnHow, style: TextStyle(color: AppPalette.muted)),
         const Divider(height: 24),
         for (final l in list)
           if (!l.fullyReturned)
@@ -245,14 +245,14 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           _row(S.returnLinesTotal, Money.format(q.linesTotalPaise)),
           if (q.roundOffPaise != 0) _row(S.roundOff, '${q.roundOffPaise < 0 ? '-' : '+'} ${Money.format(q.roundOffPaise.abs())}'),
           _row(S.returnRefundTotal, Money.format(q.totalPaise), bold: true, key: const Key('returnTotal')),
-          if (q.completesBill) const Text(S.returnCompletes, style: TextStyle(color: AppPalette.muted)),
+          if (q.completesBill) Text(S.returnCompletes, style: TextStyle(color: AppPalette.muted)),
           const SizedBox(height: 12),
           Text(S.returnGiveBack, style: Theme.of(context).textTheme.titleSmall),
           const SizedBox(height: 8),
           Wrap(spacing: 8, children: [
             ActionChip(
               key: const Key('refundAllCash'),
-              label: const Text(S.refundAllCash),
+              label: Text(S.refundAllCash),
               onPressed: () => setState(() {
                 _split = true;
                 _fill(q.totalPaise, 0, 0);
@@ -260,7 +260,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
             ),
             ActionChip(
               key: const Key('refundAllUpi'),
-              label: const Text(S.refundAllUpi),
+              label: Text(S.refundAllUpi),
               onPressed: () => setState(() {
                 _split = true;
                 _fill(0, q.totalPaise, 0);
@@ -269,7 +269,7 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
             if (d.invoice.partyId != null)
               ActionChip(
                 key: const Key('refundAllAccount'),
-                label: const Text(S.refundAllAccount),
+                label: Text(S.refundAllAccount),
                 onPressed: () => setState(() {
                   _split = true;
                   _fill(0, 0, q.totalPaise);
@@ -289,13 +289,13 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
           TextField(
             key: const Key('returnReason'),
             controller: _reason,
-            decoration: const InputDecoration(labelText: S.returnReason, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: S.returnReason, border: OutlineInputBorder()),
           ),
           const SizedBox(height: 16),
           FilledButton(
             key: const Key('returnConfirm'),
             onPressed: (matches && !_saving) ? () => _confirm(d) : null,
-            child: const Text(S.returnConfirm),
+            child: Text(S.returnConfirm),
           ),
         ],
       ],
@@ -379,7 +379,7 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
   Widget build(BuildContext context) {
     final async = ref.watch(returnDetailsProvider(widget.returnId));
     return Scaffold(
-      appBar: AppBar(title: const Text(S.creditNoteTitle)),
+      appBar: AppBar(title: Text(S.creditNoteTitle)),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(errorMessage(e)),
@@ -400,7 +400,7 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
             padding: const EdgeInsets.all(16),
             children: [
               Text(v.noteNo, key: const Key('creditNoteNo'), style: Theme.of(context).textTheme.headlineSmall),
-              if (v.isCancel) const Text(S.billCancelledNote, style: TextStyle(color: AppPalette.red)),
+              if (v.isCancel) Text(S.billCancelledNote, style: TextStyle(color: AppPalette.red)),
               Text('${S.returnAgainst} ${v.againstBill}  •  ${v.dateText}'),
               Text(v.customerName, style: Theme.of(context).textTheme.titleMedium),
               const Divider(height: 24),
@@ -416,7 +416,7 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
               if (v.roundOff != null) row(S.roundOff, v.roundOff!),
               row(S.returnRefundTotal, v.total, bold: true, key: const Key('creditNoteTotal')),
               Text(v.words, style: Theme.of(context).textTheme.bodySmall),
-              const SectionTitle(S.returnGiveBack),
+              SectionTitle(S.returnGiveBack),
               for (final r in v.refunds) Text(r),
               if (v.reason != null) Padding(padding: const EdgeInsets.only(top: 8), child: Text('${S.returnReason}: ${v.reason}')),
               const SizedBox(height: 24),
@@ -424,14 +424,14 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
                 key: const Key('creditNoteShare'),
                 onPressed: _busy ? null : () => _share(whatsapp: false),
                 icon: const Icon(Icons.share),
-                label: const Text(S.sharePdf),
+                label: Text(S.sharePdf),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 key: const Key('creditNoteWhatsApp'),
                 onPressed: _busy ? null : () => _share(whatsapp: true),
                 icon: const Icon(Icons.chat_outlined),
-                label: const Text(S.whatsapp),
+                label: Text(S.whatsapp),
               ),
             ],
           );

@@ -214,7 +214,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
           TextButton(
             key: const Key('saveItem'),
             onPressed: _saving || _loading ? null : _save,
-            child: const Text(S.save),
+            child: Text(S.save),
           ),
         ],
       ),
@@ -227,7 +227,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                   key: const Key('itemName'),
                   controller: _name,
                   textCapitalization: TextCapitalization.sentences,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.itemName, border: OutlineInputBorder()),
                 ),
                 const SizedBox(height: 12),
@@ -236,7 +236,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                     child: TextField(
                       key: const Key('itemBrand'),
                       controller: _brand,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                           labelText: S.brand, border: OutlineInputBorder()),
                     ),
                   ),
@@ -245,7 +245,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                     child: TextField(
                       key: const Key('itemCategory'),
                       controller: _category,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                           labelText: S.category, border: OutlineInputBorder()),
                     ),
                   ),
@@ -254,10 +254,10 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                 TextField(
                   controller: _hsn,
                   keyboardType: TextInputType.number,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                       labelText: S.hsn, border: OutlineInputBorder()),
                 ),
-                const SectionTitle(S.gstRate),
+                SectionTitle(S.gstRate),
                 Wrap(spacing: 8, children: [
                   for (final bp in slabs)
                     ChoiceChip(
@@ -267,17 +267,17 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                       onSelected: (_) => setState(() => _gstBp = bp),
                     ),
                 ]),
-                const SectionTitle(S.itemType),
+                SectionTitle(S.itemType),
                 if (_editing)
                   ListTile(
                     contentPadding: EdgeInsets.zero,
                     tileColor: Colors.transparent,
                     title: Text(_isLength ? S.typeLength : S.typePiece),
-                    subtitle: const Text(S.typeFixed),
+                    subtitle: Text(S.typeFixed),
                   )
                 else
                   SegmentedButton<bool>(
-                    segments: const [
+                    segments: [
                       ButtonSegment(
                           value: true,
                           label: Text(S.typeLength, key: Key('typeLength')),
@@ -300,7 +300,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                     border: const OutlineInputBorder(),
                   ),
                 ),
-                const SectionTitle(S.prices),
+                SectionTitle(S.prices),
                 _moneyField(const Key('itemRetail'), _retail,
                     '${S.retailPrice} per $unit', perms.canEditPrices),
                 const SizedBox(height: 12),
@@ -314,7 +314,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
                   _moneyField(const Key('itemCost'), _cost,
                       '${S.costPrice} per $unit', perms.canEditPrices),
                 ],
-                const SectionTitle(S.stock),
+                SectionTitle(S.stock),
                 TextField(
                   key: const Key('itemMin'),
                   controller: _min,
@@ -377,7 +377,7 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
       );
 
   List<Widget> _editOnlySections(ItemDetail d) => [
-        const SectionTitle(S.variants),
+        SectionTitle(S.variants),
         for (final v in d.variants)
           ListTile(
             contentPadding: EdgeInsets.zero,
@@ -391,14 +391,14 @@ class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
           key: const Key('addVariant'),
           onPressed: () => _variantDialog(),
           icon: const Icon(Icons.add),
-          label: const Text(S.addVariant),
+          label: Text(S.addVariant),
         ),
         const SizedBox(height: 16),
         SwitchListTile(
           key: const Key('activeSwitch'),
           contentPadding: EdgeInsets.zero,
           tileColor: Colors.transparent,
-          title: const Text(S.activeSwitch),
+          title: Text(S.activeSwitch),
           value: d.item.active,
           onChanged: _toggleActive,
         ),
@@ -457,7 +457,7 @@ class _VariantDialogState extends State<_VariantDialog> {
           TextField(
             key: const Key('variantName'),
             controller: _label,
-            decoration: const InputDecoration(labelText: S.variantName),
+            decoration: InputDecoration(labelText: S.variantName),
           ),
           TextField(
             key: const Key('variantBarcode'),
@@ -486,14 +486,14 @@ class _VariantDialogState extends State<_VariantDialog> {
                 Navigator.pop(context, const _VariantResult('', '', removed: true));
               }
             },
-            child: const Text(S.remove),
+            child: Text(S.remove),
           ),
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
         FilledButton(
           key: const Key('saveVariant'),
           onPressed: () =>
               Navigator.pop(context, _VariantResult(_label.text, _code.text)),
-          child: const Text(S.save),
+          child: Text(S.save),
         ),
       ],
     );

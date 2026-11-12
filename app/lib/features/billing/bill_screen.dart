@@ -119,7 +119,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(S.billTitle),
+        title: Text(S.billTitle),
         actions: [
           TextButton.icon(
             onPressed: _chooseCustomer,
@@ -164,7 +164,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
 
   Widget _resultsList() {
     if (_results.isEmpty) {
-      return const Center(child: Text(S.noResults));
+      return Center(child: Text(S.noResults));
     }
     final balances = ref.watch(stockBalancesProvider).valueOrNull;
     return ListView.separated(
@@ -198,7 +198,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
 
   Widget _cart(BillState bill) {
     if (bill.cart.isEmpty) {
-      return const Center(
+      return Center(
         child: Padding(
           padding: EdgeInsets.all(24),
           child: Text(S.cartEmpty, textAlign: TextAlign.center),
@@ -282,7 +282,7 @@ class _BillScreenState extends ConsumerState<BillScreen> {
                             discountError != null)
                         ? null
                         : _pay,
-                    child: const Text(S.pay, style: TextStyle(fontSize: 18)),
+                    child: Text(S.pay, style: TextStyle(fontSize: 18)),
                   ),
                 ],
               ),
@@ -421,7 +421,7 @@ class _CartTileState extends ConsumerState<_CartTile> {
                     controller: _qty,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: S.qty,
                       border: OutlineInputBorder(),
                     ),
@@ -434,7 +434,7 @@ class _CartTileState extends ConsumerState<_CartTile> {
                     key: Key('unit_${widget.index}'),
                     isExpanded: true,
                     value: line.unitName,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: S.unit,
                       border: OutlineInputBorder(),
                     ),
@@ -457,7 +457,7 @@ class _CartTileState extends ConsumerState<_CartTile> {
                     controller: _disc,
                     keyboardType:
                         const TextInputType.numberWithOptions(decimal: true),
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       labelText: S.discount,
                       border: OutlineInputBorder(),
                     ),

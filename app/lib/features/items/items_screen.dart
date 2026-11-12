@@ -41,7 +41,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text(S.itemsTitle),
+        title: Text(S.itemsTitle),
         actions: [
           PopupMenuButton<bool>(
             tooltip: S.showInactive,
@@ -50,7 +50,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
               CheckedPopupMenuItem(
                 value: !_inactive,
                 checked: _inactive,
-                child: const Text(S.showInactive),
+                child: Text(S.showInactive),
               ),
             ],
           ),
@@ -61,7 +61,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
               key: const Key('addItem'),
               onPressed: () => _open(),
               icon: const Icon(Icons.add),
-              label: const Text(S.addItem),
+              label: Text(S.addItem),
             )
           : null,
       body: Column(
@@ -71,7 +71,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
             child: TextField(
               key: const Key('itemSearch'),
               onChanged: (v) => setState(() => _query = v),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: S.searchItems,
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -83,7 +83,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (items) {
-                if (items.isEmpty) return const EmptyState(S.noItems);
+                if (items.isEmpty) return EmptyState(S.noItems);
                 return ListView.separated(
                   padding: const EdgeInsets.only(bottom: 88),
                   itemCount: items.length,
@@ -104,13 +104,13 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
                         children: [
                           if (sub.isNotEmpty) Text(sub),
                           Wrap(spacing: 6, children: [
-                            if (!item.active) const StatusChip(S.inactive, color: AppPalette.muted),
+                            if (!item.active) StatusChip(S.inactive, color: AppPalette.muted),
                             if (e.retailRatePaise == null)
-                              const StatusChip(S.noPriceChip, color: AppPalette.red),
+                              StatusChip(S.noPriceChip, color: AppPalette.red),
                             if (item.active && qty < 0)
-                              const StatusChip(S.negativeStock, color: AppPalette.red)
+                              StatusChip(S.negativeStock, color: AppPalette.red)
                             else if (item.active && item.minStockBase > 0 && qty < item.minStockBase)
-                              const StatusChip(S.lowStock),
+                              StatusChip(S.lowStock),
                           ]),
                         ],
                       ),

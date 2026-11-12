@@ -27,6 +27,7 @@ import 'sharing/bill_sharer.dart';
 import 'notifications/device_notifications.dart';
 import 'import/party_import.dart';
 import 'sync/device_identity.dart';
+import '../shared/strings.dart' show AppLang;
 
 /// Overridden in main() with the on-phone database, and in tests with an
 /// in-memory one.
@@ -139,6 +140,11 @@ final appRestartProvider = Provider<void Function(BuildContext)>((ref) {
 final backupSharerProvider = Provider<BackupSharer>((ref) => DeviceBackupSharer());
 
 /// When the last backup was made or restored, or null if never.
+/// The shop's bill language (PDF and WhatsApp), English unless chosen.
+final billLanguageProvider = FutureProvider.autoDispose<AppLang>(
+  (ref) => ref.watch(settingsRepositoryProvider).billLanguage(),
+);
+
 final lastBackupProvider = FutureProvider.autoDispose<DateTime?>(
   (ref) => ref.watch(settingsRepositoryProvider).lastBackupAt(),
 );

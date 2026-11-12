@@ -139,7 +139,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
                         child: FilledButton(
                           key: const Key('adjustButton'),
                           onPressed: _adjust,
-                          child: const Text(S.adjustStock),
+                          child: Text(S.adjustStock),
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -147,7 +147,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
                         child: OutlinedButton(
                           key: const Key('countButton'),
                           onPressed: _count,
-                          child: const Text(S.countStock),
+                          child: Text(S.countStock),
                         ),
                       ),
                     ]),
@@ -156,7 +156,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
                 const Divider(height: 1),
                 Expanded(
                   child: _movements.isEmpty
-                      ? const EmptyState(S.noHistory)
+                      ? EmptyState(S.noHistory)
                       : ListView.separated(
                           itemCount: _movements.length,
                           separatorBuilder: (_, __) => const Divider(height: 1),
@@ -221,11 +221,11 @@ class _AdjustDialogState extends State<_AdjustDialog> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text(S.adjustStock),
+      title: Text(S.adjustStock),
       content: SingleChildScrollView(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           SegmentedButton<bool>(
-            segments: const [
+            segments: [
               ButtonSegment(value: true, label: Text(S.addStock, key: Key('adjustAdd'))),
               ButtonSegment(value: false, label: Text(S.removeStock, key: Key('adjustRemove'))),
             ],
@@ -250,7 +250,7 @@ class _AdjustDialogState extends State<_AdjustDialog> {
           DropdownButtonFormField<String>(
             key: const Key('adjustReason'),
             value: _reason,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
                 labelText: S.reason, border: OutlineInputBorder()),
             items: [
               for (final r in [S.reasonDamaged, S.reasonFound, S.reasonCorrection, S.reasonOther])
@@ -262,20 +262,20 @@ class _AdjustDialogState extends State<_AdjustDialog> {
           TextField(
             key: const Key('adjustNote'),
             controller: _note,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
                 labelText: S.note, border: OutlineInputBorder()),
           ),
         ]),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
         FilledButton(
           key: const Key('adjustSave'),
           onPressed: () => Navigator.pop(
             context,
             _AdjustResult(_adding, _qty.text, _reason, _note.text.trim()),
           ),
-          child: const Text(S.save),
+          child: Text(S.save),
         ),
       ],
     );
@@ -317,7 +317,7 @@ class _CountDialogState extends State<_CountDialog> {
   Widget build(BuildContext context) {
     final diff = _diffText();
     return AlertDialog(
-      title: const Text(S.countStock),
+      title: Text(S.countStock),
       content: Column(mainAxisSize: MainAxisSize.min, children: [
         Text('${S.systemQty}: ${formatStock(widget.item, widget.systemBase)}'),
         const SizedBox(height: 12),
@@ -338,11 +338,11 @@ class _CountDialogState extends State<_CountDialog> {
         ],
       ]),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
         FilledButton(
           key: const Key('countSave'),
           onPressed: () => Navigator.pop(context, _qty.text),
-          child: const Text(S.confirmCount),
+          child: Text(S.confirmCount),
         ),
       ],
     );

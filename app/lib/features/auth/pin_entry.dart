@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 
-import '../../shared/strings.dart';
 
 /// PIN dots and a number pad. The caller handles what a submitted PIN means;
 /// the digits are cleared after every submit.
@@ -10,7 +9,7 @@ class PinEntry extends StatefulWidget {
     required this.onSubmit,
     this.title,
     this.message,
-    this.submitLabel = S.unlock,
+    this.submitLabel,
     this.maxLength = 6,
   });
 
@@ -19,7 +18,7 @@ class PinEntry extends StatefulWidget {
 
   /// An error or hint shown above the dots.
   final String? message;
-  final String submitLabel;
+  final String? submitLabel;
   final int maxLength;
 
   @override

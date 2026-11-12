@@ -81,11 +81,11 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(ctx, false),
-                child: const Text(S.cancel),
+                child: Text(S.cancel),
               ),
               FilledButton(
                 onPressed: () => Navigator.pop(ctx, true),
-                child: const Text(S.continueAnyway),
+                child: Text(S.continueAnyway),
               ),
             ],
           ),
@@ -141,15 +141,15 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
             spacing: 8,
             children: [
               ActionChip(
-                label: const Text(S.fullCash),
+                label: Text(S.fullCash),
                 onPressed: () => _fill(cash: widget.totalPaise),
               ),
               ActionChip(
-                label: const Text(S.fullUpi),
+                label: Text(S.fullUpi),
                 onPressed: () => _fill(upi: widget.totalPaise),
               ),
               ActionChip(
-                label: const Text(S.fullCredit),
+                label: Text(S.fullCredit),
                 onPressed: () => _fill(credit: widget.totalPaise),
               ),
             ],
@@ -161,7 +161,7 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
           // A QR for the UPI part, so the customer can pay before the bill is saved.
           if (!invalid) UpiQrCard(amountPaise: upi),
           if (needsCustomer)
-            const Padding(
+            Padding(
               padding: EdgeInsets.only(bottom: 8),
               child: Text(S.creditNeedsCustomer,
                   style: TextStyle(color: AppPalette.red)),
@@ -176,7 +176,7 @@ class _PaymentSheetState extends ConsumerState<_PaymentSheet> {
           const SizedBox(height: 12),
           FilledButton(
             onPressed: canSave ? _save : null,
-            child: const Text(S.saveBill),
+            child: Text(S.saveBill),
           ),
         ],
       ),

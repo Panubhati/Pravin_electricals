@@ -198,7 +198,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
     final totals = result.totals;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.newPurchase)),
+      appBar: AppBar(title: Text(S.newPurchase)),
       body: Column(
         children: [
           Expanded(
@@ -223,7 +223,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                     child: TextField(
                       key: const Key('purchaseNo'),
                       controller: _invoiceNo,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                           labelText: S.supplierInvoiceNo, border: OutlineInputBorder()),
                     ),
                   ),
@@ -245,7 +245,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                   key: const Key('purchaseSearch'),
                   controller: _search,
                   onChanged: _query,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: S.searchHint,
                     prefixIcon: Icon(Icons.search),
                     border: OutlineInputBorder(),
@@ -253,7 +253,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                 ),
                 if (_searched)
                   if (_results.isEmpty)
-                    const Padding(
+                    Padding(
                       padding: EdgeInsets.all(16),
                       child: Center(child: Text(S.noResults)),
                     )
@@ -268,7 +268,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                         onTap: () => _addItem(_results[i]),
                       )
                 else if (_lines.isEmpty)
-                  const Padding(
+                  Padding(
                     padding: EdgeInsets.all(24),
                     child: Center(child: Text(S.purchaseHint, textAlign: TextAlign.center)),
                   ),
@@ -322,7 +322,7 @@ class _PurchaseScreenState extends ConsumerState<PurchaseScreen> {
                       child: FilledButton(
                         key: const Key('savePurchase'),
                         onPressed: _saving ? null : _save,
-                        child: const Text(S.savePurchase, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        child: Text(S.savePurchase, maxLines: 1, overflow: TextOverflow.ellipsis),
                       ),
                     ),
                   ]),
@@ -402,7 +402,7 @@ class _PurchaseLineTileState extends State<_PurchaseLineTile> {
                 key: Key('pqty_$i'),
                 controller: _qty,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                     labelText: S.qty, border: OutlineInputBorder()),
                 onChanged: (t) {
                   d.qty = t;
@@ -416,7 +416,7 @@ class _PurchaseLineTileState extends State<_PurchaseLineTile> {
                 key: Key('punit_$i'),
                 isExpanded: true,
                 value: d.unit.unitName,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                     labelText: S.unit, border: OutlineInputBorder()),
                 items: [
                   for (final u in d.units)
@@ -455,7 +455,7 @@ class _PurchaseLineTileState extends State<_PurchaseLineTile> {
                 key: Key('pgst_$i'),
                 controller: _gst,
                 keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                     labelText: S.gstPercent, border: OutlineInputBorder()),
                 onChanged: (t) {
                   d.gst = t;

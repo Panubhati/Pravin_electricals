@@ -7,6 +7,7 @@ import '../../core/db/repositories/auth_repository.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
+import '../language/language_switch.dart';
 import '../../shared/widgets.dart';
 import 'pin_entry.dart';
 
@@ -81,6 +82,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
+                    const LanguageSwitch(),
+                    const SizedBox(height: 24),
                     const Icon(Icons.lock_outline, size: 40),
                     const SizedBox(height: 8),
                     Text(S.appTitle, style: Theme.of(context).textTheme.headlineSmall),
@@ -105,7 +108,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                       Text(list.first.name, style: Theme.of(context).textTheme.titleMedium),
                     const SizedBox(height: 16),
                     if (user == null)
-                      const Text(S.lockTitle)
+                      Text(S.lockTitle)
                     else ...[
                       PinEntry(
                         key: ValueKey(user.id),
@@ -117,7 +120,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                         TextButton(
                           key: const Key('forgotPin'),
                           onPressed: () => _forgot(user),
-                          child: const Text(S.forgotPin),
+                          child: Text(S.forgotPin),
                         ),
                     ],
                   ],

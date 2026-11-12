@@ -50,7 +50,7 @@ class _BackupBannerState extends ConsumerState<BackupBanner> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(S.backupReminderBanner, style: TextStyle(fontWeight: FontWeight.bold)),
+                  Text(S.backupReminderBanner, style: TextStyle(fontWeight: FontWeight.bold)),
                   Text(state.message, key: const Key('backupBannerText')),
                 ],
               ),
@@ -68,7 +68,7 @@ class _BackupBannerState extends ConsumerState<BackupBanner> {
                         if (mounted) setState(() => _busy = false);
                       }
                     },
-              child: const Text(S.backupNowShort),
+              child: Text(S.backupNowShort),
             ),
           ],
         ),

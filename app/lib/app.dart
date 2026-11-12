@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/backup/database_location.dart';
 import 'core/db/app_database.dart';
 import 'core/db/connection.dart';
+import 'core/i18n/app_language.dart';
 import 'core/providers.dart';
 import 'core/sync/device_identity.dart';
 import 'features/auth/lock_gate.dart';
@@ -58,12 +60,19 @@ class _AppRootState extends State<AppRoot> {
   }
 }
 
-class ShopApp extends StatelessWidget {
+class ShopApp extends ConsumerWidget {
   const ShopApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    // A new language rebuilds every screen (the key), keeping who is logged in
+    // and any bill being made (those live in providers, above this).
+    final lang = ref.watch(appLanguageProvider);
     return MaterialApp(
+      key: ValueKey(lang),
+      locale: localeOf(lang),
+      supportedLocales: const [Locale('mr'), Locale('en')],
+      localizationsDelegates: GlobalMaterialLocalizations.delegates,
       title: S.appTitle,
       debugShowCheckedModeBanner: false,
       navigatorKey: appNavigatorKey,

@@ -25,7 +25,7 @@ class ReportsScreen extends StatelessWidget {
           onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => screen)),
         );
     return Scaffold(
-      appBar: AppBar(title: const Text(S.reportsTitle)),
+      appBar: AppBar(title: Text(S.reportsTitle)),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
@@ -97,7 +97,7 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
     final cash = ref.watch(cashPositionProvider(_day));
     final isToday = startOfDay(DateTime.now()) == _day;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.dailySales)),
+      appBar: AppBar(title: Text(S.dailySales)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -137,7 +137,7 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                 _line(S.salesTotal, Money.format(d.totalPaise), bold: true, key: const Key('salesTotal')),
                 if (d.discountPaise > 0) _line(S.discountLabel, Money.format(d.discountPaise)),
                 _line(S.gstIncluded, Money.format(d.gstPaise), muted: true),
-                const SectionTitle(S.paidBy),
+                SectionTitle(S.paidBy),
                 _line(S.cash, Money.format(d.mode('cash')), key: const Key('modeCash')),
                 _line('UPI', Money.format(d.mode('upi')), key: const Key('modeUpi')),
                 if (d.mode('card') > 0) _line('Card', Money.format(d.mode('card'))),
@@ -151,7 +151,7 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
             data: (c) => Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SectionTitle(S.cashInHand),
+                SectionTitle(S.cashInHand),
                 _line(S.cashOpening, Money.format(c.openingPaise)),
                 _line('+ ${S.cashSales}', Money.format(c.cashSalesPaise)),
                 _line('+ ${S.cashReceived}', Money.format(c.cashReceiptsPaise)),
@@ -159,7 +159,7 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                 const Divider(),
                 _line(S.cashClosing, Money.format(c.closingPaise), bold: true, key: const Key('cashClosing')),
                 const SizedBox(height: 8),
-                const Text(S.cashNote, style: TextStyle(color: AppPalette.muted)),
+                Text(S.cashNote, style: TextStyle(color: AppPalette.muted)),
               ],
             ),
           ),
@@ -220,7 +220,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
     final range = _range;
     final report = ref.watch(itemProfitProvider(range));
     return Scaffold(
-      appBar: AppBar(title: const Text(S.itemProfit)),
+      appBar: AppBar(title: Text(S.itemProfit)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -256,7 +256,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
             ),
             error: (e, _) => EmptyState(errorMessage(e)),
             data: (r) {
-              if (r.rows.isEmpty) return const EmptyState(S.noSalesInPeriod);
+              if (r.rows.isEmpty) return EmptyState(S.noSalesInPeriod);
               final margin = r.taxableSalesPaise == 0
                   ? 0.0
                   : r.profitPaise * 100 / r.taxableSalesPaise;
@@ -280,7 +280,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                       ]),
                     ),
                   ),
-                  const SectionTitle(S.byItem),
+                  SectionTitle(S.byItem),
                   if (known.isNotEmpty)
                     CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
                       for (final x in known)
@@ -295,8 +295,8 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                     ]),
                   if (unknown.isNotEmpty) ...[
                     const SizedBox(height: 8),
-                    const SectionTitle(S.costUnknown),
-                    const Text(S.costUnknownHelp, style: TextStyle(color: AppPalette.muted)),
+                    SectionTitle(S.costUnknown),
+                    Text(S.costUnknownHelp, style: TextStyle(color: AppPalette.muted)),
                     const SizedBox(height: 8),
                     CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
                       for (final x in unknown)
@@ -308,7 +308,7 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
                     ]),
                   ],
                   const SizedBox(height: 12),
-                  const Text(S.returnsNote, style: TextStyle(color: AppPalette.muted)),
+                  Text(S.returnsNote, style: TextStyle(color: AppPalette.muted)),
                 ],
               );
             },
@@ -328,12 +328,12 @@ class StockValueScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(stockValueProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(S.stockValue)),
+      appBar: AppBar(title: Text(S.stockValue)),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (r) {
-          if (r.rows.isEmpty) return const EmptyState(S.noStockOnHand);
+          if (r.rows.isEmpty) return EmptyState(S.noStockOnHand);
           final known = [for (final x in r.rows) if (x.costPaise != null) x];
           final unknown = r.unknownCost;
           final valueKeys = RowKeys(), unknownValueKeys = RowKeys();
@@ -347,11 +347,11 @@ class StockValueScreen extends ConsumerWidget {
                       bold: true, key: const Key('stockValueTotal')),
                 ),
               ),
-              const Padding(
+              Padding(
                 padding: EdgeInsets.only(top: 8),
                 child: Text(S.stockValueNote, style: TextStyle(color: AppPalette.muted)),
               ),
-              const SectionTitle(S.byItem),
+              SectionTitle(S.byItem),
               if (known.isNotEmpty)
                 CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
                   for (final x in known)
@@ -365,8 +365,8 @@ class StockValueScreen extends ConsumerWidget {
                 ]),
               if (unknown.isNotEmpty) ...[
                 const SizedBox(height: 8),
-                const SectionTitle(S.costUnknown),
-                const Text(S.costUnknownStockHelp, style: TextStyle(color: AppPalette.muted)),
+                SectionTitle(S.costUnknown),
+                Text(S.costUnknownStockHelp, style: TextStyle(color: AppPalette.muted)),
                 const SizedBox(height: 8),
                 CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
                   for (final x in unknown)

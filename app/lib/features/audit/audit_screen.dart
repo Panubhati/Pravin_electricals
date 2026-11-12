@@ -132,7 +132,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
     final q = (group: _group, from: _range?.start, to: _range?.end);
     final entries = ref.watch(auditProvider(q));
     return Scaffold(
-      appBar: AppBar(title: const Text(S.auditLog)),
+      appBar: AppBar(title: Text(S.auditLog)),
       body: Column(
         children: [
           SingleChildScrollView(
@@ -140,7 +140,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 0),
             child: Row(
               children: [
-                for (final (g, label) in const [
+                for (final (g, label) in [
                   ('all', S.filterAll),
                   ('prices', S.auditPrices),
                   ('discounts', S.auditDiscounts),
@@ -179,7 +179,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (list) {
-                if (list.isEmpty) return const EmptyState(S.auditEmpty);
+                if (list.isEmpty) return EmptyState(S.auditEmpty);
                 return ListView.separated(
                   itemCount: list.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),

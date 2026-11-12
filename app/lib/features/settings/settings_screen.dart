@@ -5,6 +5,7 @@ import '../../core/auth/auth_providers.dart';
 import '../../core/db/repositories/settings_repository.dart';
 import '../../core/money.dart';
 import '../../core/notifications/daily_summary.dart';
+import '../../core/i18n/app_language.dart';
 import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
@@ -173,7 +174,7 @@ class SettingsScreen extends ConsumerWidget {
     final lastBackup = ref.watch(lastBackupProvider).valueOrNull;
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.settingsTitle)),
+      appBar: AppBar(title: Text(S.settingsTitle)),
       body: values.when(
         loading: () => const SkeletonList(),
         error: (e, _) => EmptyState(errorMessage(e)),
@@ -208,6 +209,22 @@ class SettingsScreen extends ConsumerWidget {
                 title: S.staffAndPins,
                 subtitle: S.settingsStaffSub,
                 onTap: () => _open(context, const StaffScreen()),
+              ),
+            ]),
+            _Group(S.settingsLanguageGroup, [
+              _Row(
+                rowKey: const Key('settingLanguage'),
+                icon: Icons.translate,
+                title: S.settingsAppLanguage,
+                value: ref.watch(appLanguageProvider) == AppLang.mr ? S.languageMarathi : S.languageEnglish,
+                onTap: () => _pickLanguage(context, ref),
+              ),
+              _Row(
+                rowKey: const Key('settingBillLanguage'),
+                icon: Icons.receipt_long_outlined,
+                title: S.settingsBillLanguage,
+                value: ref.watch(billLanguageProvider).valueOrNull == AppLang.mr ? S.languageMarathi : S.languageEnglish,
+                onTap: () => _pickBillLanguage(context, ref),
               ),
             ]),
             _Group(S.settingsBillingRules, [
@@ -305,6 +322,51 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
+  Future<AppLang?> _choose(BuildContext context, String title, AppLang current, {String? help}) =>
+      showModalBottomSheet<AppLang>(
+        context: context,
+        builder: (c) => SafeArea(
+          child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 16, 4),
+              child: Text(title, style: Theme.of(c).textTheme.titleMedium),
+            ),
+            if (help != null)
+              Padding(
+                padding: const EdgeInsets.fromLTRB(16, 0, 16, 8),
+                child: Text(help, style: Theme.of(c).textTheme.bodySmall?.copyWith(color: AppPalette.muted)),
+              ),
+            for (final l in AppLang.values)
+              ListTile(
+                key: Key('choose_${l.name}'),
+                tileColor: Colors.transparent,
+                title: Text(l == AppLang.mr ? S.languageMarathi : S.languageEnglish),
+                trailing: l == current ? const Icon(Icons.check, color: AppPalette.blue) : null,
+                onTap: () => Navigator.pop(c, l),
+              ),
+            const SizedBox(height: 8),
+          ]),
+        ),
+      );
+
+  Future<void> _pickLanguage(BuildContext context, WidgetRef ref) async {
+    final l = await _choose(context, S.settingsAppLanguage, ref.read(appLanguageProvider));
+    if (l != null) await setAppLanguage(ref, l);
+  }
+
+  Future<void> _pickBillLanguage(BuildContext context, WidgetRef ref) async {
+    final current = ref.read(billLanguageProvider).valueOrNull ?? AppLang.en;
+    final l = await _choose(context, S.settingsBillLanguage, current, help: S.settingsBillLanguageHelp);
+    if (l == null || l == current) return;
+    try {
+      await ref.read(settingsRepositoryProvider).setBillLanguage(l);
+      ref.invalidate(billLanguageProvider);
+      if (context.mounted) toast(context, S.settingSaved);
+    } catch (e) {
+      if (context.mounted) toastError(context, e);
+    }
+  }
+
   Future<void> _editUpi(BuildContext context, WidgetRef ref) async {
     final current = ref.read(upiPayeeProvider).valueOrNull;
     final r = await showDialog<({String vpa, String name})>(
@@ -336,7 +398,7 @@ class AlertsScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final values = ref.watch(settingsValuesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text(S.settingsAlertsTitle)),
+      appBar: AppBar(title: Text(S.settingsAlertsTitle)),
       body: values.when(
         loading: () => const SkeletonList(),
         error: (e, _) => EmptyState(errorMessage(e)),
@@ -350,7 +412,7 @@ class AlertsScreen extends ConsumerWidget {
                 SwitchListTile(
                   key: const Key('settingSummary'),
                   secondary: const Icon(Icons.notifications_outlined),
-                  title: const Text(S.dailySummary),
+                  title: Text(S.dailySummary),
                   value: v.summaryOn,
                   onChanged: (on) async {
                     try {
@@ -374,7 +436,7 @@ class AlertsScreen extends ConsumerWidget {
                 ListTile(
                   key: const Key('settingSummaryHour'),
                   leading: const Icon(Icons.schedule),
-                  title: const Text(S.summaryTime),
+                  title: Text(S.summaryTime),
                   trailing: Text(_hourLabel(v.summaryHour)),
                   onTap: () async {
                     final text = await _ask(context,
@@ -397,7 +459,7 @@ class AlertsScreen extends ConsumerWidget {
                 ListTile(
                   key: const Key('summaryTest'),
                   leading: const Icon(Icons.send_outlined),
-                  title: const Text(S.summaryTestNow),
+                  title: Text(S.summaryTestNow),
                   onTap: () async {
                     try {
                       final allowed = await ref.read(notificationServiceProvider).requestPermission();
@@ -483,11 +545,11 @@ class _ValueDialogState extends State<ValueDialog> {
         ],
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+        TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
         FilledButton(
           key: const Key('valueSave'),
           onPressed: () => Navigator.pop(context, _c.text),
-          child: const Text(S.save),
+          child: Text(S.save),
         ),
       ],
     );
@@ -516,12 +578,12 @@ class _UpiDialogState extends State<_UpiDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text(S.upiSetting),
+        title: Text(S.upiSetting),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(S.upiHelp),
+            Text(S.upiHelp),
             const SizedBox(height: 12),
             TextField(
               key: const Key('upiIdField'),
@@ -529,22 +591,22 @@ class _UpiDialogState extends State<_UpiDialog> {
               autofocus: true,
               autocorrect: false,
               keyboardType: TextInputType.emailAddress,
-              decoration: const InputDecoration(labelText: S.upiId, border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: S.upiId, border: OutlineInputBorder()),
             ),
             const SizedBox(height: 12),
             TextField(
               key: const Key('upiNameField'),
               controller: _name,
-              decoration: const InputDecoration(labelText: S.upiName, border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: S.upiName, border: OutlineInputBorder()),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
           FilledButton(
             key: const Key('upiSave'),
             onPressed: () => Navigator.pop(context, (vpa: _vpa.text, name: _name.text)),
-            child: const Text(S.save),
+            child: Text(S.save),
           ),
         ],
       );

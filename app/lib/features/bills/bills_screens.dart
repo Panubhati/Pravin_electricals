@@ -53,7 +53,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
   Widget build(BuildContext context) {
     final list = ref.watch(billsProvider((query: _query, from: _range?.start, to: _range?.end)));
     return Scaffold(
-      appBar: AppBar(title: const Text(S.billsTitle)),
+      appBar: AppBar(title: Text(S.billsTitle)),
       body: Column(
         children: [
           Padding(
@@ -61,7 +61,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
             child: TextField(
               key: const Key('billSearch'),
               onChanged: (v) => setState(() => _query = v),
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 hintText: S.searchBills,
                 prefixIcon: Icon(Icons.search),
                 border: OutlineInputBorder(),
@@ -94,7 +94,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
               loading: () => const Center(child: CircularProgressIndicator()),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (bills) {
-                if (bills.isEmpty) return const EmptyState(S.noBills);
+                if (bills.isEmpty) return EmptyState(S.noBills);
                 return ListView.separated(
                   itemCount: bills.length,
                   separatorBuilder: (_, __) => const Divider(height: 1),
@@ -113,7 +113,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
                               crossAxisAlignment: WrapCrossAlignment.center,
                               children: [
                                 if (b.cancelled)
-                                  const StatusChip(S.cancelledBadge, color: AppPalette.red)
+                                  StatusChip(S.cancelledBadge, color: AppPalette.red)
                                 else if (b.returnedPaise > 0)
                                   StatusChip('${S.returnedBadge} ${Money.format(b.returnedPaise)}'),
                                 if (b.duePaise > 0 && !b.cancelled)
@@ -211,7 +211,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     final notes = ref.watch(invoiceReturnsProvider(widget.invoiceId)).valueOrNull ?? const [];
     if (notes.isEmpty) return const [];
     return [
-      const SectionTitle(S.creditNotes),
+      SectionTitle(S.creditNotes),
       for (final n in notes)
         ListTile(
           key: Key('note_${n.noteNo}'),
@@ -232,7 +232,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     final async = ref.watch(invoiceDetailsProvider(widget.invoiceId));
     final upi = ref.watch(upiPayeeProvider).valueOrNull;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.billDetail)),
+      appBar: AppBar(title: Text(S.billDetail)),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(errorMessage(e)),
@@ -284,7 +284,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                     key: const Key('detailDue'),
                     style: const TextStyle(color: AppPalette.red, fontWeight: FontWeight.bold)),
               if (d.invoice.status == 'cancelled')
-                const Padding(
+                Padding(
                   padding: EdgeInsets.only(top: 12),
                   child: Text(S.billCancelledNote, key: Key('detailCancelled'), style: TextStyle(color: AppPalette.red, fontWeight: FontWeight.bold)),
                 ),
@@ -294,14 +294,14 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 key: const Key('detailShare'),
                 onPressed: _busy ? null : () => _share(whatsapp: false),
                 icon: const Icon(Icons.share),
-                label: const Text(S.sharePdf),
+                label: Text(S.sharePdf),
               ),
               const SizedBox(height: 12),
               OutlinedButton.icon(
                 key: const Key('detailWhatsApp'),
                 onPressed: _busy ? null : () => _share(whatsapp: true),
                 icon: const Icon(Icons.chat_outlined),
-                label: const Text(S.whatsapp),
+                label: Text(S.whatsapp),
               ),
               if (d.invoice.status != 'cancelled') ...[
                 const SizedBox(height: 24),
@@ -309,7 +309,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   key: const Key('detailReturn'),
                   onPressed: _busy ? null : () => _openReturn(),
                   icon: const Icon(Icons.assignment_return_outlined),
-                  label: const Text(S.returnItems),
+                  label: Text(S.returnItems),
                 ),
                 const SizedBox(height: 12),
                 OutlinedButton.icon(
@@ -317,7 +317,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                   style: OutlinedButton.styleFrom(foregroundColor: AppPalette.red),
                   onPressed: _busy ? null : () => _cancelBill(d),
                   icon: const Icon(Icons.cancel_outlined),
-                  label: const Text(S.cancelBill),
+                  label: Text(S.cancelBill),
                 ),
               ],
             ],
@@ -360,7 +360,7 @@ class _CancelDialogState extends State<_CancelDialog> {
             TextField(
               key: const Key('cancelReason'),
               controller: _reason,
-              decoration: const InputDecoration(labelText: S.returnReason, border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: S.returnReason, border: OutlineInputBorder()),
             ),
           ],
         ),
@@ -368,13 +368,13 @@ class _CancelDialogState extends State<_CancelDialog> {
           TextButton(
             key: const Key('cancelKeep'),
             onPressed: () => Navigator.pop(context),
-            child: const Text(S.keepBill),
+            child: Text(S.keepBill),
           ),
           FilledButton(
             key: const Key('cancelConfirm'),
             style: FilledButton.styleFrom(backgroundColor: AppPalette.red),
             onPressed: () => Navigator.pop(context, _reason.text),
-            child: const Text(S.cancelBill),
+            child: Text(S.cancelBill),
           ),
         ],
       );

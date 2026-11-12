@@ -67,6 +67,7 @@ void refreshAfterSync(Ref ref) {
     loginUsersProvider,
     upiPayeeProvider,
     discountLimitProvider,
+    billLanguageProvider,
     phonesProvider,
   ]) {
     ref.invalidate(p);

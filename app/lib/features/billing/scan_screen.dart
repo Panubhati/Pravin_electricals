@@ -17,7 +17,7 @@ class _ScanScreenState extends State<ScanScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text(S.scanBarcode)),
+      appBar: AppBar(title: Text(S.scanBarcode)),
       body: MobileScanner(
         onDetect: (capture) {
           if (_done) return;

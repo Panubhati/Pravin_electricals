@@ -43,11 +43,11 @@ class StaffScreen extends ConsumerWidget {
     }
 
     return Scaffold(
-      appBar: AppBar(title: const Text(S.staffAndPins)),
+      appBar: AppBar(title: Text(S.staffAndPins)),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('addStaff'),
         icon: const Icon(Icons.person_add_alt),
-        label: const Text(S.addStaff),
+        label: Text(S.addStaff),
         onPressed: () async {
           final r = await showDialog<({String name, String pin})>(
             context: context,
@@ -102,7 +102,7 @@ class StaffScreen extends ConsumerWidget {
                             child: Text(u.id == me?.id ? S.changeMyPin : S.resetPin),
                           ),
                           if (u.role != 'owner')
-                            const PopupMenuItem(value: 'remove', child: Text(S.removeStaff)),
+                            PopupMenuItem(value: 'remove', child: Text(S.removeStaff)),
                         ],
                       ),
               ),
@@ -140,14 +140,14 @@ class _PinDialogState extends State<_PinDialog> {
           obscureText: true,
           maxLength: 6,
           keyboardType: TextInputType.number,
-          decoration: const InputDecoration(labelText: S.staffPin, border: OutlineInputBorder(), counterText: ''),
+          decoration: InputDecoration(labelText: S.staffPin, border: OutlineInputBorder(), counterText: ''),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
           FilledButton(
             key: const Key('pinSave'),
             onPressed: () => Navigator.pop(context, _pin.text),
-            child: const Text(S.save),
+            child: Text(S.save),
           ),
         ],
       );
@@ -173,7 +173,7 @@ class _StaffDialogState extends State<_StaffDialog> {
 
   @override
   Widget build(BuildContext context) => AlertDialog(
-        title: const Text(S.addStaff),
+        title: Text(S.addStaff),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -182,7 +182,7 @@ class _StaffDialogState extends State<_StaffDialog> {
               controller: _name,
               autofocus: true,
               textCapitalization: TextCapitalization.words,
-              decoration: const InputDecoration(labelText: S.staffName, border: OutlineInputBorder()),
+              decoration: InputDecoration(labelText: S.staffName, border: OutlineInputBorder()),
             ),
             const SizedBox(height: 12),
             TextField(
@@ -191,16 +191,16 @@ class _StaffDialogState extends State<_StaffDialog> {
               obscureText: true,
               maxLength: 6,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(labelText: S.staffPin, border: OutlineInputBorder(), counterText: ''),
+              decoration: InputDecoration(labelText: S.staffPin, border: OutlineInputBorder(), counterText: ''),
             ),
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text(S.cancel)),
+          TextButton(onPressed: () => Navigator.pop(context), child: Text(S.cancel)),
           FilledButton(
             key: const Key('staffSave'),
             onPressed: () => Navigator.pop(context, (name: _name.text, pin: _pin.text)),
-            child: const Text(S.save),
+            child: Text(S.save),
           ),
         ],
       );

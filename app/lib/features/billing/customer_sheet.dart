@@ -78,7 +78,7 @@ class _CustomerSheetState extends ConsumerState<_CustomerSheet> {
   Widget _list() => Column(
         children: [
           TextField(
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               prefixIcon: Icon(Icons.search),
               hintText: S.searchCustomer,
               border: OutlineInputBorder(),
@@ -88,12 +88,12 @@ class _CustomerSheetState extends ConsumerState<_CustomerSheet> {
           const SizedBox(height: 8),
           ListTile(
             leading: const Icon(Icons.directions_walk),
-            title: const Text(S.walkIn),
+            title: Text(S.walkIn),
             onTap: () => Navigator.of(context).pop(const CustomerChoice(null)),
           ),
           ListTile(
             leading: const Icon(Icons.person_add),
-            title: const Text(S.addCustomer),
+            title: Text(S.addCustomer),
             onTap: () => setState(() => _adding = true),
           ),
           const Divider(height: 1),
@@ -123,7 +123,7 @@ class _CustomerSheetState extends ConsumerState<_CustomerSheet> {
             controller: _name,
             autofocus: true,
             textCapitalization: TextCapitalization.words,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: S.customerName,
               border: OutlineInputBorder(),
             ),
@@ -132,16 +132,16 @@ class _CustomerSheetState extends ConsumerState<_CustomerSheet> {
           TextField(
             controller: _phone,
             keyboardType: TextInputType.phone,
-            decoration: const InputDecoration(
+            decoration: InputDecoration(
               labelText: S.customerPhone,
               border: OutlineInputBorder(),
             ),
           ),
           const SizedBox(height: 16),
-          FilledButton(onPressed: _create, child: const Text(S.save)),
+          FilledButton(onPressed: _create, child: Text(S.save)),
           TextButton(
             onPressed: () => setState(() => _adding = false),
-            child: const Text(S.cancel),
+            child: Text(S.cancel),
           ),
         ],
       );

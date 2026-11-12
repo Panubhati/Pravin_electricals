@@ -90,12 +90,12 @@ class _ShopDetailsScreenState extends ConsumerState<ShopDetailsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(S.shopDetails),
+        title: Text(S.shopDetails),
         actions: [
           TextButton(
             key: const Key('saveShop'),
             onPressed: _saving ? null : _save,
-            child: const Text(S.save),
+            child: Text(S.save),
           ),
         ],
       ),

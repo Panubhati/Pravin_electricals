@@ -30,11 +30,11 @@ class _DeviceChoiceScreenState extends ConsumerState<DeviceChoiceScreen> {
         title: Text(S.deviceReplaceTitle(d.invoiceSeriesPrefix)),
         content: Text(S.deviceReplaceWarn(d.invoiceSeriesPrefix)),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text(S.cancel)),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(S.cancel)),
           FilledButton(
             key: const Key('deviceReplaceConfirm'),
             onPressed: () => Navigator.pop(c, true),
-            child: const Text(S.deviceReplaceYes),
+            child: Text(S.deviceReplaceYes),
           ),
         ],
       ),
@@ -55,13 +55,13 @@ class _DeviceChoiceScreenState extends ConsumerState<DeviceChoiceScreen> {
   Widget build(BuildContext context) {
     final text = Theme.of(context).textTheme;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.deviceChoiceTitle)),
+      appBar: AppBar(title: Text(S.deviceChoiceTitle)),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
           Text(S.deviceChoiceHelp, style: text.bodyLarge),
           const SizedBox(height: 16),
-          const SectionTitle(S.deviceChoiceReplace),
+          SectionTitle(S.deviceChoiceReplace),
           Card(
             child: Column(children: [
               for (final d in widget.devices)
@@ -83,7 +83,7 @@ class _DeviceChoiceScreenState extends ConsumerState<DeviceChoiceScreen> {
             key: const Key('deviceChoiceNew'),
             onPressed: _busy ? null : _newPhone,
             icon: const Icon(Icons.add),
-            label: const Text(S.deviceChoiceNew),
+            label: Text(S.deviceChoiceNew),
           ),
           const SizedBox(height: 8),
           Text(S.deviceChoiceNewHelp, style: text.bodySmall?.copyWith(color: AppPalette.muted)),

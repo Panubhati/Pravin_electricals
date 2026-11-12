@@ -68,6 +68,9 @@ abstract final class AppText {
 abstract final class AppTheme {
   static const fontFamily = 'NotoSans';
 
+  /// Marathi letters come from here; English and digits from [fontFamily].
+  static const marathiFont = 'NotoSansDevanagari';
+
   static ThemeData light() {
     const scheme = ColorScheme(
       brightness: Brightness.light,
@@ -101,7 +104,12 @@ abstract final class AppTheme {
       surfaceTint: Colors.transparent,
     );
 
-    final base = ThemeData(brightness: Brightness.light, useMaterial3: true, colorScheme: scheme, fontFamily: fontFamily);
+    final base = ThemeData(
+        brightness: Brightness.light,
+        useMaterial3: true,
+        colorScheme: scheme,
+        fontFamily: fontFamily,
+        fontFamilyFallback: const [marathiFont]);
     final text = base.textTheme.copyWith(
       headlineMedium: base.textTheme.headlineMedium!.copyWith(fontWeight: FontWeight.w700, fontSize: 28),
       headlineSmall: base.textTheme.headlineSmall!.copyWith(fontWeight: FontWeight.w700, fontSize: 22),

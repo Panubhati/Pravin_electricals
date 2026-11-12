@@ -39,9 +39,10 @@ class _HomeTile {
 }
 
 /// "New bill" is the big button on top; everything else is a grouped row.
-final _newBill = _HomeTile('tile_bill', Icons.receipt_long, S.newBill, (_) => const BillScreen(), 'sell');
+// Getters, not finals: the labels must follow the language when it changes.
+_HomeTile get _newBill => _HomeTile('tile_bill', Icons.receipt_long, S.newBill, (_) => const BillScreen(), 'sell');
 
-final _tiles = <_HomeTile>[
+List<_HomeTile> get _tiles => <_HomeTile>[
   _HomeTile('tile_bills', Icons.history, S.bills, (_) => const BillsScreen(), 'sell'),
   _HomeTile('tile_items', Icons.inventory_2_outlined, S.items, (_) => const ItemsScreen(), 'stock'),
   _HomeTile('tile_stock', Icons.warehouse_outlined, S.stock, (_) => const StockScreen(), 'stock'),
@@ -59,7 +60,7 @@ final _tiles = <_HomeTile>[
       (p) => p.canOpenSettings),
 ];
 
-const _groupTitles = {
+Map<String, String> get _groupTitles => {
   'sell': S.homeGroupSell,
   'stock': S.homeGroupStock,
   'people': S.homeGroupPeople,

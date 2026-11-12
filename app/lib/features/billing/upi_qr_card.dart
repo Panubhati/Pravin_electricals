@@ -23,7 +23,7 @@ class UpiQrCard extends ConsumerWidget {
     final link = UpiLink.build(payee, amountPaise: amountPaise);
     if (link == null) {
       if (!ref.watch(permissionsProvider).canOpenSettings) return const SizedBox.shrink();
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.only(bottom: 12),
         child: Text(S.upiOwnerHint, key: Key('upiHint'), style: TextStyle(color: AppPalette.muted)),
       );

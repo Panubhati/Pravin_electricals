@@ -23,7 +23,7 @@ class PurchasesScreen extends ConsumerWidget {
     final list = ref.watch(purchasesProvider);
     final twice = ref.watch(duplicatePurchasesProvider).valueOrNull ?? const <String>{};
     return Scaffold(
-      appBar: AppBar(title: const Text(S.purchasesTitle)),
+      appBar: AppBar(title: Text(S.purchasesTitle)),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('newPurchase'),
         onPressed: () async {
@@ -33,13 +33,13 @@ class PurchasesScreen extends ConsumerWidget {
           ref.invalidate(duplicatePurchasesProvider);
         },
         icon: const Icon(Icons.add),
-        label: const Text(S.newPurchase),
+        label: Text(S.newPurchase),
       ),
       body: list.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (purchases) {
-          if (purchases.isEmpty) return const EmptyState(S.noPurchases);
+          if (purchases.isEmpty) return EmptyState(S.noPurchases);
           return ListView.separated(
             padding: const EdgeInsets.only(bottom: 88),
             itemCount: purchases.length,
@@ -58,7 +58,7 @@ class PurchasesScreen extends ConsumerWidget {
                       Padding(
                         padding: const EdgeInsets.only(top: 4),
                         child: cancelled
-                            ? const StatusChip(S.cancelledBadge, color: AppPalette.red)
+                            ? StatusChip(S.cancelledBadge, color: AppPalette.red)
                             : StatusChip(S.purchaseTwiceBadge, key: Key('twice_${p.purchase.id}')),
                       ),
                   ],
@@ -97,7 +97,7 @@ class PurchaseDetailScreen extends ConsumerWidget {
     final async = ref.watch(purchaseDetailsProvider(purchaseId));
     final twice = ref.watch(duplicatePurchasesProvider).valueOrNull?.contains(purchaseId) ?? false;
     return Scaffold(
-      appBar: AppBar(title: const Text(S.purchasesTitle)),
+      appBar: AppBar(title: Text(S.purchasesTitle)),
       body: async.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (e, _) => EmptyState(errorMessage(e)),
@@ -114,8 +114,8 @@ class PurchaseDetailScreen extends ConsumerWidget {
                   child: Align(
                     alignment: Alignment.centerLeft,
                     child: cancelled
-                        ? const StatusChip(S.cancelledBadge, color: AppPalette.red)
-                        : const StatusChip(S.purchaseTwiceBadge),
+                        ? StatusChip(S.cancelledBadge, color: AppPalette.red)
+                        : StatusChip(S.purchaseTwiceBadge),
                   ),
                 ),
               const SizedBox(height: 16),
@@ -142,7 +142,7 @@ class PurchaseDetailScreen extends ConsumerWidget {
                   style: OutlinedButton.styleFrom(foregroundColor: AppPalette.red),
                   onPressed: () => _cancel(context, ref, d.purchase.supplierInvoiceNo, d.purchase.totalPaise),
                   icon: const Icon(Icons.undo),
-                  label: const Text(S.purchaseCancel),
+                  label: Text(S.purchaseCancel),
                 ),
               ],
             ],
@@ -163,16 +163,16 @@ class PurchaseDetailScreen extends ConsumerWidget {
           TextField(
             key: const Key('cancelPurchaseReason'),
             controller: reason,
-            decoration: const InputDecoration(labelText: S.purchaseCancelReason, border: OutlineInputBorder()),
+            decoration: InputDecoration(labelText: S.purchaseCancelReason, border: OutlineInputBorder()),
           ),
         ]),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(c, false), child: const Text(S.cancel)),
+          TextButton(onPressed: () => Navigator.pop(c, false), child: Text(S.cancel)),
           FilledButton(
             key: const Key('cancelPurchaseConfirm'),
             style: FilledButton.styleFrom(backgroundColor: AppPalette.red),
             onPressed: () => Navigator.pop(c, true),
-            child: const Text(S.purchaseCancel),
+            child: Text(S.purchaseCancel),
           ),
         ],
       ),
@@ -229,7 +229,7 @@ class DuplicatePurchaseNote extends ConsumerWidget {
       child: ListTile(
         leading: const Icon(Icons.content_copy_outlined, color: AppPalette.amber),
         title: Text(S.purchaseTwiceNote(bills)),
-        subtitle: const Text(S.purchaseTwiceHelp),
+        subtitle: Text(S.purchaseTwiceHelp),
         trailing: const Icon(Icons.chevron_right),
         onTap: () async {
           await Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => const PurchasesScreen()));

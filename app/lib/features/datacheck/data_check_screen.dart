@@ -97,7 +97,7 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
     final issueKeys = RowKeys();
     return Scaffold(
       appBar: AppBar(
-        title: const Text(S.dataCheckTitle),
+        title: Text(S.dataCheckTitle),
         actions: [
           if (r != null)
             IconButton(
@@ -149,9 +149,9 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
                       key: const Key('dataCheckAgain'),
                       onPressed: _running ? null : _run,
                       icon: const Icon(Icons.refresh),
-                      label: const Text(S.runAgain),
+                      label: Text(S.runAgain),
                     ),
-                    if (r.errors.isNotEmpty) const SectionTitle(S.problemsFound),
+                    if (r.errors.isNotEmpty) SectionTitle(S.problemsFound),
                     if (r.errors.isNotEmpty)
                       CardGroup(margin: EdgeInsets.zero, children: [
                         for (final i in r.errors) _IssueTile(i, keyName: issueKeys.of(i.code, i.refId ?? i.message), onTap: () => _open(i)),
@@ -161,14 +161,14 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
                         padding: const EdgeInsets.symmetric(vertical: 8),
                         child: Text(S.andMoreProblems(r.moreIssues), key: const Key('dataCheckMore')),
                       ),
-                    if (r.warnings.isNotEmpty) const SectionTitle(S.notesFound),
+                    if (r.warnings.isNotEmpty) SectionTitle(S.notesFound),
                     if (r.warnings.isNotEmpty)
                       CardGroup(margin: EdgeInsets.zero, children: [
                         for (final i in r.warnings) _IssueTile(i, keyName: issueKeys.of(i.code, i.refId ?? i.message), onTap: () => _open(i)),
                       ]),
                     if (!r.passed) ...[
                       const SizedBox(height: 16),
-                      const Text(S.dataCheckAdvice, style: TextStyle(color: AppPalette.muted)),
+                      Text(S.dataCheckAdvice, style: TextStyle(color: AppPalette.muted)),
                     ],
                   ],
                 ),
@@ -213,7 +213,7 @@ class DataCheckNote extends ConsumerWidget {
       child: ListTile(
         leading: Icon(Icons.error_outline, color: AppPalette.red),
         title: Text(S.dataCheckProblems(s.errors)),
-        subtitle: const Text(S.dataCheckNoteHelp),
+        subtitle: Text(S.dataCheckNoteHelp),
         trailing: const Icon(Icons.chevron_right),
         onTap: () => Navigator.of(context)
             .push<void>(MaterialPageRoute(builder: (_) => const DataCheckScreen())),
