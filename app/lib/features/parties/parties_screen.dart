@@ -71,7 +71,7 @@ class _PartiesScreenState extends ConsumerState<PartiesScreen> {
           ),
           Expanded(
             child: list.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const LoadingView(),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (parties) {
                 if (parties.isEmpty) return EmptyState(S.noParties);

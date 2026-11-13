@@ -517,6 +517,21 @@ class ReportsRepository {
     return balances.entries.where((e) => active.contains(e.key) && e.value < 0).length;
   }
 
+  /// Low-stock and below-zero item counts in one query (Home, every visit),
+  /// instead of loading every item and every balance twice.
+  Future<({int low, int negative})> _stockCounts() async {
+    final r = await ctx.db.customSelect(
+      'SELECT '
+      'COALESCE(SUM(CASE WHEN min > 0 AND bal >= 0 AND bal < min THEN 1 ELSE 0 END), 0) AS low, '
+      'COALESCE(SUM(CASE WHEN bal < 0 THEN 1 ELSE 0 END), 0) AS neg '
+      'FROM (SELECT i.min_stock_base AS min, COALESCE(b.bal, 0) AS bal FROM items i '
+      'LEFT JOIN (SELECT item_id, SUM(qty_base) AS bal FROM stock_movements WHERE deleted_at IS NULL GROUP BY item_id) b '
+      'ON b.item_id = i.id WHERE i.deleted_at IS NULL AND i.active = 1)',
+      readsFrom: {ctx.db.items, ctx.db.stockMovements},
+    ).getSingle();
+    return (low: r.data['low'] as int, negative: r.data['neg'] as int);
+  }
+
   /// One screen of numbers for the evening, to compare with the paper book.
   Future<DayClose> dayClose(DateTime day) async {
     final from = startOfDay(day);
@@ -558,11 +573,12 @@ class ReportsRepository {
   Future<DashboardData> dashboard({DateTime? now, int topDues = 5}) async {
     final when = now ?? ctx.clock();
     final dues = await _dues.receivables(asOf: when);
+    final stock = await _stockCounts();
     return DashboardData(
       today: await dailySales(when),
       cash: await cashPosition(when),
-      lowStockCount: (await lowStock()).length,
-      negativeStockCount: await negativeStockCount(),
+      lowStockCount: stock.low,
+      negativeStockCount: stock.negative,
       topDues: dues.take(topDues).toList(),
       totalDuePaise: DuesRepository.total(dues).totalDue,
     );

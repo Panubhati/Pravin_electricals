@@ -176,7 +176,7 @@ class _AuditScreenState extends ConsumerState<AuditScreen> {
           ),
           Expanded(
             child: entries.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const LoadingView(),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (list) {
                 if (list.isEmpty) return EmptyState(S.auditEmpty);

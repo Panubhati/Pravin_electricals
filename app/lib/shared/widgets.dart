@@ -142,7 +142,9 @@ class _SkeletonListState extends State<SkeletonList> with SingleTickerProviderSt
   }
 
   @override
-  Widget build(BuildContext context) => AnimatedBuilder(
+  Widget build(BuildContext context) => DelayedFadeIn(child: _skeleton());
+
+  Widget _skeleton() => AnimatedBuilder(
         animation: _c,
         builder: (_, __) {
           final tone = Color.lerp(AppPalette.line, AppPalette.page, _c.value)!;
@@ -242,4 +244,101 @@ class CardGroup extends StatelessWidget {
           ],
         ),
       );
+}
+
+/// One row of a card group drawn as part of a lazy list: rounded top on the
+/// first row, rounded bottom on the last, a thin line between rows. Lets long
+/// reports (hundreds of items) build only the rows on screen.
+class CardSlice extends StatelessWidget {
+  const CardSlice({super.key, required this.first, required this.last, required this.child, this.indent = 16});
+  final bool first;
+  final bool last;
+  final Widget child;
+  final double indent;
+
+  @override
+  Widget build(BuildContext context) {
+    const side = BorderSide(color: AppPalette.line);
+    final radius = BorderRadius.vertical(
+      top: Radius.circular(first ? 14 : 0),
+      bottom: Radius.circular(last ? 14 : 0),
+    );
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        color: AppPalette.card,
+        borderRadius: radius,
+        border: Border(
+          left: side,
+          right: side,
+          top: first ? side : BorderSide.none,
+          bottom: last ? side : BorderSide.none,
+        ),
+      ),
+      child: ClipRRect(
+        borderRadius: radius,
+        child: Column(mainAxisSize: MainAxisSize.min, children: [
+          child,
+          if (!last) Divider(height: 1, indent: indent),
+        ]),
+      ),
+    );
+  }
+}
+
+/// A card group whose rows are built only when scrolled into view.
+class SliverCardGroup extends StatelessWidget {
+  const SliverCardGroup({super.key, required this.count, required this.itemBuilder, this.indent = 16});
+  final int count;
+  final Widget Function(BuildContext, int) itemBuilder;
+  final double indent;
+
+  @override
+  Widget build(BuildContext context) => SliverList.builder(
+        itemCount: count,
+        itemBuilder: (c, i) => CardSlice(first: i == 0, last: i == count - 1, indent: indent, child: itemBuilder(c, i)),
+      );
+}
+
+/// Fades its child in only after a short wait, so a screen whose data arrives
+/// at once never flashes a spinner or grey placeholder (that flash reads as lag).
+class DelayedFadeIn extends StatefulWidget {
+  const DelayedFadeIn({super.key, required this.child, this.delay = const Duration(milliseconds: 250)});
+  final Widget child;
+  final Duration delay;
+
+  @override
+  State<DelayedFadeIn> createState() => _DelayedFadeInState();
+}
+
+class _DelayedFadeInState extends State<DelayedFadeIn> with SingleTickerProviderStateMixin {
+  late final AnimationController _c = AnimationController(
+    vsync: this,
+    duration: widget.delay + const Duration(milliseconds: 200),
+  )..forward();
+  late final Animation<double> _opacity = CurvedAnimation(
+    parent: _c,
+    curve: Interval(
+      widget.delay.inMilliseconds / (widget.delay.inMilliseconds + 200),
+      1,
+      curve: Curves.easeOut,
+    ),
+  );
+
+  @override
+  void dispose() {
+    _c.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => FadeTransition(opacity: _opacity, child: widget.child);
+}
+
+/// The loading spinner, shown only when loading takes a moment.
+class LoadingView extends StatelessWidget {
+  const LoadingView({super.key});
+
+  @override
+  Widget build(BuildContext context) =>
+      const DelayedFadeIn(child: Center(child: CircularProgressIndicator()));
 }

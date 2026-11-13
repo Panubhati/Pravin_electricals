@@ -65,7 +65,7 @@ class _StockScreenState extends ConsumerState<StockScreen> {
           ),
           Expanded(
             child: items.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const LoadingView(),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (list) {
                 final bal = balances.valueOrNull ?? const <String, int>{};

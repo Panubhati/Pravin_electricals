@@ -16,41 +16,81 @@ class ReportsScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget tile(Key key, IconData icon, String title, String sub, Widget screen) => ListTile(
-          key: key,
-          leading: Icon(icon),
-          title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-          subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
-          trailing: const Icon(Icons.chevron_right, color: AppPalette.muted),
-          onTap: () => Navigator.of(context).push<void>(MaterialPageRoute(builder: (_) => screen)),
-        );
+    Widget tile(
+      Key key,
+      IconData icon,
+      String title,
+      String sub,
+      Widget screen,
+    ) => ListTile(
+      key: key,
+      leading: Icon(icon),
+      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(sub, maxLines: 1, overflow: TextOverflow.ellipsis),
+      trailing: const Icon(Icons.chevron_right, color: AppPalette.muted),
+      onTap:
+          () => Navigator.of(
+            context,
+          ).push<void>(MaterialPageRoute(builder: (_) => screen)),
+    );
     return Scaffold(
       appBar: AppBar(title: Text(S.reportsTitle)),
       body: ListView(
         padding: const EdgeInsets.only(bottom: 24),
         children: [
-          CardGroup(children: [
-            tile(const Key('reportDailySales'), Icons.today_outlined, S.dailySales, S.reportDailySalesSub,
-                const DailySalesScreen()),
-            tile(const Key('reportDayCheck'), Icons.fact_check_outlined, S.dayCheckTitle, S.reportDayCheckSub,
-                const DayCheckScreen()),
-          ]),
-          CardGroup(children: [
-            tile(const Key('reportItemProfit'), Icons.trending_up, S.itemProfit, S.reportItemProfitSub,
-                const ItemProfitScreen()),
-            tile(const Key('reportStockValue'), Icons.inventory_outlined, S.stockValue, S.reportStockValueSub,
-                const StockValueScreen()),
-          ]),
+          CardGroup(
+            children: [
+              tile(
+                const Key('reportDailySales'),
+                Icons.today_outlined,
+                S.dailySales,
+                S.reportDailySalesSub,
+                const DailySalesScreen(),
+              ),
+              tile(
+                const Key('reportDayCheck'),
+                Icons.fact_check_outlined,
+                S.dayCheckTitle,
+                S.reportDayCheckSub,
+                const DayCheckScreen(),
+              ),
+            ],
+          ),
+          CardGroup(
+            children: [
+              tile(
+                const Key('reportItemProfit'),
+                Icons.trending_up,
+                S.itemProfit,
+                S.reportItemProfitSub,
+                const ItemProfitScreen(),
+              ),
+              tile(
+                const Key('reportStockValue'),
+                Icons.inventory_outlined,
+                S.stockValue,
+                S.reportStockValueSub,
+                const StockValueScreen(),
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-Widget _line(String label, String value, {bool bold = false, bool muted = false, Key? key}) {
-  final style = bold
-      ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-      : (muted ? const TextStyle(color: AppPalette.muted) : null);
+Widget _line(
+  String label,
+  String value, {
+  bool bold = false,
+  bool muted = false,
+  Key? key,
+}) {
+  final style =
+      bold
+          ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+          : (muted ? const TextStyle(color: AppPalette.muted) : null);
   return Padding(
     padding: const EdgeInsets.symmetric(vertical: 3),
     child: Row(
@@ -115,8 +155,12 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
                   onPressed: _pick,
                   child: FittedBox(
                     fit: BoxFit.scaleDown,
-                    child: Text(isToday ? S.todayDate(formatDate(_day)) : formatDate(_day),
-                        style: Theme.of(context).textTheme.titleMedium),
+                    child: Text(
+                      isToday
+                          ? S.todayDate(formatDate(_day))
+                          : formatDate(_day),
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
                   ),
                 ),
               ),
@@ -128,40 +172,76 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
             ],
           ),
           sales.when(
-            loading: () => const Center(child: CircularProgressIndicator()),
+            loading: () => const LoadingView(),
             error: (e, _) => EmptyState(errorMessage(e)),
-            data: (d) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                _line(S.billsCount, '${d.billCount}', key: const Key('salesBills')),
-                _line(S.salesTotal, Money.format(d.totalPaise), bold: true, key: const Key('salesTotal')),
-                if (d.discountPaise > 0) _line(S.discountLabel, Money.format(d.discountPaise)),
-                _line(S.gstIncluded, Money.format(d.gstPaise), muted: true),
-                SectionTitle(S.paidBy),
-                _line(S.cash, Money.format(d.mode('cash')), key: const Key('modeCash')),
-                _line(S.modeUpi, Money.format(d.mode('upi')), key: const Key('modeUpi')),
-                if (d.mode('card') > 0) _line(S.modeCard, Money.format(d.mode('card'))),
-                _line(S.credit, Money.format(d.mode('credit')), key: const Key('modeCredit')),
-              ],
-            ),
+            data:
+                (d) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _line(
+                      S.billsCount,
+                      '${d.billCount}',
+                      key: const Key('salesBills'),
+                    ),
+                    _line(
+                      S.salesTotal,
+                      Money.format(d.totalPaise),
+                      bold: true,
+                      key: const Key('salesTotal'),
+                    ),
+                    if (d.discountPaise > 0)
+                      _line(S.discountLabel, Money.format(d.discountPaise)),
+                    _line(S.gstIncluded, Money.format(d.gstPaise), muted: true),
+                    SectionTitle(S.paidBy),
+                    _line(
+                      S.cash,
+                      Money.format(d.mode('cash')),
+                      key: const Key('modeCash'),
+                    ),
+                    _line(
+                      S.modeUpi,
+                      Money.format(d.mode('upi')),
+                      key: const Key('modeUpi'),
+                    ),
+                    if (d.mode('card') > 0)
+                      _line(S.modeCard, Money.format(d.mode('card'))),
+                    _line(
+                      S.credit,
+                      Money.format(d.mode('credit')),
+                      key: const Key('modeCredit'),
+                    ),
+                  ],
+                ),
           ),
           cash.when(
             loading: () => const SizedBox.shrink(),
             error: (e, _) => EmptyState(errorMessage(e)),
-            data: (c) => Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SectionTitle(S.cashInHand),
-                _line(S.cashOpening, Money.format(c.openingPaise)),
-                _line('+ ${S.cashSales}', Money.format(c.cashSalesPaise)),
-                _line('+ ${S.cashReceived}', Money.format(c.cashReceiptsPaise)),
-                _line('- ${S.cashPaidOut}', Money.format(c.cashPaidOutPaise)),
-                const Divider(),
-                _line(S.cashClosing, Money.format(c.closingPaise), bold: true, key: const Key('cashClosing')),
-                const SizedBox(height: 8),
-                Text(S.cashNote, style: TextStyle(color: AppPalette.muted)),
-              ],
-            ),
+            data:
+                (c) => Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SectionTitle(S.cashInHand),
+                    _line(S.cashOpening, Money.format(c.openingPaise)),
+                    _line('+ ${S.cashSales}', Money.format(c.cashSalesPaise)),
+                    _line(
+                      '+ ${S.cashReceived}',
+                      Money.format(c.cashReceiptsPaise),
+                    ),
+                    _line(
+                      '- ${S.cashPaidOut}',
+                      Money.format(c.cashPaidOutPaise),
+                    ),
+                    const Divider(),
+                    _line(
+                      S.cashClosing,
+                      Money.format(c.closingPaise),
+                      bold: true,
+                      key: const Key('cashClosing'),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(S.cashNote, style: TextStyle(color: AppPalette.muted)),
+                  ],
+                ),
           ),
         ],
       ),
@@ -191,7 +271,10 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
       case _Period.today:
         return (from: today, to: today);
       case _Period.week:
-        return (from: DateTime(today.year, today.month, today.day - 6), to: today);
+        return (
+          from: DateTime(today.year, today.month, today.day - 6),
+          to: today,
+        );
       case _Period.month:
         return (from: DateTime(today.year, today.month, 1), to: today);
       case _Period.custom:
@@ -221,96 +304,207 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
     final report = ref.watch(itemProfitProvider(range));
     return Scaffold(
       appBar: AppBar(title: Text(S.itemProfit)),
-      body: ListView(
-        padding: const EdgeInsets.all(16),
-        children: [
-          Wrap(
-            spacing: 8,
-            children: [
-              for (final (p, label) in [
-                (_Period.today, S.periodToday),
-                (_Period.week, S.periodWeek),
-                (_Period.month, S.periodMonth),
-              ])
-                ChoiceChip(
-                  key: Key('period_${p.name}'),
-                  label: Text(label),
-                  selected: _period == p,
-                  onSelected: (_) => setState(() => _period = p),
-                ),
-              ChoiceChip(
-                key: const Key('period_custom'),
-                label: Text(S.pickDates),
-                selected: _period == _Period.custom,
-                onSelected: (_) => _pickRange(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 8),
-          Text(S.dateRange(formatDate(range.from), formatDate(range.to)),
-              style: const TextStyle(color: AppPalette.muted)),
-          report.when(
-            loading: () => const Padding(
-              padding: EdgeInsets.all(24),
-              child: Center(child: CircularProgressIndicator()),
-            ),
-            error: (e, _) => EmptyState(errorMessage(e)),
-            data: (r) {
-              if (r.rows.isEmpty) return EmptyState(S.noSalesInPeriod);
-              final margin = r.taxableSalesPaise == 0
-                  ? 0.0
-                  : r.profitPaise * 100 / r.taxableSalesPaise;
-              final known = [for (final x in r.rows) if (x.taxableSalesPaise > 0 || x.costPaise > 0) x];
-              final unknown = [for (final x in r.rows) if (x.unknownCostSalesPaise > 0) x];
-              final profitKeys = RowKeys(), unknownKeys = RowKeys();
-              return Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 12),
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(children: [
-                        _line(S.salesExGst, Money.format(r.taxableSalesPaise), key: const Key('profitSales')),
-                        _line(S.costOfGoods, Money.format(r.costPaise), key: const Key('profitCost')),
-                        const Divider(),
-                        _line(S.profit, Money.format(r.profitPaise),
-                            bold: true, key: const Key('profitTotal')),
-                        _line(S.margin, '${margin.toStringAsFixed(1)}%', muted: true),
-                      ]),
-                    ),
+      // Built lazily: a month can have hundreds of items sold.
+      body: CustomScrollView(
+        slivers: [
+          SliverPadding(
+            padding: const EdgeInsets.all(16),
+            sliver: SliverMainAxisGroup(
+              slivers: [
+                SliverToBoxAdapter(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 8,
+                        children: [
+                          for (final (p, label) in [
+                            (_Period.today, S.periodToday),
+                            (_Period.week, S.periodWeek),
+                            (_Period.month, S.periodMonth),
+                          ])
+                            ChoiceChip(
+                              key: Key('period_${p.name}'),
+                              label: Text(label),
+                              selected: _period == p,
+                              onSelected: (_) => setState(() => _period = p),
+                            ),
+                          ChoiceChip(
+                            key: const Key('period_custom'),
+                            label: Text(S.pickDates),
+                            selected: _period == _Period.custom,
+                            onSelected: (_) => _pickRange(),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        S.dateRange(
+                          formatDate(range.from),
+                          formatDate(range.to),
+                        ),
+                        style: const TextStyle(color: AppPalette.muted),
+                      ),
+                    ],
                   ),
-                  SectionTitle(S.byItem),
-                  if (known.isNotEmpty)
-                    CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                ),
+                report.when(
+                  loading:
+                      () => const SliverToBoxAdapter(
+                        child: Padding(
+                          padding: EdgeInsets.all(24),
+                          child: LoadingView(),
+                        ),
+                      ),
+                  error:
+                      (e, _) => SliverToBoxAdapter(
+                        child: EmptyState(errorMessage(e)),
+                      ),
+                  data: (r) {
+                    if (r.rows.isEmpty) {
+                      return SliverToBoxAdapter(
+                        child: EmptyState(S.noSalesInPeriod),
+                      );
+                    }
+                    final margin =
+                        r.taxableSalesPaise == 0
+                            ? 0.0
+                            : r.profitPaise * 100 / r.taxableSalesPaise;
+                    final known = [
+                      for (final x in r.rows)
+                        if (x.taxableSalesPaise > 0 || x.costPaise > 0) x,
+                    ];
+                    final unknown = [
+                      for (final x in r.rows)
+                        if (x.unknownCostSalesPaise > 0) x,
+                    ];
+                    final profitKeys = RowKeys(), unknownKeys = RowKeys();
+                    // Names worked out once: rows are built (and rebuilt) lazily.
+                    final knownNames = [
                       for (final x in known)
-                        ListTile(
-                          key: Key('profitRow_${profitKeys.of(x.item.name, x.item.id)}'),
-                          title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                          subtitle: Text(S.soldQtySales(formatStock(x.item, x.qtyBase), Money.format(x.taxableSalesPaise))),
-                          trailing: Text(Money.format(x.profitPaise),
-                              style: TextStyle(color: x.profitPaise < 0 ? AppPalette.red : null)),
-                        ),
-                    ]),
-                  if (unknown.isNotEmpty) ...[
-                    const SizedBox(height: 8),
-                    SectionTitle(S.costUnknown),
-                    Text(S.costUnknownHelp, style: TextStyle(color: AppPalette.muted)),
-                    const SizedBox(height: 8),
-                    CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
+                        profitKeys.of(x.item.name, x.item.id),
+                    ];
+                    final unknownNames = [
                       for (final x in unknown)
-                        ListTile(
-                          key: Key('unknownRow_${unknownKeys.of(x.item.name, x.item.id)}'),
-                          title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                          trailing: Text(Money.format(x.unknownCostSalesPaise)),
+                        unknownKeys.of(x.item.name, x.item.id),
+                    ];
+                    return SliverMainAxisGroup(
+                      slivers: [
+                        SliverToBoxAdapter(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const SizedBox(height: 12),
+                              Card(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16),
+                                  child: Column(
+                                    children: [
+                                      _line(
+                                        S.salesExGst,
+                                        Money.format(r.taxableSalesPaise),
+                                        key: const Key('profitSales'),
+                                      ),
+                                      _line(
+                                        S.costOfGoods,
+                                        Money.format(r.costPaise),
+                                        key: const Key('profitCost'),
+                                      ),
+                                      const Divider(),
+                                      _line(
+                                        S.profit,
+                                        Money.format(r.profitPaise),
+                                        bold: true,
+                                        key: const Key('profitTotal'),
+                                      ),
+                                      _line(
+                                        S.margin,
+                                        '${margin.toStringAsFixed(1)}%',
+                                        muted: true,
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              SectionTitle(S.byItem),
+                            ],
+                          ),
                         ),
-                    ]),
-                  ],
-                  const SizedBox(height: 12),
-                  Text(S.returnsNote, style: TextStyle(color: AppPalette.muted)),
-                ],
-              );
-            },
+                        SliverCardGroup(
+                          count: known.length,
+                          itemBuilder: (_, i) {
+                            final x = known[i];
+                            return ListTile(
+                              key: Key('profitRow_${knownNames[i]}'),
+                              title: Text(
+                                x.item.name,
+                                maxLines: 2,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              subtitle: Text(
+                                S.soldQtySales(
+                                  formatStock(x.item, x.qtyBase),
+                                  Money.format(x.taxableSalesPaise),
+                                ),
+                              ),
+                              trailing: Text(
+                                Money.format(x.profitPaise),
+                                style: TextStyle(
+                                  color:
+                                      x.profitPaise < 0 ? AppPalette.red : null,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                        if (unknown.isNotEmpty) ...[
+                          SliverToBoxAdapter(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const SizedBox(height: 8),
+                                SectionTitle(S.costUnknown),
+                                Text(
+                                  S.costUnknownHelp,
+                                  style: TextStyle(color: AppPalette.muted),
+                                ),
+                                const SizedBox(height: 8),
+                              ],
+                            ),
+                          ),
+                          SliverCardGroup(
+                            count: unknown.length,
+                            itemBuilder: (_, i) {
+                              final x = unknown[i];
+                              return ListTile(
+                                key: Key('unknownRow_${unknownNames[i]}'),
+                                title: Text(
+                                  x.item.name,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                                trailing: Text(
+                                  Money.format(x.unknownCostSalesPaise),
+                                ),
+                              );
+                            },
+                          ),
+                        ],
+                        SliverToBoxAdapter(
+                          child: Padding(
+                            padding: const EdgeInsets.only(top: 12),
+                            child: Text(
+                              S.returnsNote,
+                              style: TextStyle(color: AppPalette.muted),
+                            ),
+                          ),
+                        ),
+                      ],
+                    );
+                  },
+                ),
+              ],
+            ),
           ),
         ],
       ),
@@ -329,52 +523,112 @@ class StockValueScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(S.stockValue)),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (r) {
           if (r.rows.isEmpty) return EmptyState(S.noStockOnHand);
-          final known = [for (final x in r.rows) if (x.costPaise != null) x];
+          final known = [
+            for (final x in r.rows)
+              if (x.costPaise != null) x,
+          ];
           final unknown = r.unknownCost;
           final valueKeys = RowKeys(), unknownValueKeys = RowKeys();
-          return ListView(
-            padding: const EdgeInsets.all(16),
-            children: [
-              Card(
-                child: Padding(
-                  padding: const EdgeInsets.all(16),
-                  child: _line(S.stockValueTotal, Money.format(r.totalPaise),
-                      bold: true, key: const Key('stockValueTotal')),
+          // Names worked out once: rows are built (and rebuilt) lazily.
+          final valueNames = [
+            for (final x in known) valueKeys.of(x.item.name, x.item.id),
+          ];
+          final unknownNames = [
+            for (final x in unknown)
+              unknownValueKeys.of(x.item.name, x.item.id),
+          ];
+          // Built lazily: a shop can have hundreds of items in stock.
+          return CustomScrollView(
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.all(16),
+                sliver: SliverMainAxisGroup(
+                  slivers: [
+                    SliverToBoxAdapter(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Card(
+                            child: Padding(
+                              padding: const EdgeInsets.all(16),
+                              child: _line(
+                                S.stockValueTotal,
+                                Money.format(r.totalPaise),
+                                bold: true,
+                                key: const Key('stockValueTotal'),
+                              ),
+                            ),
+                          ),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 8),
+                            child: Text(
+                              S.stockValueNote,
+                              style: TextStyle(color: AppPalette.muted),
+                            ),
+                          ),
+                          SectionTitle(S.byItem),
+                        ],
+                      ),
+                    ),
+                    SliverCardGroup(
+                      count: known.length,
+                      itemBuilder: (_, i) {
+                        final x = known[i];
+                        return ListTile(
+                          key: Key('valueRow_${valueNames[i]}'),
+                          title: Text(
+                            x.item.name,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                          subtitle: Text(
+                            S.qtyAtRate(
+                              formatStock(x.item, x.balanceBase),
+                              formatRate(x.item, x.costPaise!),
+                            ),
+                          ),
+                          trailing: Text(Money.format(x.valuePaise)),
+                        );
+                      },
+                    ),
+                    if (unknown.isNotEmpty) ...[
+                      SliverToBoxAdapter(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 8),
+                            SectionTitle(S.costUnknown),
+                            Text(
+                              S.costUnknownStockHelp,
+                              style: TextStyle(color: AppPalette.muted),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                      SliverCardGroup(
+                        count: unknown.length,
+                        itemBuilder: (_, i) {
+                          final x = unknown[i];
+                          return ListTile(
+                            key: Key('unknownValue_${unknownNames[i]}'),
+                            title: Text(
+                              x.item.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                            trailing: Text(formatStock(x.item, x.balanceBase)),
+                          );
+                        },
+                      ),
+                    ],
+                  ],
                 ),
               ),
-              Padding(
-                padding: EdgeInsets.only(top: 8),
-                child: Text(S.stockValueNote, style: TextStyle(color: AppPalette.muted)),
-              ),
-              SectionTitle(S.byItem),
-              if (known.isNotEmpty)
-                CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
-                  for (final x in known)
-                    ListTile(
-                      key: Key('valueRow_${valueKeys.of(x.item.name, x.item.id)}'),
-                      title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                      subtitle: Text(S.qtyAtRate(formatStock(x.item, x.balanceBase), formatRate(x.item, x.costPaise!))),
-                      trailing: Text(Money.format(x.valuePaise)),
-                    ),
-                ]),
-              if (unknown.isNotEmpty) ...[
-                const SizedBox(height: 8),
-                SectionTitle(S.costUnknown),
-                Text(S.costUnknownStockHelp, style: TextStyle(color: AppPalette.muted)),
-                const SizedBox(height: 8),
-                CardGroup(margin: EdgeInsets.zero, indent: 16, children: [
-                  for (final x in unknown)
-                    ListTile(
-                      key: Key('unknownValue_${unknownValueKeys.of(x.item.name, x.item.id)}'),
-                      title: Text(x.item.name, maxLines: 2, overflow: TextOverflow.ellipsis),
-                      trailing: Text(formatStock(x.item, x.balanceBase)),
-                    ),
-                ]),
-              ],
             ],
           );
         },

@@ -36,7 +36,7 @@ class PurchasesScreen extends ConsumerWidget {
         label: Text(S.newPurchase),
       ),
       body: list.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (purchases) {
           if (purchases.isEmpty) return EmptyState(S.noPurchases);
@@ -99,7 +99,7 @@ class PurchaseDetailScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: Text(S.purchasesTitle)),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (d) {
           final cancelled = d.purchase.status == 'cancelled';

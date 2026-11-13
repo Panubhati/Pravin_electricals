@@ -69,7 +69,7 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     return Scaffold(
       body: SafeArea(
         child: users.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const LoadingView(),
           error: (e, _) => EmptyState('$e'),
           data: (list) {
             if (list.isEmpty) return EmptyState(S.noUsers);

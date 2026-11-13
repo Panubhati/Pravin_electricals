@@ -96,7 +96,7 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
     if (p == null) {
       return Scaffold(
         appBar: AppBar(),
-        body: const Center(child: CircularProgressIndicator()),
+        body: const LoadingView(),
       );
     }
     final supplier = p.kind == 'supplier';

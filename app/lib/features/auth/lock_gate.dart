@@ -10,6 +10,7 @@ import '../sync/sync_providers.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/providers.dart';
 import '../../shared/strings.dart';
+import '../../shared/widgets.dart';
 import '../backup/backup_actions.dart';
 import '../billing/bill_controller.dart';
 import 'lock_screen.dart';
@@ -128,7 +129,7 @@ class _Splash extends StatelessWidget {
   @override
   Widget build(BuildContext context) => const ColoredBox(
     color: Colors.white,
-    child: Center(child: CircularProgressIndicator()),
+    child: LoadingView(),
   );
 }
 

@@ -166,10 +166,10 @@ class _ReturnScreenState extends ConsumerState<ReturnScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(S.returnTitle)),
       body: lines.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (list) => details.when(
-          loading: () => const Center(child: CircularProgressIndicator()),
+          loading: () => const LoadingView(),
           error: (e, _) => EmptyState(errorMessage(e)),
           data: (d) => _form(list, d),
         ),
@@ -381,7 +381,7 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(S.creditNoteTitle)),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (d) {
           final v = CreditNoteView.from(d);

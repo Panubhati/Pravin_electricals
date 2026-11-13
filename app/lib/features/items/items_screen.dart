@@ -80,7 +80,7 @@ class _ItemsScreenState extends ConsumerState<ItemsScreen> {
           ),
           Expanded(
             child: list.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const LoadingView(),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (items) {
                 if (items.isEmpty) return EmptyState(S.noItems);

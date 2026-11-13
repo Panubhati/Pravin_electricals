@@ -337,7 +337,7 @@ class _AddPhoneScreenState extends ConsumerState<AddPhoneScreen> {
           if (_error != null)
             EmptyState(_error!, icon: Icons.wifi_off)
           else if (invite == null)
-            const Padding(padding: EdgeInsets.all(48), child: Center(child: CircularProgressIndicator()))
+            const Padding(padding: EdgeInsets.all(48), child: LoadingView())
           else ...[
             Text(S.addPhoneSteps, style: text.bodyLarge),
             const SizedBox(height: 16),

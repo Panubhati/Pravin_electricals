@@ -91,7 +91,7 @@ class _BillsScreenState extends ConsumerState<BillsScreen> {
           ),
           Expanded(
             child: list.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
+              loading: () => const LoadingView(),
               error: (e, _) => EmptyState(errorMessage(e)),
               data: (bills) {
                 if (bills.isEmpty) return EmptyState(S.noBills);
@@ -234,7 +234,7 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(S.billDetail)),
       body: async.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (d) {
           final v = InvoiceView.from(d, upi: upi);

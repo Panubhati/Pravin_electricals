@@ -117,7 +117,7 @@ class _StockItemScreenState extends ConsumerState<StockItemScreen> {
     return Scaffold(
       appBar: AppBar(title: Text(item?.name ?? S.stockTitle)),
       body: item == null
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView()
           : Column(
               children: [
                 Padding(

@@ -133,7 +133,7 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
             ],
           ),
           async.when(
-            loading: () => const Padding(padding: EdgeInsets.all(24), child: Center(child: CircularProgressIndicator())),
+            loading: () => const Padding(padding: EdgeInsets.all(24), child: LoadingView()),
             error: (e, _) => EmptyState(errorMessage(e)),
             data: (d) {
               final s = d.sales;

@@ -38,19 +38,22 @@ class DuesScreen extends ConsumerWidget {
               key: const Key('openReminders'),
               tooltip: S.remindersTitle,
               icon: const Icon(Icons.notifications_active_outlined),
-              onPressed: () => Navigator.of(context)
-                  .push<void>(MaterialPageRoute(builder: (_) => const RemindersScreen())),
+              onPressed:
+                  () => Navigator.of(context).push<void>(
+                    MaterialPageRoute(builder: (_) => const RemindersScreen()),
+                  ),
             ),
           ],
-          bottom: TabBar(tabs: [
-            Tab(key: Key('tabReceivables'), text: S.receivables),
-            Tab(key: Key('tabPayables'), text: S.payables),
-          ]),
+          bottom: TabBar(
+            tabs: [
+              Tab(key: Key('tabReceivables'), text: S.receivables),
+              Tab(key: Key('tabPayables'), text: S.payables),
+            ],
+          ),
         ),
-        body: const TabBarView(children: [
-          _DuesList(payable: false),
-          _DuesList(payable: true),
-        ]),
+        body: const TabBarView(
+          children: [_DuesList(payable: false), _DuesList(payable: true)],
+        ),
       ),
     );
   }
@@ -65,78 +68,88 @@ class _DuesList extends ConsumerWidget {
     final async = ref.watch(payable ? payablesProvider : receivablesProvider);
     final name = payable ? 'payables' : 'receivables';
     return async.when(
-      loading: () => const Center(child: CircularProgressIndicator()),
+      loading: () => const LoadingView(),
       error: (e, _) => EmptyState(errorMessage(e)),
       data: (list) {
         if (list.isEmpty) return EmptyState(S.noDues);
         final total = DuesRepository.total(list);
-        return ListView(
-          children: [
-            Card(
+        // Built lazily: the header card, then one row per person.
+        return ListView.builder(
+          itemCount: list.length + 1,
+          itemBuilder: (context, i) {
+            if (i > 0) return _row(context, ref, list[i - 1]);
+            return Card(
               margin: const EdgeInsets.all(12),
               child: Padding(
                 padding: const EdgeInsets.all(16),
-                child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                  Text(S.totalDue, style: Theme.of(context).textTheme.labelLarge),
-                  Text(
-                    Money.format(total.totalDue),
-                    key: Key('duesTotal_$name'),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineMedium
-                        ?.copyWith(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-                  _bucketRow(S.bucket0, total.days0to30),
-                  _bucketRow(S.bucket31, total.days31to60),
-                  _bucketRow(S.bucket61, total.days61to90),
-                  _bucketRow(S.bucket90, total.over90, bad: true),
-                ]),
-              ),
-            ),
-            for (final d in list)
-              ListTile(
-                key: Key('due_${d.party.id}'),
-                title: Text(d.party.name),
-                subtitle: Text(_summary(d.buckets)),
-                trailing: Text(
-                  Money.format(d.buckets.totalDue),
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: d.buckets.over90 > 0 ? AppPalette.red : null,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      S.totalDue,
+                      style: Theme.of(context).textTheme.labelLarge,
+                    ),
+                    Text(
+                      Money.format(total.totalDue),
+                      key: Key('duesTotal_$name'),
+                      style: Theme.of(context).textTheme.headlineMedium
+                          ?.copyWith(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    _bucketRow(S.bucket0, total.days0to30),
+                    _bucketRow(S.bucket31, total.days31to60),
+                    _bucketRow(S.bucket61, total.days61to90),
+                    _bucketRow(S.bucket90, total.over90, bad: true),
+                  ],
                 ),
-                onTap: () async {
-                  await Navigator.of(context).push<void>(MaterialPageRoute(
-                      builder: (_) => PartyDetailScreen(partyId: d.party.id)));
-                  refreshBalances(ref);
-                },
               ),
-          ],
+            );
+          },
         );
       },
     );
   }
 
-  Widget _bucketRow(String label, int paise, {bool bad = false}) => Padding(
-        padding: const EdgeInsets.symmetric(vertical: 2),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Flexible(child: Text(label)),
-            const SizedBox(width: 8),
-            Text(
-              Money.format(paise),
-              style: TextStyle(color: bad && paise > 0 ? AppPalette.red : null),
-            ),
-          ],
+  Widget _row(BuildContext context, WidgetRef ref, PartyDues d) => ListTile(
+    key: Key('due_${d.party.id}'),
+    title: Text(d.party.name),
+    subtitle: Text(_summary(d.buckets)),
+    trailing: Text(
+      Money.format(d.buckets.totalDue),
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        color: d.buckets.over90 > 0 ? AppPalette.red : null,
+      ),
+    ),
+    onTap: () async {
+      await Navigator.of(context).push<void>(
+        MaterialPageRoute(
+          builder: (_) => PartyDetailScreen(partyId: d.party.id),
         ),
       );
+      refreshBalances(ref);
+    },
+  );
+
+  Widget _bucketRow(String label, int paise, {bool bad = false}) => Padding(
+    padding: const EdgeInsets.symmetric(vertical: 2),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Flexible(child: Text(label)),
+        const SizedBox(width: 8),
+        Text(
+          Money.format(paise),
+          style: TextStyle(color: bad && paise > 0 ? AppPalette.red : null),
+        ),
+      ],
+    ),
+  );
 
   String _summary(AgeingBuckets b) => [
-        if (b.days0to30 > 0) '${S.bucket0}: ${Money.format(b.days0to30)}',
-        if (b.days31to60 > 0) '${S.bucket31}: ${Money.format(b.days31to60)}',
-        if (b.days61to90 > 0) '${S.bucket61}: ${Money.format(b.days61to90)}',
-        if (b.over90 > 0) '${S.bucket90}: ${Money.format(b.over90)}',
-      ].join('  •  ');
+    if (b.days0to30 > 0) '${S.bucket0}: ${Money.format(b.days0to30)}',
+    if (b.days31to60 > 0) '${S.bucket31}: ${Money.format(b.days31to60)}',
+    if (b.days61to90 > 0) '${S.bucket61}: ${Money.format(b.days61to90)}',
+    if (b.over90 > 0) '${S.bucket90}: ${Money.format(b.over90)}',
+  ].join('  •  ');
 }

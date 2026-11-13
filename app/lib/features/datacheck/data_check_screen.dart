@@ -112,7 +112,7 @@ class _DataCheckScreenState extends ConsumerState<DataCheckScreen> {
       body: _error != null
           ? EmptyState('${S.dataCheckFailed}: ${errorMessage(_error!)}')
           : r == null
-              ? const Center(child: CircularProgressIndicator())
+              ? const LoadingView()
               : ListView(
                   padding: const EdgeInsets.all(16),
                   children: [

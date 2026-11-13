@@ -150,7 +150,7 @@ class _PartyFormScreenState extends ConsumerState<PartyFormScreen> {
         ],
       ),
       body: _loading
-          ? const Center(child: CircularProgressIndicator())
+          ? const LoadingView()
           : ListView(
               padding: const EdgeInsets.all(16),
               children: [

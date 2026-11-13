@@ -21,7 +21,7 @@ class DashboardCard extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(dashboardProvider);
     return async.when(
-      loading: () => const Card(child: SizedBox(height: 150, child: Center(child: CircularProgressIndicator()))),
+      loading: () => const Card(child: SizedBox(height: 150, child: LoadingView())),
       error: (e, _) => AppCard(child: Text(errorMessage(e))),
       data: (d) {
         void open(Widget screen) =>

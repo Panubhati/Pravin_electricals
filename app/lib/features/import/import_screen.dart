@@ -179,7 +179,7 @@ class _ImportFlowScreenState extends ConsumerState<ImportFlowScreen> {
           ),
           if (_busy) const Padding(
             padding: EdgeInsets.all(16),
-            child: Center(child: CircularProgressIndicator()),
+            child: LoadingView(),
           ),
           if (r != null) ...[
             SectionTitle(S.importDone),

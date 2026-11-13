@@ -64,7 +64,7 @@ class StaffScreen extends ConsumerWidget {
         },
       ),
       body: users.when(
-        loading: () => const Center(child: CircularProgressIndicator()),
+        loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),
         data: (list) => ListView(
           padding: const EdgeInsets.only(bottom: 88),
