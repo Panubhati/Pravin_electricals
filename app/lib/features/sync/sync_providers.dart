@@ -41,6 +41,16 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   return service;
 });
 
+/// Stops sync before the database file is replaced (restore, joining a shop),
+/// so the other phone cannot read or write it during the swap.
+Future<void> stopSync(WidgetRef ref) async {
+  try {
+    await ref.read(syncServiceProvider).stop();
+  } catch (_) {
+    // No shop session yet: sync never started.
+  }
+}
+
 /// Every list and summary that shows shop data reads again after changes
 /// arrive from the other phone. A bill being typed is not touched.
 void refreshAfterSync(Ref ref) {
@@ -108,8 +118,9 @@ final recentClashesProvider = FutureProvider.autoDispose<int>((ref) async {
   return rows.length;
 });
 
-/// Starts sync when the app opens or comes back, and stops it when the app
-/// goes to the background (Android would stop it anyway).
+/// Changes sync's pace with the app: every few seconds on screen, every two
+/// minutes in the background (A12). Sync itself is started by [SyncHost] and
+/// keeps running when the app is closed; this widget never stops it.
 class SyncRunner extends ConsumerStatefulWidget {
   const SyncRunner({super.key, required this.child});
   final Widget child;
@@ -126,6 +137,7 @@ class _SyncRunnerState extends ConsumerState<SyncRunner> with WidgetsBindingObse
     super.initState();
     _service = ref.read(syncServiceProvider);
     WidgetsBinding.instance.addObserver(this);
+    _service.setBackground(false);
     _service.start();
   }
 
@@ -133,10 +145,11 @@ class _SyncRunnerState extends ConsumerState<SyncRunner> with WidgetsBindingObse
   void didChangeAppLifecycleState(AppLifecycleState state) {
     switch (state) {
       case AppLifecycleState.resumed:
+        _service.setBackground(false);
         _service.start().then((_) => _service.syncNow());
       case AppLifecycleState.paused:
       case AppLifecycleState.detached:
-        _service.stop();
+        _service.setBackground(true);
       default:
         break;
     }
@@ -145,7 +158,6 @@ class _SyncRunnerState extends ConsumerState<SyncRunner> with WidgetsBindingObse
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    _service.stop();
     super.dispose();
   }
 

@@ -8,6 +8,7 @@ import 'core/db/connection.dart';
 import 'core/i18n/app_language.dart';
 import 'core/providers.dart';
 import 'core/sync/device_identity.dart';
+import 'core/sync/sync_host.dart';
 import 'features/auth/lock_gate.dart';
 import 'features/home/home_screen.dart';
 import 'shared/strings.dart';
@@ -38,13 +39,19 @@ class AppRoot extends StatefulWidget {
 
 class _AppRootState extends State<AppRoot> {
   Key _key = UniqueKey();
-
-  void _restart() => setState(() => _key = UniqueKey());
+  late ProviderContainer _container;
+  late SyncHost _sync;
 
   @override
-  Widget build(BuildContext context) {
-    return ProviderScope(
-      key: _key,
+  void initState() {
+    super.initState();
+    _open();
+  }
+
+  /// The container lives here, outside the screens, so sync keeps running
+  /// while the app has no screen (A12).
+  void _open() {
+    _container = ProviderContainer(
       overrides: [
         databaseLocationProvider.overrideWithValue(widget.location),
         deviceIdentityProvider.overrideWithValue(FileDeviceIdentity(widget.location)),
@@ -55,6 +62,33 @@ class _AppRootState extends State<AppRoot> {
         }),
         ...widget.extraOverrides,
       ],
+    );
+    _sync = SyncHost(_container)..start();
+  }
+
+  void _restart() {
+    final old = _container;
+    _sync.stop();
+    setState(() {
+      _key = UniqueKey();
+      _open();
+    });
+    // Thrown away once the screens have moved to the new one.
+    WidgetsBinding.instance.addPostFrameCallback((_) => old.dispose());
+  }
+
+  @override
+  void dispose() {
+    _sync.stop();
+    _container.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return UncontrolledProviderScope(
+      key: _key,
+      container: _container,
       child: const ShopApp(),
     );
   }

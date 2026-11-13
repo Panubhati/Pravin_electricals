@@ -40,9 +40,10 @@ class SyncStatus {
   static const off = SyncStatus(state: SyncHealth.off);
 }
 
-/// Runs Wi-Fi sync while the app is open: listens for the other phone, pulls
-/// its new changes every few seconds (and at once when it says it has some),
-/// and tells it when this phone has new ones. Billing never waits for sync.
+/// Runs Wi-Fi sync: listens for the other phone, pulls its new changes every
+/// few seconds on screen or every two minutes with the app closed (and at once
+/// when it says it has some), and tells it when this phone has new ones.
+/// Billing never waits for sync.
 class SyncService {
   SyncService({
     required this.db,
@@ -50,6 +51,7 @@ class SyncService {
     required this.makeCopy,
     this.finder,
     this.interval = const Duration(seconds: 5),
+    this.backgroundInterval = const Duration(minutes: 2),
     this.onDataChanged,
     this.listenPort = syncPort,
     DateTime Function()? clock,
@@ -60,6 +62,20 @@ class SyncService {
   final Future<File> Function() makeCopy;
   final PeerFinder? finder;
   final Duration interval;
+
+  /// The safety check while the app is closed (A12). New changes still arrive
+  /// at once: the phone that makes them calls this one.
+  final Duration backgroundInterval;
+  bool _background = false;
+
+  /// True while the app is closed or in the background.
+  bool get inBackground => _background;
+
+  /// How often this phone checks the other one right now.
+  Duration get pace => _background ? backgroundInterval : interval;
+
+  /// True while listening and syncing.
+  bool get isRunning => _running;
   final int listenPort;
 
   /// Called after changes from the other phone were saved here (screens refresh).
@@ -122,10 +138,22 @@ class SyncService {
       }
     }
     _outboxWatch = db.tableUpdates(TableUpdateQuery.onTable(db.outbox)).listen((_) => _scheduleNudge());
-    _timer = Timer.periodic(interval, (_) => syncNow());
+    _startTimer();
     final peers = await store.peers();
     status.value = SyncStatus(state: peers.isEmpty ? SyncHealth.off : SyncHealth.searching);
     unawaited(syncNow());
+  }
+
+  void _startTimer() {
+    _timer?.cancel();
+    _timer = Timer.periodic(_background ? backgroundInterval : interval, (_) => syncNow());
+  }
+
+  /// Switches between the on-screen pace and the background pace.
+  void setBackground(bool background) {
+    if (_background == background) return;
+    _background = background;
+    if (_running) _startTimer();
   }
 
   Future<void> stop() async {

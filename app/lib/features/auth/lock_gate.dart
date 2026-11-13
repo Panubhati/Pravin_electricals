@@ -51,6 +51,11 @@ class _LockGateState extends ConsumerState<LockGate>
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.paused) {
       _pausedAt = DateTime.now();
+    } else if (state == AppLifecycleState.detached) {
+      // The app was closed (swiped away). Background sync keeps the app
+      // running (A12), so lock now: nobody reopens it still logged in.
+      _pausedAt = null;
+      if (ref.read(currentUserProvider) != null) lockApp(ProviderScope.containerOf(context));
     } else if (state == AppLifecycleState.resumed) {
       _maybeLock();
     }

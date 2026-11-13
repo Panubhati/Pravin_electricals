@@ -19,6 +19,7 @@ import '../../shared/messages_mr.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../datacheck/data_check_screen.dart';
+import '../sync/sync_providers.dart';
 import '../../shared/theme.dart';
 
 /// A copy of the data replaced by the last restore, if one is still kept (so
@@ -176,6 +177,7 @@ Future<void> _runRestore(
       // tests): treated as one phone.
     }
     // Nothing may hold the database file open while it is swapped.
+    await stopSync(ref);
     await db.close();
     await replace();
     if (!paired) await identity?.clear();

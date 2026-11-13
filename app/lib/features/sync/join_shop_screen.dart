@@ -10,6 +10,7 @@ import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/theme.dart';
 import '../billing/scan_screen.dart';
+import 'sync_providers.dart';
 
 /// Opens the camera and returns the scanned text. Tests replace it.
 final pairingScannerProvider = Provider<Future<String?> Function(BuildContext)>(
@@ -57,6 +58,7 @@ class _JoinShopScreenState extends ConsumerState<JoinShopScreen> {
     try {
       final package = await fetchShopCopy(invite, label: label);
       // Nothing may hold the database file open while it is replaced.
+      await stopSync(ref);
       await ref.read(databaseProvider).close();
       await installJoinedShop(package: package, invite: invite, location: location, identity: identity, label: label);
       messenger.showSnackBar(SnackBar(content: Text(S.joinDone), duration: Duration(seconds: 6)));
