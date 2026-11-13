@@ -34,12 +34,26 @@ class MainActivity : FlutterFragmentActivity() {
                             val filename = call.argument<String>("filename")!!
                             val number = call.argument<String>("number")!!
                             val text = call.argument<String>("text")
-                            result.success(sendToWhatsApp(bytes, filename, number, text))
+                            val mime = call.argument<String>("mime") ?: "application/pdf"
+                            result.success(sendToWhatsApp(bytes, filename, number, text, mime))
                         }
                         "whatsAppText" -> {
                             result.success(
                                 whatsAppText(call.argument<String>("number")!!, call.argument<String>("text")!!),
                             )
+                        }
+                        "saveToDownloads" -> {
+                            result.success(
+                                saveToDownloads(
+                                    call.argument<ByteArray>("bytes")!!,
+                                    call.argument<String>("filename")!!,
+                                    call.argument<String>("mime")!!,
+                                ),
+                            )
+                        }
+                        "openDownload" -> {
+                            openDownload(call.argument<String>("uri")!!, call.argument<String>("mime")!!)
+                            result.success(null)
                         }
                         "shareFile" -> {
                             shareBackup(
@@ -62,7 +76,7 @@ class MainActivity : FlutterFragmentActivity() {
      * PDF attached. Returns false when neither app is installed. The temporary
      * PDF lives in the app cache and files older than a day are deleted here.
      */
-    private fun sendToWhatsApp(bytes: ByteArray, filename: String, number: String, text: String?): Boolean {
+    private fun sendToWhatsApp(bytes: ByteArray, filename: String, number: String, text: String?, mime: String): Boolean {
         val dir = File(cacheDir, "shared_bills").apply { mkdirs() }
         val cutoff = System.currentTimeMillis() - 24L * 60 * 60 * 1000
         dir.listFiles()?.filter { it.lastModified() < cutoff }?.forEach { it.delete() }
@@ -74,7 +88,7 @@ class MainActivity : FlutterFragmentActivity() {
 
         for (pkg in listOf("com.whatsapp", "com.whatsapp.w4b")) {
             val intent = Intent(Intent.ACTION_SEND).apply {
-                type = "application/pdf"
+                type = mime
                 setPackage(pkg)
                 putExtra(Intent.EXTRA_STREAM, uri)
                 if (!text.isNullOrEmpty()) putExtra(Intent.EXTRA_TEXT, text)
@@ -108,6 +122,46 @@ class MainActivity : FlutterFragmentActivity() {
             }
         }
         return false
+    }
+
+    /**
+     * Saves a file into the phone's Downloads folder (A13), where Files and
+     * other apps can see it. Android 10 and later need no permission for this.
+     * Returns the saved file's address, or null on older Android (the app then
+     * shares the file instead).
+     */
+    private fun saveToDownloads(bytes: ByteArray, filename: String, mime: String): String? {
+        if (android.os.Build.VERSION.SDK_INT < 29) return null
+        val safeName = filename.replace(Regex("[^A-Za-z0-9._ -]"), "_")
+        val values = android.content.ContentValues().apply {
+            put(android.provider.MediaStore.Downloads.DISPLAY_NAME, safeName)
+            put(android.provider.MediaStore.Downloads.MIME_TYPE, mime)
+            put(android.provider.MediaStore.Downloads.IS_PENDING, 1)
+        }
+        val resolver = contentResolver
+        val uri = resolver.insert(android.provider.MediaStore.Downloads.EXTERNAL_CONTENT_URI, values)
+            ?: throw IllegalStateException("Could not create the file in Downloads")
+        try {
+            resolver.openOutputStream(uri).use { out ->
+                requireNotNull(out) { "Could not write the file" }.write(bytes)
+            }
+            values.clear()
+            values.put(android.provider.MediaStore.Downloads.IS_PENDING, 0)
+            resolver.update(uri, values, null, null)
+        } catch (e: Exception) {
+            resolver.delete(uri, null, null)
+            throw e
+        }
+        return uri.toString()
+    }
+
+    /** Opens a file saved by [saveToDownloads] in a viewer app. */
+    private fun openDownload(uri: String, mime: String) {
+        val view = Intent(Intent.ACTION_VIEW).apply {
+            setDataAndType(android.net.Uri.parse(uri), mime)
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+        }
+        startActivity(Intent.createChooser(view, null).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
     }
 
     /**

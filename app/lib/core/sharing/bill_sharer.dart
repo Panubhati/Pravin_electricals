@@ -9,12 +9,14 @@ abstract class BillSharer {
   Future<void> sharePdf({required Uint8List bytes, required String filename});
 
   /// Opens WhatsApp on the chat with [number] (country code, digits only) with
-  /// the PDF attached. Returns false when WhatsApp is not installed.
+  /// the file attached ([mime]: a PDF bill, or a QR picture). Returns false
+  /// when WhatsApp is not installed.
   Future<bool> sendToWhatsApp({
     required Uint8List bytes,
     required String filename,
     required String number,
     String? text,
+    String mime = 'application/pdf',
   });
 
   /// Opens WhatsApp on the chat with [number] with [text] typed in (no file).
@@ -35,12 +37,14 @@ class DeviceBillSharer implements BillSharer {
     required String filename,
     required String number,
     String? text,
+    String mime = 'application/pdf',
   }) async {
     final ok = await _channel.invokeMethod<bool>('sendToWhatsApp', {
       'bytes': bytes,
       'filename': filename,
       'number': number,
       'text': text,
+      'mime': mime,
     });
     return ok ?? false;
   }

@@ -1,3 +1,5 @@
+import '../../core/sharing/file_saver.dart';
+import '../../core/printing/upi_qr_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -106,9 +108,20 @@ class _DueTile extends ConsumerWidget {
     final repo = ref.read(reminderRepositoryProvider);
     final session = ref.read(sessionProvider).requireValue;
     final text = await repo.message(r, shopName: session.shop.name);
-    final opened = await ref
-        .read(billSharerProvider)
-        .whatsAppText(number: r.number, text: text);
+    final link = await repo.payLink(r, shopName: session.shop.name);
+    final sharer = ref.read(billSharerProvider);
+    var opened = false;
+    if (link != null) {
+      // The QR picture the customer can pay from, with the text as its caption (A13).
+      try {
+        final png = await buildUpiQrPng(link: link, title: session.shop.name, amount: Money.format(r.amountPaise));
+        opened = await sharer.sendToWhatsApp(
+            bytes: png, filename: FileNames.payQr(r.amountPaise), number: r.number, text: text, mime: 'image/png');
+      } catch (_) {
+        // The picture could not be made: the text alone is sent below.
+      }
+    }
+    if (!opened) opened = await sharer.whatsAppText(number: r.number, text: text);
     if (!context.mounted) return;
     if (!opened) {
       toast(context, S.whatsAppMissing);

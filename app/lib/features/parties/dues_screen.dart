@@ -1,3 +1,7 @@
+import '../../core/providers.dart';
+import '../../core/printing/report_pdf.dart';
+import '../../core/sharing/file_saver.dart';
+import '../reports/report_pdf_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -24,7 +28,12 @@ class DuesScreen extends ConsumerWidget {
     final showPayables = ref.watch(permissionsProvider).canSeePurchases;
     if (!showPayables) {
       return Scaffold(
-        appBar: AppBar(title: Text(S.duesTitle)),
+        appBar: AppBar(title: Text(S.duesTitle), actions: [
+          ReportPdfMenu(
+            filename: FileNames.dues(DateTime.now()),
+            doc: () async => duesDoc(await ref.read(duesRepositoryProvider).receivables(), DateTime.now()),
+          ),
+        ]),
         body: const _DuesList(payable: false),
       );
     }
@@ -34,6 +43,10 @@ class DuesScreen extends ConsumerWidget {
         appBar: AppBar(
           title: Text(S.duesTitle),
           actions: [
+            ReportPdfMenu(
+            filename: FileNames.dues(DateTime.now()),
+            doc: () async => duesDoc(await ref.read(duesRepositoryProvider).receivables(), DateTime.now()),
+          ),
             IconButton(
               key: const Key('openReminders'),
               tooltip: S.remindersTitle,

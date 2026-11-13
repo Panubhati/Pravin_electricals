@@ -81,6 +81,11 @@ Once two phones are paired, sync keeps running with the app closed (a quiet **Sh
 PIN login, or Settings, **Fingerprint unlock** (each person's PIN, then their finger). The PIN always works. Details:
 `docs/milestones/A12-background-sync-fingerprint.md`.
 
+## Downloads and report PDFs (A13)
+After a bill is saved, **Download PDF** keeps it in the phone's Downloads folder (also on an opened bill, credit notes, and Backup,
+**Save a backup to Downloads**). Daily sales, Dues, Stock value, Item profit and Day check have a PDF button at the top: **Download
+PDF** or **Share PDF**. Payment reminders now show the shop's UPI ID, and on WhatsApp they come with a QR picture to pay from.
+
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.
 - `app/lib/core/units.dart`: quantity to base units (cable in millimetres), line amounts.

@@ -19,6 +19,8 @@ import '../../shared/messages_mr.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
 import '../datacheck/data_check_screen.dart';
+import '../../core/sharing/file_saver.dart';
+import '../../shared/downloads.dart';
 import '../sync/sync_providers.dart';
 import '../../shared/theme.dart';
 
@@ -34,9 +36,10 @@ String backupTime(DateTime d) {
 }
 
 /// Makes a verified backup of the shop and opens the share sheet so the owner
-/// can send it to their own email or Drive. Returns false after telling the
-/// owner why when it could not be done.
-Future<bool> backUpNow(BuildContext context, WidgetRef ref) async {
+/// can send it to their own email or Drive, or with [toDownloads] saves it in
+/// the phone's Downloads folder (A13). Returns false after telling the owner
+/// why when it could not be done.
+Future<bool> backUpNow(BuildContext context, WidgetRef ref, {bool toDownloads = false}) async {
   final session = ref.read(sessionProvider).requireValue;
   final db = ref.read(databaseProvider);
   final settings = ref.read(settingsRepositoryProvider);
@@ -51,12 +54,24 @@ Future<bool> backUpNow(BuildContext context, WidgetRef ref) async {
     final backup = await BackupService(db, ref.read(databaseLocationProvider),
             clock: session.ctx.clock)
         .createBackup();
-    await ref.read(backupSharerProvider).shareFile(
+    Future<void> share() => ref.read(backupSharerProvider).shareFile(
           File(backup.path),
           subject: S.backupShareSubject(session.shop.name),
           text: S.backupShareBody(
               session.shop.name, backup.summary.bills, backup.summary.customers, backup.summary.items),
         );
+    if (toDownloads && context.mounted) {
+      await downloadFile(
+        context,
+        ref,
+        bytes: () => File(backup.path).readAsBytes(),
+        filename: backup.name,
+        mime: backupMime,
+        fallbackShare: (_) => share(),
+      );
+    } else {
+      await share();
+    }
     await settings.setLastBackupAt(session.ctx.clock());
     await AuditRepository(session.ctx).record(
       action: 'backup_made',

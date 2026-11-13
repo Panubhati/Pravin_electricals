@@ -27,7 +27,7 @@ class FakeSharer implements BillSharer {
   @override
   Future<void> sharePdf({required Uint8List bytes, required String filename}) async => sheet.add(filename);
   @override
-  Future<bool> sendToWhatsApp({required Uint8List bytes, required String filename, required String number, String? text}) async {
+  Future<bool> sendToWhatsApp({required Uint8List bytes, required String filename, required String number, String? text, String mime = 'application/pdf'}) async {
     whatsapp.add((filename: filename, number: number));
     return true;
   }

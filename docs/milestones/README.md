@@ -18,5 +18,6 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A10 Marathi and English, bills in either language | built; wording and phone check pending | [A10-marathi.md](A10-marathi.md) |
 | A11 Payment reminders (SMS and WhatsApp) | built; phone check pending | [A11-payment-reminders.md](A11-payment-reminders.md) |
 | A12 Sync while the app is closed, fingerprint unlock | built; phone check pending | [A12-background-sync-fingerprint.md](A12-background-sync-fingerprint.md) |
+| A13 Download PDFs, report PDFs, payable reminders | built; phone check pending | [A13-downloads-report-pdfs.md](A13-downloads-report-pdfs.md) |
 
 Related: [decisions.md](../decisions.md) (every non-obvious decision, with date and reason).

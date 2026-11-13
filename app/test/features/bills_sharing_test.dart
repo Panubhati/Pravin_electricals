@@ -26,7 +26,7 @@ class FakeSharer implements BillSharer {
 
   @override
   Future<bool> sendToWhatsApp(
-      {required Uint8List bytes, required String filename, required String number, String? text}) async {
+      {required Uint8List bytes, required String filename, required String number, String? text, String mime = 'application/pdf'}) async {
     if (!whatsappInstalled) return false;
     whatsapp.add((bytes: bytes, filename: filename, number: number, text: text));
     return true;

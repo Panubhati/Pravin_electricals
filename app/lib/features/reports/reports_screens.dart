@@ -1,3 +1,8 @@
+import '../../core/providers.dart';
+import '../../core/permissions.dart';
+import '../../core/printing/report_pdf.dart';
+import '../../core/sharing/file_saver.dart';
+import 'report_pdf_menu.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -137,7 +142,16 @@ class _DailySalesScreenState extends ConsumerState<DailySalesScreen> {
     final cash = ref.watch(cashPositionProvider(_day));
     final isToday = startOfDay(DateTime.now()) == _day;
     return Scaffold(
-      appBar: AppBar(title: Text(S.dailySales)),
+      appBar: AppBar(title: Text(S.dailySales), actions: [
+        ReportPdfMenu(
+          filename: FileNames.dailySales(_day),
+          doc: () async {
+            final reports = ref.read(reportsRepositoryProvider);
+            final bills = await ref.read(invoiceRepositoryProvider).list(from: _day, to: _day, limit: 100000);
+            return dailySalesDoc(await reports.dailySales(_day), await reports.cashPosition(_day), bills.reversed.toList());
+          },
+        ),
+      ]),
       body: ListView(
         padding: const EdgeInsets.all(16),
         children: [
@@ -303,7 +317,13 @@ class _ItemProfitScreenState extends ConsumerState<ItemProfitScreen> {
     final range = _range;
     final report = ref.watch(itemProfitProvider(range));
     return Scaffold(
-      appBar: AppBar(title: Text(S.itemProfit)),
+      appBar: AppBar(title: Text(S.itemProfit), actions: [
+        ReportPdfMenu(
+          filename: FileNames.itemProfit(range.from, range.to),
+          doc: () async =>
+              itemProfitDoc(await ref.read(reportsRepositoryProvider).itemProfit(range.from, range.to), range.from, range.to),
+        ),
+      ]),
       // Built lazily: a month can have hundreds of items sold.
       body: CustomScrollView(
         slivers: [
@@ -521,7 +541,16 @@ class StockValueScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final async = ref.watch(stockValueProvider);
     return Scaffold(
-      appBar: AppBar(title: Text(S.stockValue)),
+      appBar: AppBar(title: Text(S.stockValue), actions: [
+        ReportPdfMenu(
+          filename: FileNames.stock(DateTime.now()),
+          doc: () async {
+            final reports = ref.read(reportsRepositoryProvider);
+            return stockDoc(await reports.stockValue(), await reports.lowStock(), DateTime.now(),
+                showCost: ref.read(permissionsProvider).canSeeCost);
+          },
+        ),
+      ]),
       body: async.when(
         loading: () => const LoadingView(),
         error: (e, _) => EmptyState(errorMessage(e)),

@@ -90,17 +90,29 @@ void main() {
     expect((await reminders.settings()).on, isFalse);
   });
 
-  test('the message is polite, in the bill language, with English dates and the UPI link', () async {
+  test('the message is polite, in the bill language, with English dates and the UPI ID', () async {
     await customer('Ramesh', owes: 1258000, since: day(1));
     final settings = SettingsRepository(ctx);
     await settings.setUpi(vpa: 'pravin@okhdfc');
     final r = (await reminders.due(now: now)).single;
     final en = await reminders.message(r, shopName: 'Pravin Electricals');
     expect(en, startsWith('Namaskar Ramesh, ₹12,580.00 is due at Pravin Electricals since 1 Nov 2026.'));
-    expect(en, contains('upi://pay?pa=pravin@okhdfc'));
+    // A13: the UPI ID as text (upi:// links are never tappable in WhatsApp or SMS).
+    expect(en, contains('Please pay when convenient to UPI ID pravin@okhdfc. Thank you.'));
+    expect(en, isNot(contains('upi://')));
+    expect(await reminders.payLink(r, shopName: 'Pravin Electricals'), contains('am=12580.00'));
     await settings.setBillLanguage(AppLang.mr);
     final mr = await reminders.message(r, shopName: 'Pravin Electricals');
     expect(mr, startsWith('नमस्कार Ramesh, Pravin Electricals कडे 1 Nov 2026 पासून ₹12,580.00 बाकी आहे.'));
+    expect(mr, contains('(UPI ID: pravin@okhdfc)'));
+  });
+
+  test('no UPI ID set: no UPI line and no QR', () async {
+    await customer('Ramesh', owes: 1258000, since: day(1));
+    final r = (await reminders.due(now: now)).single;
+    final en = await reminders.message(r, shopName: 'Pravin Electricals');
+    expect(en, endsWith('Please pay when convenient. Thank you.'));
+    expect(await reminders.payLink(r, shopName: 'Pravin Electricals'), isNull);
   });
 
   test('a reminder recorded (as if on the other phone) is in the log and the audit', () async {

@@ -1,4 +1,6 @@
-import 'dart:io';
+import '../../core/printing/report_pdf.dart';
+import '../../core/sharing/file_saver.dart';
+import '../reports/report_pdf_menu.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -43,20 +45,6 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
     if (d != null) setState(() => _day = startOfDay(d));
   }
 
-  Future<void> _share(DayClose d) async {
-    try {
-      final session = ref.read(sessionProvider).requireValue;
-      final text = d.toSummary(session.shop.name, Money.format, formatDate(_day));
-      final dir = await ref.read(databaseLocationProvider).workDirectory();
-      final stamp = '${_day.year}${_day.month.toString().padLeft(2, '0')}${_day.day.toString().padLeft(2, '0')}';
-      final file = File('${dir.path}/DayCheck_$stamp.txt');
-      await file.writeAsString(text);
-      await ref.read(backupSharerProvider).shareFile(file, subject: S.dayCheckShareSubject(session.shop.name, formatDate(_day)));
-    } catch (e) {
-      if (mounted) toastError(context, e);
-    }
-  }
-
   Widget _line(String label, int paise, {bool bold = false, bool muted = false, Key? key, String? prefix}) {
     final style = bold
         ? const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
@@ -99,11 +87,10 @@ class _DayCheckScreenState extends ConsumerState<DayCheckScreen> {
         title: Text(S.dayCheckTitle),
         actions: [
           if (async.valueOrNull != null)
-            IconButton(
+            ReportPdfMenu(
               key: const Key('dayCheckShare'),
-              tooltip: S.shareSummary,
-              icon: const Icon(Icons.share),
-              onPressed: () => _share(async.valueOrNull!),
+              filename: FileNames.dayCheck(_day),
+              doc: () async => dayCheckDoc(await ref.read(reportsRepositoryProvider).dayClose(_day), _day),
             ),
         ],
       ),

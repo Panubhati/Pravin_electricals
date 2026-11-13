@@ -1069,6 +1069,41 @@ abstract final class S {
 
   static String phonesLastSync(String when) => _mr ? SMr.phonesLastSync(when) : 'Last synced $when';
 
+  // A13 downloads
+  static String get downloadPdf => _t('downloadPdf', 'Download PDF');
+  static String get downloadOpen => _t('downloadOpen', 'Open');
+  static String get downloadFailed => _t('downloadFailed', 'Could not save the file');
+  static String get downloadNotSupported =>
+      _t('downloadNotSupported', 'This phone cannot save to Downloads. Choose where to keep the file.');
+  static String downloadedTo(String name) => _mr ? SMr.downloadedTo(name) : 'Saved in Downloads: $name';
+  static String get backupToDownloads => _t('backupToDownloads', 'Save a backup to Downloads');
+  static String get sharePdfShort => _t('sharePdfShort', 'Share PDF');
+
+  // A13 report PDFs
+  static String get reportPdf => _t('reportPdf', 'Report PDF');
+  static String get reportBills => _t('reportBills', 'Bills');
+  static String get reportNothing => _t('reportNothing', 'Nothing on this day.');
+  static String get reportBillNo => _t('reportBillNo', 'Bill');
+  static String get reportTime => _t('reportTime', 'Time');
+  static String get reportCustomer => _t('reportCustomer', 'Customer');
+  static String get reportDue => _t('reportDue', 'Due');
+  static String get reportCancelled => _t('reportCancelled', 'cancelled');
+  static String get reportDuesTitle => _t('reportDuesTitle', 'Dues: who owes money');
+  static String get reportOwes => _t('reportOwes', 'Owes');
+  static String get reportStockTitle => _t('reportStockTitle', 'Stock and low stock');
+  static String get reportStockOnHand => _t('reportStockOnHand', 'Stock on hand');
+  static String get reportItem => _t('reportItem', 'Item');
+  static String get reportCostRate => _t('reportCostRate', 'Cost rate');
+  static String get reportValue => _t('reportValue', 'Value');
+  static String get reportCostNotKnown => _t('reportCostNotKnown', 'cost not known');
+  static String get reportNoLowStock => _t('reportNoLowStock', 'No item is below its minimum.');
+  static String get reportMinimum => _t('reportMinimum', 'Minimum');
+  static String get reportSold => _t('reportSold', 'Sold');
+  static String get reportSales => _t('reportSales', 'Sales');
+  static String get reportCost => _t('reportCost', 'Cost');
+  static String reportMadeOn(String when) => _mr ? SMr.reportMadeOn(when) : 'Made on $when';
+  static String reportPage(int page, int pages) => _mr ? SMr.reportPage(page, pages) : 'Page $page of $pages';
+
   // A12 fingerprint unlock
   static String get fingerprintTitle => _t('fingerprintTitle', 'Fingerprint unlock');
   static String get fingerprintUse => _t('fingerprintUse', 'Use fingerprint');

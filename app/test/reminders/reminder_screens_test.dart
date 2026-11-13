@@ -41,6 +41,27 @@ void main() {
     expect(log!.single.channel, 'whatsapp');
   }, sample: false);
 
+  harnessTest('with a UPI ID, WhatsApp gets a QR picture to pay from, with the message as caption', (tester, h) async {
+    final id = await oldDebt(h, tester);
+    await tester.runAsync(() => SettingsRepository(h.session.ctx).setUpi(vpa: 'pravin@okhdfc'));
+    final sharer = FakeSharer();
+    await h.pump(tester, const RemindersScreen(), overrides: [noFinder, billSharerProvider.overrideWithValue(sharer)]);
+    await tester.tap(find.byKey(Key('remindWhatsApp_$id')));
+    for (var i = 0; i < 60 && sharer.whatsapp.isEmpty; i++) {
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+      await tester.pump();
+    }
+    await settle(tester);
+    final sent = sharer.whatsapp.single;
+    expect(sent.number, '919876543210');
+    expect(sent.filename, 'Pay_12580.png');
+    expect(sent.bytes.sublist(1, 4), [0x50, 0x4E, 0x47]); // "PNG"
+    expect(sent.text, contains('UPI ID pravin@okhdfc'));
+    expect(sharer.texts, isEmpty); // no second, text-only message
+    final log = await tester.runAsync(() => h.db.select(h.db.reminders).get());
+    expect(log!.single.channel, 'whatsapp');
+  }, sample: false);
+
   harnessTest('skip today takes a customer off the list', (tester, h) async {
     final id = await oldDebt(h, tester);
     await h.pump(tester, const RemindersScreen(), overrides: [noFinder]);

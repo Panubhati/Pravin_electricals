@@ -208,18 +208,23 @@ class ReminderRepository {
     });
   }
 
-  /// The reminder text for [r], in the shop's bill language, with the UPI
-  /// link for the amount owed when a UPI ID is set.
+  /// The reminder text for [r], in the shop's bill language, with the shop's
+  /// UPI ID when one is set.
   Future<String> message(DueReminder r, {required String shopName}) async {
     final words = BillWords.of(await _settings.billLanguage());
     final payee = await _settings.upiPayee(shopName);
-    final link = UpiLink.build(payee, amountPaise: r.amountPaise, note: shopName);
+    final vpa = payee != null && UpiLink.isValidVpa(payee.vpa) ? payee.vpa.trim() : null;
     return words.reminderMessage(
       name: r.party.name,
       shop: shopName,
       amount: Money.format(r.amountPaise),
       since: formatDate(r.oldestDue),
-      payLink: link,
+      upiId: vpa,
     );
   }
+
+  /// The UPI payment for the amount owed, for the QR picture sent on WhatsApp,
+  /// or null when no UPI ID is set.
+  Future<String?> payLink(DueReminder r, {required String shopName}) async =>
+      UpiLink.build(await _settings.upiPayee(shopName), amountPaise: r.amountPaise, note: shopName);
 }

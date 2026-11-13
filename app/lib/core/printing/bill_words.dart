@@ -80,13 +80,15 @@ class BillWords {
     required String shop,
     required String amount,
     required String since,
-    String? payLink,
+    String? upiId,
   }) =>
+      // The UPI ID as plain text (A13): WhatsApp and SMS never make upi:// links
+      // tappable. A long press copies it; WhatsApp also gets a QR picture.
       _t(
         'Namaskar $name, $amount is due at $shop since $since. '
-            'Please pay when convenient${payLink == null ? '' : ': $payLink'}. Thank you.',
+            'Please pay when convenient${upiId == null ? '' : ' to UPI ID $upiId'}. Thank you.',
         'नमस्कार $name, $shop कडे $since पासून $amount बाकी आहे. '
-            'सोयीनुसार भरावे${payLink == null ? '' : ': $payLink'}. धन्यवाद.',
+            'सोयीनुसार भरावे${upiId == null ? '' : ' (UPI ID: $upiId)'}. धन्यवाद.',
       );
 
   // WhatsApp messages to the customer

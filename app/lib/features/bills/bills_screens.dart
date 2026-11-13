@@ -303,6 +303,13 @@ class _BillDetailScreenState extends ConsumerState<BillDetailScreen> {
                 icon: const Icon(Icons.chat_outlined),
                 label: Text(S.whatsapp),
               ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: const Key('detailDownload'),
+                onPressed: _busy ? null : () => downloadBill(context, ref, widget.invoiceId),
+                icon: const Icon(Icons.download_outlined),
+                label: Text(S.downloadPdf),
+              ),
               if (d.invoice.status != 'cancelled') ...[
                 const SizedBox(height: 24),
                 OutlinedButton.icon(

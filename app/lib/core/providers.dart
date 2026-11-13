@@ -1,3 +1,4 @@
+import 'sharing/file_saver.dart';
 import 'package:flutter/widgets.dart' show BuildContext;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -135,6 +136,9 @@ final databaseLocationProvider = Provider<ShopDatabaseLocation>(
 final appRestartProvider = Provider<void Function(BuildContext)>((ref) {
   return (context) => AppRoot.restart(context);
 });
+
+/// Saves files into the phone's Downloads folder (A13). Overridden in tests.
+final fileSaverProvider = Provider<FileSaver>((ref) => DeviceFileSaver());
 
 /// Sends backup files to the share sheet. Overridden in tests.
 final backupSharerProvider = Provider<BackupSharer>((ref) => DeviceBackupSharer());

@@ -77,6 +77,13 @@ class _BillDoneScreenState extends ConsumerState<BillDoneScreen> {
                   label: Text(S.whatsapp),
                 ),
                 const SizedBox(height: 12),
+                OutlinedButton.icon(
+                  key: const Key('downloadPdf'),
+                  onPressed: _sharing ? null : () => downloadBill(context, ref, widget.invoiceId),
+                  icon: const Icon(Icons.download_outlined),
+                  label: Text(S.downloadPdf),
+                ),
+                const SizedBox(height: 12),
                 OutlinedButton(
                   key: const Key('newBillAgain'),
                   onPressed: () => Navigator.of(context).pushReplacement(

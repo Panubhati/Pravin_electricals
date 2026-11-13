@@ -493,6 +493,10 @@ Manual (with the owner):
 - Added at the owner's request: shop Wi-Fi sync keeps running when the app is closed (Android foreground service, changes sent at once, 2-minute safety check), fingerprint unlock per person per phone, and a stale-stock warning on the bill. See docs/milestones/A12-background-sync-fingerprint.md.
 - **Done when:** with the app closed on both phones, a bill made on one appears on the other; the phones restart and sync resumes; a person unlocks with their finger and the PIN still works.
 
+#### A13: Download PDFs, report PDFs, payable reminders
+- Added at the owner's request: Download PDF for bills, credit notes and backups (phone's Downloads folder), PDF download/share for Daily sales, Dues, Stock value, Item profit and Day check, and payment reminders with the UPI ID and a WhatsApp QR picture. See docs/milestones/A13-downloads-report-pdfs.md.
+- **Done when:** a bill and each report download into Files and open; a WhatsApp reminder's QR pays the right amount.
+
 #### A9 (optional, can run in parallel): OCR feasibility prototype
 - A standalone Python script on the laptop (no app, no backend): runs the photo quality checks and PaddleOCR on the collected sample invoices and records pass/fail, confidence and parsing accuracy in `docs/decisions.md`.
 - **Done when:** there is a measured answer to "is free OCR good enough for this shop's bills?" and starting thresholds are tuned. This decides how much effort Stage B's photo feature needs.
@@ -593,6 +597,7 @@ Manual (with the owner):
 - [ ] A10 Marathi and English (built and tested; wording check and phone check with the shop pending)
 - [ ] A11 Payment reminders (built and tested; SMS check on the phone pending)
 - [ ] A12 Sync while closed, fingerprint unlock (built and tested; phone check pending)
+- [ ] A13 Download PDFs, report PDFs, payable reminders (built and tested; phone check pending)
 
 **Stage B (cloud)**
 - [ ] B1 Backend, database and auth

@@ -80,6 +80,13 @@ class _BackupSectionState extends ConsumerState<BackupSection> {
                 : const Icon(Icons.chevron_right, color: AppPalette.muted),
             onTap: _busy ? null : () => _run(() => backUpNow(context, ref)),
           ),
+          ListTile(
+            key: const Key('backupDownload'),
+            leading: const Icon(Icons.download_outlined),
+            title: Text(S.backupToDownloads),
+            trailing: const Icon(Icons.chevron_right, color: AppPalette.muted),
+            onTap: _busy ? null : () => _run(() => backUpNow(context, ref, toDownloads: true)),
+          ),
         ], note: '${S.backUpNowHelp} ${S.backupFileWarning}'),
         group(S.backupGroupRestore, [
           ListTile(

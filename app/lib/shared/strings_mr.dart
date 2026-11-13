@@ -445,6 +445,33 @@ const mrStrings = <String, String>{
   'phonesRename': 'नाव बदला',
   'phonesRenameTitle': 'या फोनचे नाव',
   'phonesClashes': 'दोन्ही फोनवर एकाच वेळी झालेले बदल',
+  'reportPdf': 'अहवाल PDF',
+  'reportBills': 'बिले',
+  'reportNothing': 'या दिवशी काही नाही.',
+  'reportBillNo': 'बिल',
+  'reportTime': 'वेळ',
+  'reportCustomer': 'ग्राहक',
+  'reportDue': 'बाकी',
+  'reportCancelled': 'रद्द',
+  'reportDuesTitle': 'उधारी: कोणाकडे किती बाकी',
+  'reportOwes': 'बाकी',
+  'reportStockTitle': 'स्टॉक आणि कमी स्टॉक',
+  'reportStockOnHand': 'हातातील स्टॉक',
+  'reportItem': 'वस्तू',
+  'reportCostRate': 'खरेदी दर',
+  'reportValue': 'किंमत',
+  'reportCostNotKnown': 'खरेदी दर माहीत नाही',
+  'reportNoLowStock': 'कोणतीही वस्तू किमान स्टॉकपेक्षा कमी नाही.',
+  'reportMinimum': 'किमान',
+  'reportSold': 'विकले',
+  'reportSales': 'विक्री',
+  'reportCost': 'खरेदी',
+  'downloadPdf': 'PDF डाउनलोड करा',
+  'downloadOpen': 'उघडा',
+  'downloadFailed': 'फाइल सेव्ह झाली नाही',
+  'downloadNotSupported': 'हा फोन Downloads मध्ये सेव्ह करू शकत नाही. फाइल कुठे ठेवायची ते निवडा.',
+  'backupToDownloads': 'बॅकअप Downloads मध्ये सेव्ह करा',
+  'sharePdfShort': 'PDF पाठवा',
   'fingerprintTitle': 'बोटाच्या ठशाने उघडा',
   'fingerprintUse': 'बोटाचा ठसा वापरा',
   'fingerprintReason': 'Pravin Electricals उघडा',
@@ -660,6 +687,9 @@ const mrStrings = <String, String>{
 
 /// Sentences with numbers or names, in Marathi.
 abstract final class SMr {
+  static String reportMadeOn(String when) => 'तयार केले: $when';
+  static String reportPage(int page, int pages) => 'पान $page / $pages';
+  static String downloadedTo(String name) => 'Downloads मध्ये सेव्ह केले: $name';
   static String staleStock(Duration d) {
     final span = d.inHours < 1
         ? '${d.inMinutes} मिनिटे'

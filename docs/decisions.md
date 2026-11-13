@@ -137,3 +137,10 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Fingerprint: per person, per phone (owner's choice), biometric only, tied to the person's current PIN hash so any PIN change switches it off. Owner approvals stay PIN only (owner's choice). Logins are not audited, as before.
 - Stale stock warning after 30 minutes without a sync, only on lines that leave the item at or below its minimum stock (owner's choice).
 
+## 2026-11-13 A13 decisions (downloads, report PDFs, reminders)
+- Downloads go through Android's MediaStore (Android 10+, no storage permission). Older phones share instead of asking for storage permission.
+- Report PDFs use the phone's screen language (they are for the shop), drawn with the painted-page engine so Marathi is correct; bills keep the shop's bill language.
+- Counter staff never get cost columns in a stock PDF.
+- Reminders carry the UPI ID as text and, on WhatsApp, a QR picture for the exact amount (owner's choice). upi:// links were dropped because WhatsApp and SMS never make them tappable; a tappable https pay link would need a paid payment-link service.
+- File names stay English with ISO dates (Bill_A-0042_2026-11-13.pdf) so they sort by date in Files on every phone.
+

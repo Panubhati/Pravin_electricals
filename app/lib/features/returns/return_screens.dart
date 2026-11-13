@@ -433,6 +433,13 @@ class _CreditNoteScreenState extends ConsumerState<CreditNoteScreen> {
                 icon: const Icon(Icons.chat_outlined),
                 label: Text(S.whatsapp),
               ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
+                key: const Key('creditNoteDownload'),
+                onPressed: _busy ? null : () => downloadCreditNote(context, ref, widget.returnId),
+                icon: const Icon(Icons.download_outlined),
+                label: Text(S.downloadPdf),
+              ),
             ],
           );
         },

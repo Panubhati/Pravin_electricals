@@ -15,6 +15,7 @@ import 'package:shop_app/features/reports/reports_screens.dart';
 
 import '../helpers/app_harness.dart';
 import '../helpers/seed_today.dart';
+import 'downloads_test.dart' show FakeSaver;
 
 class FakeSharer implements BackupSharer {
   final texts = <String>[];
@@ -85,17 +86,17 @@ void main() {
       expect(tester.widget<IconButton>(find.byKey(const Key('dcForward'))).onPressed, isNotNull);
     }, sample: false);
 
-    harnessTest('Share summary sends the same numbers as plain text', (tester, h) async {
+    harnessTest('the PDF menu saves the Day check as a PDF in Downloads', (tester, h) async {
       await db(tester, () => seedToday(h.session));
-      final sharer = await open(tester, h, const DayCheckScreen());
+      final saver = FakeSaver();
+      await h.pump(tester, const DayCheckScreen(), overrides: [fileSaverProvider.overrideWithValue(saver)]);
       await waitUntil(tester, () => find.byKey(const Key('dcNet')).evaluate().isNotEmpty);
       await tester.tap(find.byKey(const Key('dayCheckShare')));
-      await waitUntil(tester, () => sharer.texts.isNotEmpty);
-      final text = sharer.texts.single;
-      expect(text, contains('day check for'));
-      expect(text, contains('Bills: 3'));
-      expect(text, contains('Net sales: ₹449.00'));
-      expect(text, contains('Cash in hand: start ₹1,000.00, now ₹1,329.00'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('reportDownload')));
+      await waitUntil(tester, () => saver.saved.isNotEmpty, tries: 200);
+      expect(saver.saved.single.filename, matches(RegExp(r'^DayCheck_\d{4}-\d{2}-\d{2}\.pdf$')));
+      expect(String.fromCharCodes(saver.saved.single.bytes.sublist(0, 5)), '%PDF-');
     }, sample: false);
 
     harnessTest('Reports has a Day check tile that opens it', (tester, h) async {

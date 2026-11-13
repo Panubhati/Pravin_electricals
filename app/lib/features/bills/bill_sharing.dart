@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/money.dart';
@@ -6,7 +7,11 @@ import '../../core/printing/credit_note_pdf.dart';
 import '../../core/printing/bill_words.dart';
 import '../../core/printing/invoice_pdf.dart';
 import '../../core/printing/marathi_bill.dart';
+import '../../core/db/repositories/invoice_repository.dart';
+import '../../core/db/repositories/return_repository.dart';
 import '../../core/providers.dart';
+import '../../core/sharing/file_saver.dart';
+import '../../shared/downloads.dart';
 import '../../core/sharing/phone_number.dart';
 import '../../shared/strings.dart';
 
@@ -32,6 +37,60 @@ String? shareOutcomeMessage(ShareOutcome o) => switch (o) {
       _ => null,
     };
 
+/// The bill's PDF, in the shop's bill language (Settings), not this phone's
+/// screen language.
+Future<({InvoiceDetails d, Uint8List bytes, String filename, BillWords words})> _billPdf(
+    WidgetRef ref, String invoiceId) async {
+  final d = await ref.read(invoiceRepositoryProvider).details(invoiceId);
+  final payee = await ref.read(upiPayeeProvider.future);
+  final lang = await ref.read(settingsRepositoryProvider).billLanguage();
+  final bytes = lang == AppLang.mr
+      ? await buildMarathiInvoicePdf(d, upi: payee)
+      : await buildInvoicePdf(d, await InvoiceFonts.load(), upi: payee);
+  return (d: d, bytes: bytes, filename: '${d.invoice.invoiceNoText}.pdf', words: BillWords.of(lang));
+}
+
+Future<({ReturnDetails d, Uint8List bytes, String filename, BillWords words})> _creditNotePdf(
+    WidgetRef ref, String returnId) async {
+  final d = await ref.read(returnRepositoryProvider).details(returnId);
+  final lang = await ref.read(settingsRepositoryProvider).billLanguage();
+  final bytes = lang == AppLang.mr
+      ? await buildMarathiCreditNotePdf(d)
+      : await buildCreditNotePdf(d, await InvoiceFonts.load());
+  return (d: d, bytes: bytes, filename: '${d.ret.creditNoteNoText}.pdf', words: BillWords.of(lang));
+}
+
+/// Saves the bill's PDF in the phone's Downloads folder (A13):
+/// "Bill_A-0042_2026-11-13.pdf".
+Future<void> downloadBill(BuildContext context, WidgetRef ref, String invoiceId) async {
+  final d = await ref.read(invoiceRepositoryProvider).details(invoiceId);
+  final filename = 'Bill_${d.invoice.invoiceNoText}_${fileDate(d.invoice.date)}.pdf';
+  if (!context.mounted) return;
+  await downloadFile(
+    context,
+    ref,
+    bytes: () async => (await _billPdf(ref, invoiceId)).bytes,
+    filename: filename,
+    mime: pdfMime,
+    fallbackShare: (b) => ref.read(billSharerProvider).sharePdf(bytes: b, filename: filename),
+  );
+}
+
+/// Saves the credit note's PDF in Downloads: "CreditNote_CN-A-0003_2026-11-13.pdf".
+Future<void> downloadCreditNote(BuildContext context, WidgetRef ref, String returnId) async {
+  final d = await ref.read(returnRepositoryProvider).details(returnId);
+  final filename = 'CreditNote_${d.ret.creditNoteNoText}_${fileDate(d.ret.date)}.pdf';
+  if (!context.mounted) return;
+  await downloadFile(
+    context,
+    ref,
+    bytes: () async => (await _creditNotePdf(ref, returnId)).bytes,
+    filename: filename,
+    mime: pdfMime,
+    fallbackShare: (b) => ref.read(billSharerProvider).sharePdf(bytes: b, filename: filename),
+  );
+}
+
 /// Builds the bill's PDF from saved data and shares it. With [whatsapp] it goes
 /// straight to the customer's WhatsApp chat; if that is not possible it falls
 /// back to the share sheet so the bill is never stuck.
@@ -40,15 +99,7 @@ Future<ShareOutcome> shareBill(
   String invoiceId, {
   bool whatsapp = false,
 }) async {
-  final d = await ref.read(invoiceRepositoryProvider).details(invoiceId);
-  final payee = await ref.read(upiPayeeProvider.future);
-  // The shop's bill language (Settings), not this phone's screen language.
-  final lang = await ref.read(settingsRepositoryProvider).billLanguage();
-  final words = BillWords.of(lang);
-  final bytes = lang == AppLang.mr
-      ? await buildMarathiInvoicePdf(d, upi: payee)
-      : await buildInvoicePdf(d, await InvoiceFonts.load(), upi: payee);
-  final filename = '${d.invoice.invoiceNoText}.pdf';
+  final (:d, :bytes, :filename, :words) = await _billPdf(ref, invoiceId);
   final sharer = ref.read(billSharerProvider);
 
   if (!whatsapp) {
@@ -79,13 +130,7 @@ Future<ShareOutcome> shareBill(
 
 /// Builds a credit note's PDF from saved data and shares it, like [shareBill].
 Future<ShareOutcome> shareCreditNote(WidgetRef ref, String returnId, {bool whatsapp = false}) async {
-  final d = await ref.read(returnRepositoryProvider).details(returnId);
-  final lang = await ref.read(settingsRepositoryProvider).billLanguage();
-  final words = BillWords.of(lang);
-  final bytes = lang == AppLang.mr
-      ? await buildMarathiCreditNotePdf(d)
-      : await buildCreditNotePdf(d, await InvoiceFonts.load());
-  final filename = '${d.ret.creditNoteNoText}.pdf';
+  final (:d, :bytes, :filename, :words) = await _creditNotePdf(ref, returnId);
   final sharer = ref.read(billSharerProvider);
 
   if (!whatsapp) {
