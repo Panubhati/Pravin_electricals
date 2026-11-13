@@ -4,6 +4,7 @@ import 'package:local_auth/local_auth.dart';
 
 import '../db/app_database.dart';
 import '../providers.dart';
+import 'fingerprint_login.dart';
 
 /// Who is logged in right now (null while the lock screen is showing).
 class SessionUserNotifier extends StateNotifier<User?> {
@@ -42,6 +43,13 @@ final loginUsersProvider = FutureProvider.autoDispose<List<User>>(
 /// pattern or fingerprint). Used to recover a forgotten owner PIN.
 abstract class DeviceAuth {
   Future<bool> confirm(String reason);
+
+  /// True when the phone has a fingerprint (or face) sensor with a finger saved.
+  Future<bool> canUseFingerprint();
+
+  /// Asks for a saved fingerprint only: the phone's own PIN or pattern does
+  /// not count (A12 fingerprint unlock).
+  Future<bool> fingerprint(String reason);
 }
 
 class LocalDeviceAuth implements DeviceAuth {
@@ -59,6 +67,37 @@ class LocalDeviceAuth implements DeviceAuth {
       return false;
     }
   }
+
+  @override
+  Future<bool> canUseFingerprint() async {
+    try {
+      final auth = LocalAuthentication();
+      if (!await auth.canCheckBiometrics) return false;
+      return (await auth.getAvailableBiometrics()).isNotEmpty;
+    } catch (e) {
+      debugPrint('Fingerprint check failed: $e');
+      return false;
+    }
+  }
+
+  @override
+  Future<bool> fingerprint(String reason) async {
+    try {
+      return await LocalAuthentication().authenticate(
+        localizedReason: reason,
+        options: const AuthenticationOptions(biometricOnly: true, stickyAuth: true),
+      );
+    } catch (e) {
+      // Too many tries (Android locks the sensor for a while), or no finger saved.
+      debugPrint('Fingerprint failed: $e');
+      return false;
+    }
+  }
 }
 
 final deviceAuthProvider = Provider<DeviceAuth>((ref) => LocalDeviceAuth());
+
+/// Fingerprint unlock on this phone (A12).
+final fingerprintLoginProvider = Provider<FingerprintLogin>(
+  (ref) => FingerprintLogin(ref.watch(settingsRepositoryProvider)),
+);

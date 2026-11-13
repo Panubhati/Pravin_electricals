@@ -17,6 +17,7 @@ import '../backup/backup_screen.dart';
 import '../datacheck/data_check_screen.dart';
 import '../reports/reports_providers.dart';
 import '../reminders/reminder_settings_screen.dart';
+import '../auth/fingerprint_screen.dart';
 import '../reminders/reminders_screen.dart';
 import '../sync/phones_screen.dart';
 import '../sync/sync_providers.dart';
@@ -284,6 +285,16 @@ class SettingsScreen extends ConsumerWidget {
                   }
                   await _save(context, ref, SettingKeys.autoLockMinutes, '$n');
                 },
+              ),
+              _Row(
+                rowKey: const Key('settingFingerprint'),
+                icon: Icons.fingerprint,
+                title: S.fingerprintTitle,
+                value: switch (ref.watch(fingerprintOnProvider).valueOrNull?.length ?? 0) {
+                  0 => S.settingsOff,
+                  final n => S.fingerprintPeople(n),
+                },
+                onTap: () => _open(context, const FingerprintScreen()),
               ),
               _Row(
                 rowKey: const Key('settingReminders'),

@@ -29,6 +29,8 @@ class SyncHost {
     if (_stopped) return;
     try {
       await container.read(syncServiceProvider).start();
+      // Keeps sync going after the app is closed, while this phone is paired.
+      if (!_stopped) container.read(backgroundSyncKeeperProvider);
     } catch (e) {
       debugPrint('Sync could not start: $e');
     }

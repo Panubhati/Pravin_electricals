@@ -1,3 +1,4 @@
+import 'package:drift/drift.dart' show ComparableExpr;
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -10,6 +11,7 @@ import '../../core/units.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import 'bill_controller.dart';
+import '../sync/sync_providers.dart';
 import 'bill_done_screen.dart';
 import 'domain/bill_calculator.dart';
 import 'customer_sheet.dart';
@@ -207,6 +209,8 @@ class _BillScreenState extends ConsumerState<BillScreen> {
     }
     // Total asked for per item (an item can be on two lines), against stock.
     final balances = ref.watch(stockBalancesProvider).valueOrNull;
+    final stale = ref.watch(otherPhoneStaleProvider).valueOrNull;
+    final minStock = stale == null ? const <String, int>{} : (ref.watch(minStockProvider).valueOrNull ?? const {});
     final calc = ref.watch(billResultProvider).totals;
     final requested = <String, int>{};
     if (calc != null) {
@@ -225,6 +229,8 @@ class _BillScreenState extends ConsumerState<BillScreen> {
           requestedBase: requested[id] ?? 0,
           // Null while stock is still loading: no warning until it is known.
           availableBase: balances == null ? null : (balances[id] ?? 0),
+          staleSync: stale,
+          minStockBase: minStock[id] ?? 0,
         );
       },
     );
@@ -311,6 +317,14 @@ class _BillScreenState extends ConsumerState<BillScreen> {
   }
 }
 
+/// Each item's minimum stock in base units (only items that have one), for the
+/// stale-sync warning (A12).
+final minStockProvider = FutureProvider.autoDispose<Map<String, int>>((ref) async {
+  final db = ref.watch(databaseProvider);
+  final rows = await (db.select(db.items)..where((t) => t.minStockBase.isBiggerThanValue(0))).get();
+  return {for (final r in rows) r.id: r.minStockBase};
+});
+
 class _CartTile extends ConsumerStatefulWidget {
   const _CartTile({
     super.key,
@@ -318,8 +332,16 @@ class _CartTile extends ConsumerStatefulWidget {
     required this.entry,
     required this.requestedBase,
     required this.availableBase,
+    this.staleSync,
+    this.minStockBase = 0,
   });
   final int index;
+
+  /// How long since the other phone last synced, when that is long (A12).
+  final Duration? staleSync;
+
+  /// The item's minimum stock in base units (0 when none is set).
+  final int minStockBase;
   final CartEntry entry;
 
   /// Total of this item on the bill, in base units.
@@ -408,6 +430,17 @@ class _CartTileState extends ConsumerState<_CartTile> {
                       : '${S.onlyInStock} '
                           '${Units.formatQty(widget.availableBase!, line.priceUnitFactor)} '
                           '${_pricingUnit(units, line.priceUnitFactor)} ${S.inStockSuffix}',
+                  style: const TextStyle(color: AppPalette.amber),
+                ),
+              ),
+            if (widget.staleSync != null &&
+                widget.availableBase != null &&
+                widget.availableBase! - widget.requestedBase <= widget.minStockBase)
+              Padding(
+                key: Key('staleWarning_${widget.index}'),
+                padding: const EdgeInsets.only(top: 4),
+                child: Text(
+                  S.staleStock(widget.staleSync!),
                   style: const TextStyle(color: AppPalette.amber),
                 ),
               ),

@@ -17,6 +17,10 @@ class _FakeDeviceAuth implements DeviceAuth {
   final bool ok;
   @override
   Future<bool> confirm(String reason) async => ok;
+  @override
+  Future<bool> canUseFingerprint() async => false;
+  @override
+  Future<bool> fingerprint(String reason) async => false;
 }
 
 Future<void> enterPin(WidgetTester tester, String pin, {bool submit = true}) async {

@@ -24,11 +24,21 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   String? _userId;
   String? _message;
 
+  /// The person the fingerprint prompt was last opened for (it opens once by
+  /// itself per choice; the button opens it again).
+  String? _askedFor;
+
+  /// Whether the chosen person unlocks with a fingerprint on this phone.
+  bool _fingerprintOn = false;
+  String? _checkedFor;
+
   Future<void> _submit(List<User> users, String pin) async {
     final user = users.firstWhere((u) => u.id == _userId);
     final result = await ref.read(authRepositoryProvider).verify(user.id, pin);
     if (!mounted) return;
     if (result.ok) {
+      await _offerFingerprint(user);
+      if (!mounted) return;
       ref.read(currentUserProvider.notifier).login(user);
       return;
     }
@@ -37,6 +47,63 @@ class _LockScreenState extends ConsumerState<LockScreen> {
           ? S.lockedWait(_secondsUntil(result))
           : S.wrongPin;
     });
+  }
+
+  /// Checks (once per chosen person) whether fingerprint is on for them, and
+  /// opens the fingerprint prompt by itself the first time.
+  Future<void> _checkFingerprint(User user) async {
+    if (_checkedFor == user.id) return;
+    _checkedFor = user.id;
+    final on = await ref.read(fingerprintLoginProvider).isOn(user) &&
+        await ref.read(deviceAuthProvider).canUseFingerprint();
+    if (!mounted || _userId != user.id) return;
+    setState(() => _fingerprintOn = on);
+    if (on && _askedFor != user.id) {
+      _askedFor = user.id;
+      await _useFingerprint(user);
+    }
+  }
+
+  Future<void> _useFingerprint(User user) async {
+    final ok = await ref.read(deviceAuthProvider).fingerprint(S.fingerprintReason);
+    if (!mounted || _userId != user.id) return;
+    if (ok) {
+      ref.read(currentUserProvider.notifier).login(user);
+    } else {
+      setState(() => _message = S.fingerprintFailed);
+    }
+  }
+
+  /// After a PIN login, asks once per person per phone whether to use a
+  /// fingerprint next time (only on a phone with a finger saved).
+  Future<void> _offerFingerprint(User user) async {
+    final fp = ref.read(fingerprintLoginProvider);
+    final auth = ref.read(deviceAuthProvider);
+    if (await fp.wasOffered(user) || await fp.isOn(user) || !await auth.canUseFingerprint()) return;
+    await fp.markOffered(user);
+    if (!mounted) return;
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(S.fingerprintOfferTitle),
+        content: Text(S.fingerprintOfferBody),
+        actions: [
+          TextButton(
+            key: const Key('fingerprintNotNow'),
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(S.fingerprintNotNow),
+          ),
+          FilledButton(
+            key: const Key('fingerprintYes'),
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(S.fingerprintYes),
+          ),
+        ],
+      ),
+    );
+    if (yes != true || !mounted) return;
+    // The finger is asked once now, so it is known to work.
+    if (await auth.fingerprint(S.fingerprintReason)) await fp.setOn(user, true);
   }
 
   int _secondsUntil(PinResult r) {
@@ -100,6 +167,9 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                               onSelected: (_) => setState(() {
                                 _userId = u.id;
                                 _message = null;
+                                _fingerprintOn = false;
+                                _askedFor = null; // choosing again opens the prompt again
+                                _checkedFor = null;
                               }),
                             ),
                         ],
@@ -110,6 +180,20 @@ class _LockScreenState extends ConsumerState<LockScreen> {
                     if (user == null)
                       Text(S.lockTitle)
                     else ...[
+                      Builder(builder: (_) {
+                        WidgetsBinding.instance.addPostFrameCallback((_) => _checkFingerprint(user));
+                        return const SizedBox.shrink();
+                      }),
+                      if (_fingerprintOn)
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: OutlinedButton.icon(
+                            key: const Key('fingerprintLogin'),
+                            onPressed: () => _useFingerprint(user),
+                            icon: const Icon(Icons.fingerprint),
+                            label: Text(S.fingerprintUse),
+                          ),
+                        ),
                       PinEntry(
                         key: ValueKey(user.id),
                         title: S.enterPin,

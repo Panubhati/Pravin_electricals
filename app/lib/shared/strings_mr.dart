@@ -445,6 +445,24 @@ const mrStrings = <String, String>{
   'phonesRename': 'नाव बदला',
   'phonesRenameTitle': 'या फोनचे नाव',
   'phonesClashes': 'दोन्ही फोनवर एकाच वेळी झालेले बदल',
+  'fingerprintTitle': 'बोटाच्या ठशाने उघडा',
+  'fingerprintUse': 'बोटाचा ठसा वापरा',
+  'fingerprintReason': 'Pravin Electricals उघडा',
+  'fingerprintFailed': 'ठसा वापरला नाही. तुमचा PIN टाका, किंवा पुन्हा प्रयत्नासाठी "बोटाचा ठसा वापरा" दाबा.',
+  'fingerprintOfferTitle': 'पुढच्या वेळी बोटाच्या ठशाने उघडायचे?',
+  'fingerprintOfferBody': 'PIN टाकण्याऐवजी सेन्सरला बोट लावा. या फोनमध्ये ज्याचा ठसा सेव्ह आहे तो कोणीही मग तुमच्या नावाने ॲप उघडू शकतो, म्हणून फक्त तुमच्या स्वतःच्या फोनवर हो म्हणा.',
+  'fingerprintYes': 'हो',
+  'fingerprintNotNow': 'आत्ता नको',
+  'fingerprintHelp': 'या फोनवर प्रत्येक व्यक्तीसाठी वेगळे. PIN नेहमी चालतो. मालकाची परवानगी अजूनही PIN नेच.',
+  'fingerprintNoSensor': 'या फोनमध्ये कोणताही ठसा सेव्ह नाही. आधी फोनच्या Settings मध्ये ठसा जोडा.',
+  'fingerprintWarning': 'फोनला कळत नाही बोट कोणाचे आहे: या फोनमध्ये सेव्ह असलेला कोणताही ठसा, हे चालू केलेल्या व्यक्तीच्या नावाने ॲप उघडतो. एखाद्याचा PIN बदलला तर त्यांनी हे पुन्हा चालू करावे.',
+  'fingerprintTryLater': 'खूप वेळा चुकीचा PIN. थोड्या वेळाने प्रयत्न करा.',
+  'bgSyncTitle': 'दुकान सिंक चालू',
+  'bgSyncSwitch': 'ॲप बंद असतानाही सिंक चालू ठेवा',
+  'bgSyncHelp': 'कोणी ॲप उघडले नसले तरी बिले दुसऱ्या फोनवर पोहोचतात. Android एक छोटी "दुकान सिंक चालू" सूचना दाखवतो.',
+  'bgBatteryLimited': 'बॅटरी सेव्हर सिंक थांबवू शकतो',
+  'bgBatteryHelp': 'Allow दाबा आणि Allow निवडा, म्हणजे फोन ॲपला मागे सिंक करू देईल.',
+  'bgBatteryAllow': 'परवानगी द्या',
   'phonesNeverSynced': 'अजून सिंक झाले नाही',
   'syncOff': 'एकच फोन',
   'syncSearching': 'दुसरा फोन शोधत आहे',
@@ -642,6 +660,16 @@ const mrStrings = <String, String>{
 
 /// Sentences with numbers or names, in Marathi.
 abstract final class SMr {
+  static String staleStock(Duration d) {
+    final span = d.inHours < 1
+        ? '${d.inMinutes} मिनिटे'
+        : d.inHours < 48
+            ? '${d.inHours} तास'
+            : '${d.inDays} दिवस';
+    return 'दुसरा फोन $span पूर्वी सिंक झाला; स्टॉक वेगळा असू शकतो.';
+  }
+  static String fingerprintEnterPinFor(String name) => '$name चा PIN टाका';
+  static String fingerprintPeople(int n) => '$n जण';
   static String discountTooHigh(int pct) => 'कामगार $pct% पर्यंत सूट देऊ शकतो. मालकाला विचारा.';
   static String lockedWait(int seconds) => 'खूप वेळा चुकीचा PIN. $seconds सेकंदांनी पुन्हा प्रयत्न करा.';
   static String upiScanToPay(String amount) => 'ग्राहक स्कॅन करून $amount देतील';

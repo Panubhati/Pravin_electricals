@@ -23,6 +23,9 @@ const phoneOnlySettingKeys = {
   SettingKeys.reminderSmsHour,
   SettingKeys.reminderSkip,
   SettingKeys.reminderSmsLastDay,
+  SettingKeys.backgroundSyncOn,
+  SettingKeys.fingerprintUsers,
+  SettingKeys.fingerprintOffered,
 };
 
 /// Rows that must be unique while not deleted, though each phone makes its own

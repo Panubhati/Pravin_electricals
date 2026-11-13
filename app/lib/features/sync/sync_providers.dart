@@ -10,6 +10,7 @@ import '../../core/backup/backup_service.dart';
 import '../../core/db/app_database.dart';
 import '../../core/providers.dart';
 import '../../core/sync/pairing.dart';
+import '../../core/sync/background_sync.dart';
 import '../../core/sync/peer_finder.dart';
 import '../../core/sync/sync_service.dart';
 import '../audit/audit_screen.dart';
@@ -40,6 +41,31 @@ final syncServiceProvider = Provider<SyncService>((ref) {
   ref.onDispose(service.stop);
   return service;
 });
+
+/// The phone's background service (A12). Tests replace it with a fake.
+final backgroundSyncControlProvider = Provider<BackgroundSyncControl>((ref) => DeviceBackgroundSync());
+
+/// Keeps the background service on while this phone is paired (A12). Started
+/// by [SyncHost] with sync.
+final backgroundSyncKeeperProvider = Provider<BackgroundSyncKeeper>((ref) {
+  final keeper = BackgroundSyncKeeper(
+    sync: ref.watch(syncServiceProvider),
+    control: ref.watch(backgroundSyncControlProvider),
+    settings: ref.watch(settingsRepositoryProvider),
+  )..attach();
+  ref.onDispose(keeper.detach);
+  return keeper;
+});
+
+/// "Keep syncing when the app is closed" on this phone.
+final backgroundSyncOnProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(settingsRepositoryProvider).backgroundSyncOn(),
+);
+
+/// Whether Android lets the app run in the background without limits.
+final batteryUnrestrictedProvider = FutureProvider.autoDispose<bool>(
+  (ref) => ref.watch(backgroundSyncControlProvider).batteryUnrestricted(),
+);
 
 /// Stops sync before the database file is replaced (restore, joining a shop),
 /// so the other phone cannot read or write it during the swap.
@@ -82,10 +108,30 @@ void refreshAfterSync(Ref ref) {
     dueRemindersProvider,
     reminderSettingsProvider,
     phonesProvider,
+    otherPhoneStaleProvider,
   ]) {
     ref.invalidate(p);
   }
 }
+
+/// After this long without a sync, the bill warns on low-stock items (A12).
+const staleSyncAfter = Duration(minutes: 30);
+
+/// How long ago this phone last synced with the other phone, when that is
+/// longer than [staleSyncAfter]; null when it is recent, never synced, or the
+/// phone is not paired.
+final otherPhoneStaleProvider = FutureProvider.autoDispose<Duration?>((ref) async {
+  final session = ref.watch(sessionProvider).requireValue;
+  final peers = (await SyncStore(ref.watch(databaseProvider)).peers()).where((p) => p.deviceId != session.deviceId);
+  DateTime? last;
+  for (final p in peers) {
+    final at = p.lastSyncAt;
+    if (at != null && (last == null || at.isAfter(last))) last = at;
+  }
+  if (last == null) return null;
+  final age = DateTime.now().difference(last);
+  return age > staleSyncAfter ? age : null;
+});
 
 /// The shop's phones with what this phone knows about each.
 class PhoneRow {

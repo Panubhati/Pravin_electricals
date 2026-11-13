@@ -2,6 +2,7 @@ package com.pravinelectricals.shop_app
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
+import android.os.Bundle
 import androidx.core.content.FileProvider
 import io.flutter.embedding.android.FlutterFragmentActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -11,6 +12,17 @@ import java.io.File
 // FlutterFragmentActivity is needed so the phone's screen-lock prompt
 // (local_auth) can be shown, used to recover a forgotten owner PIN.
 class MainActivity : FlutterFragmentActivity() {
+    // The screen uses the app's one engine, which keeps running after the app is
+    // closed so Wi-Fi sync goes on (A12, see ShopEngine).
+    override fun onCreate(savedInstanceState: Bundle?) {
+        ShopEngine.ensure(this)
+        super.onCreate(savedInstanceState)
+    }
+
+    override fun getCachedEngineId(): String = ShopEngine.ID
+
+    override fun shouldDestroyEngineWithHost(): Boolean = false
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL)

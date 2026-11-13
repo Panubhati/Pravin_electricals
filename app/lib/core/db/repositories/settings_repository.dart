@@ -33,6 +33,10 @@ class SettingKeys {
   static const backupReminderOn = 'backup_reminder_on';
   static const upiId = 'upi_id';
   static const upiName = 'upi_name';
+  // This phone only (A12):
+  static const backgroundSyncOn = 'background_sync_on';
+  static const fingerprintUsers = 'fingerprint_users';
+  static const fingerprintOffered = 'fingerprint_offered';
 }
 
 /// Shop settings with defaults. Changes are written through the outbox.
@@ -153,4 +157,26 @@ class SettingsRepository {
 
   Future<void> setDataCheckSummary(DataCheckSummary summary) =>
       set(SettingKeys.dataCheckLast, summary.toJson());
+
+  /// Sync goes on while the app is closed, unless switched off on this phone.
+  Future<bool> backgroundSyncOn() async => (await get(SettingKeys.backgroundSyncOn)) != '0';
+
+  Future<void> setBackgroundSyncOn(bool on) => set(SettingKeys.backgroundSyncOn, on ? '1' : '0');
+
+  Future<Set<String>> _idSet(String key) async =>
+      {...(await get(key) ?? '').split(',').where((s) => s.isNotEmpty)};
+
+  Future<void> _setIdSet(String key, Set<String> ids) => set(key, (ids.toList()..sort()).join(','));
+
+  /// Who unlocks with a fingerprint on this phone ("userId:pinTag" entries,
+  /// see FingerprintLogin).
+  Future<Set<String>> fingerprintEntries() => _idSet(SettingKeys.fingerprintUsers);
+
+  Future<void> setFingerprintEntries(Set<String> entries) => _setIdSet(SettingKeys.fingerprintUsers, entries);
+
+  /// People already asked "Unlock with fingerprint next time?" on this phone.
+  Future<Set<String>> fingerprintOffered() => _idSet(SettingKeys.fingerprintOffered);
+
+  Future<void> markFingerprintOffered(String userId) async =>
+      _setIdSet(SettingKeys.fingerprintOffered, (await fingerprintOffered())..add(userId));
 }

@@ -1069,6 +1069,56 @@ abstract final class S {
 
   static String phonesLastSync(String when) => _mr ? SMr.phonesLastSync(when) : 'Last synced $when';
 
+  // A12 fingerprint unlock
+  static String get fingerprintTitle => _t('fingerprintTitle', 'Fingerprint unlock');
+  static String get fingerprintUse => _t('fingerprintUse', 'Use fingerprint');
+  static String get fingerprintReason => _t('fingerprintReason', 'Unlock Pravin Electricals');
+  static String get fingerprintFailed =>
+      _t('fingerprintFailed', 'Fingerprint not used. Enter your PIN, or tap Use fingerprint to try again.');
+  static String get fingerprintOfferTitle => _t('fingerprintOfferTitle', 'Unlock with fingerprint next time?');
+  static String get fingerprintOfferBody => _t(
+    'fingerprintOfferBody',
+    'Touch the sensor instead of typing your PIN. Anyone whose finger is saved in this phone can then open the app as you, so say yes only on your own phone.',
+  );
+  static String get fingerprintYes => _t('fingerprintYes', 'Yes');
+  static String get fingerprintNotNow => _t('fingerprintNotNow', 'Not now');
+  static String get fingerprintHelp => _t(
+    'fingerprintHelp',
+    'Each person on this phone only. The PIN always works too. Owner approvals still need the PIN.',
+  );
+  static String get fingerprintNoSensor =>
+      _t('fingerprintNoSensor', "No fingerprint is saved in this phone. Add one in the phone's own Settings first.");
+  static String get fingerprintWarning => _t(
+    'fingerprintWarning',
+    "The phone cannot tell whose finger it is: any finger saved in this phone's settings opens the app as a person who switched this on. If someone's PIN changes, they switch it on again.",
+  );
+  static String get fingerprintTryLater => _t('fingerprintTryLater', 'Too many wrong tries. Try again later.');
+  static String fingerprintEnterPinFor(String name) =>
+      _mr ? SMr.fingerprintEnterPinFor(name) : "Enter $name's PIN";
+  static String fingerprintPeople(int n) => _mr ? SMr.fingerprintPeople(n) : '$n ${n == 1 ? 'person' : 'people'}';
+
+  // A12 stale stock warning
+  static String _span(Duration d) => d.inHours < 1
+      ? '${d.inMinutes} min'
+      : d.inHours < 48
+          ? '${d.inHours} hr'
+          : '${d.inDays} days';
+  static String staleStock(Duration ago) => _mr
+      ? SMr.staleStock(ago)
+      : 'Other phone last synced ${_span(ago)} ago; stock may be different.';
+
+  // A12 background sync
+  static String get bgSyncTitle => _t('bgSyncTitle', 'Shop sync on');
+  static String get bgSyncSwitch => _t('bgSyncSwitch', 'Keep syncing when the app is closed');
+  static String get bgSyncHelp => _t(
+    'bgSyncHelp',
+    'Bills reach the other phone even when nobody has the app open. Android shows a small "Shop sync on" note.',
+  );
+  static String get bgBatteryLimited => _t('bgBatteryLimited', 'Battery saver can stop sync');
+  static String get bgBatteryHelp =>
+      _t('bgBatteryHelp', 'Tap Allow and choose Allow, so the phone lets the app sync in the background.');
+  static String get bgBatteryAllow => _t('bgBatteryAllow', 'Allow');
+
   static String get phonesNeverSynced => _t('phonesNeverSynced', 'Not synced yet');
 
   static String get syncOff => _t('syncOff', 'One phone');

@@ -116,6 +116,10 @@ class PhonesScreen extends ConsumerWidget {
               icon: const Icon(Icons.add),
               label: Text(S.phonesAdd),
             ),
+            if (rows.length >= 2) ...[
+              const SizedBox(height: 16),
+              const BackgroundSyncCard(),
+            ],
             if (clashes > 0) ...[
               const SizedBox(height: 16),
               Card(
@@ -359,6 +363,69 @@ class _AddPhoneScreenState extends ConsumerState<AddPhoneScreen> {
             const SizedBox(height: 12),
             Text(S.addPhoneExpires, style: text.bodySmall?.copyWith(color: AppPalette.muted), textAlign: TextAlign.center),
           ],
+        ],
+      ),
+    );
+  }
+}
+
+/// "Keep syncing when the app is closed" and the battery setting it needs (A12).
+class BackgroundSyncCard extends ConsumerStatefulWidget {
+  const BackgroundSyncCard({super.key});
+
+  @override
+  ConsumerState<BackgroundSyncCard> createState() => _BackgroundSyncCardState();
+}
+
+class _BackgroundSyncCardState extends ConsumerState<BackgroundSyncCard> with WidgetsBindingObserver {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  // Back from Android's battery question: read the answer again.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) ref.invalidate(batteryUnrestrictedProvider);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final on = ref.watch(backgroundSyncOnProvider).valueOrNull ?? true;
+    final unrestricted = ref.watch(batteryUnrestrictedProvider).valueOrNull ?? true;
+    return Card(
+      child: Column(
+        children: [
+          SwitchListTile(
+            key: const Key('backgroundSyncSwitch'),
+            value: on,
+            title: Text(S.bgSyncSwitch),
+            subtitle: Text(S.bgSyncHelp),
+            onChanged: (v) async {
+              await ref.read(settingsRepositoryProvider).setBackgroundSyncOn(v);
+              ref.invalidate(backgroundSyncOnProvider);
+              await ref.read(backgroundSyncKeeperProvider).refresh();
+            },
+          ),
+          if (on && !unrestricted)
+            ListTile(
+              key: const Key('batteryLimited'),
+              leading: const Icon(Icons.battery_alert_outlined, color: AppPalette.amber),
+              title: Text(S.bgBatteryLimited),
+              subtitle: Text(S.bgBatteryHelp),
+              trailing: TextButton(
+                key: const Key('batteryAllow'),
+                onPressed: () => ref.read(backgroundSyncControlProvider).askBattery(),
+                child: Text(S.bgBatteryAllow),
+              ),
+            ),
         ],
       ),
     );

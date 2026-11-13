@@ -32,6 +32,7 @@ import 'package:shop_app/features/reminders/reminders_screen.dart';
 import 'package:shop_app/features/sync/join_shop_screen.dart';
 import 'package:shop_app/features/sync/phones_screen.dart';
 
+import 'package:shop_app/features/auth/fingerprint_screen.dart';
 import 'package:shop_app/shared/strings.dart';
 
 import '../helpers/app_harness.dart';
@@ -78,6 +79,7 @@ void main() {
     'Backup and restore': (_) => const BackupScreen(),
     'Daily summary': (_) => const AlertsScreen(),
     'Join a shop': (_) => const JoinShopScreen(),
+    'Fingerprint unlock': (_) => const FingerprintScreen(),
     'PIN set-up': (_) => NewPinScreen(title: 'Set the owner PIN', help: 'Choose a PIN.', onPin: (_) async {}),
   };
 
