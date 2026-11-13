@@ -75,6 +75,12 @@ Settings, **Payment reminders**: switch on, choose after how many days and how o
 **Send SMS automatically from this phone** (it asks for SMS permission) and pick the time. Dues, bell icon shows who is due today, with a
 WhatsApp button for each. A customer's page has a **No payment reminders** switch.
 
+## Sync while closed and fingerprint (A12)
+Once two phones are paired, sync keeps running with the app closed (a quiet **Shop sync on** note shows). On the Phones screen, switch
+**Keep syncing when the app is closed** and tap **Allow** if it warns about the battery saver. Fingerprint: say Yes when asked after a
+PIN login, or Settings, **Fingerprint unlock** (each person's PIN, then their finger). The PIN always works. Details:
+`docs/milestones/A12-background-sync-fingerprint.md`.
+
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.
 - `app/lib/core/units.dart`: quantity to base units (cable in millimetres), line amounts.

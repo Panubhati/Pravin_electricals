@@ -489,6 +489,10 @@ Manual (with the owner):
 - Customers owing money for N days get a polite reminder, repeated every M days: automatic SMS from one phone and a WhatsApp one-tap list; a per-customer opt-out. See docs/milestones/A11-payment-reminders.md.
 - **Done when:** a test SMS reaches the owner's phone, a real due customer gets the SMS at the set time, and the WhatsApp list opens chats with the message.
 
+#### A12: Sync while the app is closed, fingerprint unlock
+- Added at the owner's request: shop Wi-Fi sync keeps running when the app is closed (Android foreground service, changes sent at once, 2-minute safety check), fingerprint unlock per person per phone, and a stale-stock warning on the bill. See docs/milestones/A12-background-sync-fingerprint.md.
+- **Done when:** with the app closed on both phones, a bill made on one appears on the other; the phones restart and sync resumes; a person unlocks with their finger and the PIN still works.
+
 #### A9 (optional, can run in parallel): OCR feasibility prototype
 - A standalone Python script on the laptop (no app, no backend): runs the photo quality checks and PaddleOCR on the collected sample invoices and records pass/fail, confidence and parsing accuracy in `docs/decisions.md`.
 - **Done when:** there is a measured answer to "is free OCR good enough for this shop's bills?" and starting thresholds are tuned. This decides how much effort Stage B's photo feature needs.
@@ -588,6 +592,7 @@ Manual (with the owner):
 - [ ] A9 OCR feasibility prototype (optional)
 - [ ] A10 Marathi and English (built and tested; wording check and phone check with the shop pending)
 - [ ] A11 Payment reminders (built and tested; SMS check on the phone pending)
+- [ ] A12 Sync while closed, fingerprint unlock (built and tested; phone check pending)
 
 **Stage B (cloud)**
 - [ ] B1 Backend, database and auth

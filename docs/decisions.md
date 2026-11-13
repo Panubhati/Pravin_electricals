@@ -128,3 +128,12 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Schema v7: parties.reminders_off and an append-only, synced reminders table, so two phones never double-remind.
 - SMS: once a day after the chosen hour from the hourly background job, max 25, 3 s apart; the day is marked before sending so a crash never double-sends; a failed SMS is not recorded and is retried next day. Sent through our own send-only plugin (packages/shop_sms) instead of a third-party package that also reads SMS.
 - Message in the bill language, English month names, with the UPI link for the amount owed.
+
+## 2026-11-13 A12 decisions (sync while closed, fingerprint)
+- Background sync by keeping the app's one Flutter engine alive in an Android foreground service (not a second engine or isolate), so screens and sync share one database connection. A 15-minute WorkManager job was rejected: two phones would have to wake at the same moment to reach each other.
+- Service type `specialUse` (no 6-hours-a-day limit that `dataSync` has on Android 15); acceptable because the APK is not on the Play Store. Changes still go out at once (nudge); the 2-minute alarm is only a safety check (owner chose 2 minutes).
+- A shop "mailbox" device (always-on old phone or laptop) was discussed and left for later; it would also cover the two phones not being in the shop at the same time.
+- The app locks at once when closed, because the engine now outlives the screen.
+- Fingerprint: per person, per phone (owner's choice), biometric only, tied to the person's current PIN hash so any PIN change switches it off. Owner approvals stay PIN only (owner's choice). Logins are not audited, as before.
+- Stale stock warning after 30 minutes without a sync, only on lines that leave the item at or below its minimum stock (owner's choice).
+
