@@ -18,6 +18,7 @@ import '../dayclose/day_check_screen.dart';
 import '../items/items_providers.dart';
 import '../parties/parties_providers.dart';
 import '../purchase/purchase_providers.dart';
+import '../reminders/reminders_screen.dart';
 import '../reports/reports_providers.dart';
 import '../returns/return_screens.dart';
 
@@ -68,6 +69,8 @@ void refreshAfterSync(Ref ref) {
     upiPayeeProvider,
     discountLimitProvider,
     billLanguageProvider,
+    dueRemindersProvider,
+    reminderSettingsProvider,
     phonesProvider,
   ]) {
     ref.invalidate(p);

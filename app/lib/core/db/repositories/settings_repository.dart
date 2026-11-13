@@ -13,6 +13,17 @@ class SettingKeys {
 
   /// Language of bill PDFs and WhatsApp messages: 'en' or 'mr' (shop-wide).
   static const billLanguage = 'bill_language';
+
+  // A11 payment reminders. Shop-wide (synced):
+  static const remindersOn = 'reminders_on';
+  static const reminderFirstDays = 'reminder_first_days';
+  static const reminderRepeatDays = 'reminder_repeat_days';
+  static const reminderMinPaise = 'reminder_min_paise';
+  // This phone only:
+  static const reminderSmsHere = 'reminder_sms_here';
+  static const reminderSmsHour = 'reminder_sms_hour';
+  static const reminderSkip = 'reminder_skip';
+  static const reminderSmsLastDay = 'reminder_sms_last_day';
   static const counterMaxDiscountPct = 'counter_max_discount_pct';
   static const autoLockMinutes = 'auto_lock_minutes';
   static const dailySummaryOn = 'daily_summary_on';

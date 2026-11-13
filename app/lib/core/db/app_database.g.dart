@@ -6331,6 +6331,21 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, Party> {
     requiredDuringInsert: false,
     defaultValue: const Constant(0),
   );
+  static const VerificationMeta _remindersOffMeta = const VerificationMeta(
+    'remindersOff',
+  );
+  @override
+  late final GeneratedColumn<bool> remindersOff = GeneratedColumn<bool>(
+    'reminders_off',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("reminders_off" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     id,
@@ -6346,6 +6361,7 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, Party> {
     stateCode,
     tier,
     creditLimitPaise,
+    remindersOff,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -6449,6 +6465,15 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, Party> {
         ),
       );
     }
+    if (data.containsKey('reminders_off')) {
+      context.handle(
+        _remindersOffMeta,
+        remindersOff.isAcceptableOrUnknown(
+          data['reminders_off']!,
+          _remindersOffMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -6518,6 +6543,11 @@ class $PartiesTable extends Parties with TableInfo<$PartiesTable, Party> {
             DriftSqlType.int,
             data['${effectivePrefix}credit_limit_paise'],
           )!,
+      remindersOff:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.bool,
+            data['${effectivePrefix}reminders_off'],
+          )!,
     );
   }
 
@@ -6545,6 +6575,9 @@ class Party extends DataClass implements Insertable<Party> {
   /// retail | contractor | dealer
   final String tier;
   final int creditLimitPaise;
+
+  /// A11: never send this customer payment reminders.
+  final bool remindersOff;
   const Party({
     required this.id,
     required this.shopId,
@@ -6559,6 +6592,7 @@ class Party extends DataClass implements Insertable<Party> {
     this.stateCode,
     required this.tier,
     required this.creditLimitPaise,
+    required this.remindersOff,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -6586,6 +6620,7 @@ class Party extends DataClass implements Insertable<Party> {
     }
     map['tier'] = Variable<String>(tier);
     map['credit_limit_paise'] = Variable<int>(creditLimitPaise);
+    map['reminders_off'] = Variable<bool>(remindersOff);
     return map;
   }
 
@@ -6615,6 +6650,7 @@ class Party extends DataClass implements Insertable<Party> {
               : Value(stateCode),
       tier: Value(tier),
       creditLimitPaise: Value(creditLimitPaise),
+      remindersOff: Value(remindersOff),
     );
   }
 
@@ -6637,6 +6673,7 @@ class Party extends DataClass implements Insertable<Party> {
       stateCode: serializer.fromJson<String?>(json['stateCode']),
       tier: serializer.fromJson<String>(json['tier']),
       creditLimitPaise: serializer.fromJson<int>(json['creditLimitPaise']),
+      remindersOff: serializer.fromJson<bool>(json['remindersOff']),
     );
   }
   @override
@@ -6656,6 +6693,7 @@ class Party extends DataClass implements Insertable<Party> {
       'stateCode': serializer.toJson<String?>(stateCode),
       'tier': serializer.toJson<String>(tier),
       'creditLimitPaise': serializer.toJson<int>(creditLimitPaise),
+      'remindersOff': serializer.toJson<bool>(remindersOff),
     };
   }
 
@@ -6673,6 +6711,7 @@ class Party extends DataClass implements Insertable<Party> {
     Value<String?> stateCode = const Value.absent(),
     String? tier,
     int? creditLimitPaise,
+    bool? remindersOff,
   }) => Party(
     id: id ?? this.id,
     shopId: shopId ?? this.shopId,
@@ -6687,6 +6726,7 @@ class Party extends DataClass implements Insertable<Party> {
     stateCode: stateCode.present ? stateCode.value : this.stateCode,
     tier: tier ?? this.tier,
     creditLimitPaise: creditLimitPaise ?? this.creditLimitPaise,
+    remindersOff: remindersOff ?? this.remindersOff,
   );
   Party copyWithCompanion(PartiesCompanion data) {
     return Party(
@@ -6706,6 +6746,10 @@ class Party extends DataClass implements Insertable<Party> {
           data.creditLimitPaise.present
               ? data.creditLimitPaise.value
               : this.creditLimitPaise,
+      remindersOff:
+          data.remindersOff.present
+              ? data.remindersOff.value
+              : this.remindersOff,
     );
   }
 
@@ -6724,7 +6768,8 @@ class Party extends DataClass implements Insertable<Party> {
           ..write('address: $address, ')
           ..write('stateCode: $stateCode, ')
           ..write('tier: $tier, ')
-          ..write('creditLimitPaise: $creditLimitPaise')
+          ..write('creditLimitPaise: $creditLimitPaise, ')
+          ..write('remindersOff: $remindersOff')
           ..write(')'))
         .toString();
   }
@@ -6744,6 +6789,7 @@ class Party extends DataClass implements Insertable<Party> {
     stateCode,
     tier,
     creditLimitPaise,
+    remindersOff,
   );
   @override
   bool operator ==(Object other) =>
@@ -6761,7 +6807,8 @@ class Party extends DataClass implements Insertable<Party> {
           other.address == this.address &&
           other.stateCode == this.stateCode &&
           other.tier == this.tier &&
-          other.creditLimitPaise == this.creditLimitPaise);
+          other.creditLimitPaise == this.creditLimitPaise &&
+          other.remindersOff == this.remindersOff);
 }
 
 class PartiesCompanion extends UpdateCompanion<Party> {
@@ -6778,6 +6825,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
   final Value<String?> stateCode;
   final Value<String> tier;
   final Value<int> creditLimitPaise;
+  final Value<bool> remindersOff;
   final Value<int> rowid;
   const PartiesCompanion({
     this.id = const Value.absent(),
@@ -6793,6 +6841,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
     this.stateCode = const Value.absent(),
     this.tier = const Value.absent(),
     this.creditLimitPaise = const Value.absent(),
+    this.remindersOff = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   PartiesCompanion.insert({
@@ -6809,6 +6858,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
     this.stateCode = const Value.absent(),
     this.tier = const Value.absent(),
     this.creditLimitPaise = const Value.absent(),
+    this.remindersOff = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        shopId = Value(shopId),
@@ -6830,6 +6880,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
     Expression<String>? stateCode,
     Expression<String>? tier,
     Expression<int>? creditLimitPaise,
+    Expression<bool>? remindersOff,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -6846,6 +6897,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
       if (stateCode != null) 'state_code': stateCode,
       if (tier != null) 'tier': tier,
       if (creditLimitPaise != null) 'credit_limit_paise': creditLimitPaise,
+      if (remindersOff != null) 'reminders_off': remindersOff,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -6864,6 +6916,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
     Value<String?>? stateCode,
     Value<String>? tier,
     Value<int>? creditLimitPaise,
+    Value<bool>? remindersOff,
     Value<int>? rowid,
   }) {
     return PartiesCompanion(
@@ -6880,6 +6933,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
       stateCode: stateCode ?? this.stateCode,
       tier: tier ?? this.tier,
       creditLimitPaise: creditLimitPaise ?? this.creditLimitPaise,
+      remindersOff: remindersOff ?? this.remindersOff,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -6926,6 +6980,9 @@ class PartiesCompanion extends UpdateCompanion<Party> {
     if (creditLimitPaise.present) {
       map['credit_limit_paise'] = Variable<int>(creditLimitPaise.value);
     }
+    if (remindersOff.present) {
+      map['reminders_off'] = Variable<bool>(remindersOff.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -6948,6 +7005,7 @@ class PartiesCompanion extends UpdateCompanion<Party> {
           ..write('stateCode: $stateCode, ')
           ..write('tier: $tier, ')
           ..write('creditLimitPaise: $creditLimitPaise, ')
+          ..write('remindersOff: $remindersOff, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -17047,6 +17105,740 @@ class SyncStateCompanion extends UpdateCompanion<SyncStateData> {
   }
 }
 
+class $RemindersTable extends Reminders
+    with TableInfo<$RemindersTable, Reminder> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RemindersTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _shopIdMeta = const VerificationMeta('shopId');
+  @override
+  late final GeneratedColumn<String> shopId = GeneratedColumn<String>(
+    'shop_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _updatedAtMeta = const VerificationMeta(
+    'updatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> updatedAt = GeneratedColumn<DateTime>(
+    'updated_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deletedAtMeta = const VerificationMeta(
+    'deletedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> deletedAt = GeneratedColumn<DateTime>(
+    'deleted_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _partyIdMeta = const VerificationMeta(
+    'partyId',
+  );
+  @override
+  late final GeneratedColumn<String> partyId = GeneratedColumn<String>(
+    'party_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES parties (id)',
+    ),
+  );
+  static const VerificationMeta _channelMeta = const VerificationMeta(
+    'channel',
+  );
+  @override
+  late final GeneratedColumn<String> channel = GeneratedColumn<String>(
+    'channel',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _amountPaiseMeta = const VerificationMeta(
+    'amountPaise',
+  );
+  @override
+  late final GeneratedColumn<int> amountPaise = GeneratedColumn<int>(
+    'amount_paise',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _oldestDueAtMeta = const VerificationMeta(
+    'oldestDueAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> oldestDueAt = GeneratedColumn<DateTime>(
+    'oldest_due_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sentAtMeta = const VerificationMeta('sentAt');
+  @override
+  late final GeneratedColumn<DateTime> sentAt = GeneratedColumn<DateTime>(
+    'sent_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _deviceIdMeta = const VerificationMeta(
+    'deviceId',
+  );
+  @override
+  late final GeneratedColumn<String> deviceId = GeneratedColumn<String>(
+    'device_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdByMeta = const VerificationMeta(
+    'createdBy',
+  );
+  @override
+  late final GeneratedColumn<String> createdBy = GeneratedColumn<String>(
+    'created_by',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    shopId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    partyId,
+    channel,
+    amountPaise,
+    oldestDueAt,
+    sentAt,
+    deviceId,
+    createdBy,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'reminders';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Reminder> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('shop_id')) {
+      context.handle(
+        _shopIdMeta,
+        shopId.isAcceptableOrUnknown(data['shop_id']!, _shopIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_shopIdMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('updated_at')) {
+      context.handle(
+        _updatedAtMeta,
+        updatedAt.isAcceptableOrUnknown(data['updated_at']!, _updatedAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_updatedAtMeta);
+    }
+    if (data.containsKey('deleted_at')) {
+      context.handle(
+        _deletedAtMeta,
+        deletedAt.isAcceptableOrUnknown(data['deleted_at']!, _deletedAtMeta),
+      );
+    }
+    if (data.containsKey('party_id')) {
+      context.handle(
+        _partyIdMeta,
+        partyId.isAcceptableOrUnknown(data['party_id']!, _partyIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_partyIdMeta);
+    }
+    if (data.containsKey('channel')) {
+      context.handle(
+        _channelMeta,
+        channel.isAcceptableOrUnknown(data['channel']!, _channelMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_channelMeta);
+    }
+    if (data.containsKey('amount_paise')) {
+      context.handle(
+        _amountPaiseMeta,
+        amountPaise.isAcceptableOrUnknown(
+          data['amount_paise']!,
+          _amountPaiseMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_amountPaiseMeta);
+    }
+    if (data.containsKey('oldest_due_at')) {
+      context.handle(
+        _oldestDueAtMeta,
+        oldestDueAt.isAcceptableOrUnknown(
+          data['oldest_due_at']!,
+          _oldestDueAtMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_oldestDueAtMeta);
+    }
+    if (data.containsKey('sent_at')) {
+      context.handle(
+        _sentAtMeta,
+        sentAt.isAcceptableOrUnknown(data['sent_at']!, _sentAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sentAtMeta);
+    }
+    if (data.containsKey('device_id')) {
+      context.handle(
+        _deviceIdMeta,
+        deviceId.isAcceptableOrUnknown(data['device_id']!, _deviceIdMeta),
+      );
+    }
+    if (data.containsKey('created_by')) {
+      context.handle(
+        _createdByMeta,
+        createdBy.isAcceptableOrUnknown(data['created_by']!, _createdByMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Reminder map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Reminder(
+      id:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}id'],
+          )!,
+      shopId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}shop_id'],
+          )!,
+      createdAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}created_at'],
+          )!,
+      updatedAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}updated_at'],
+          )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      partyId:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}party_id'],
+          )!,
+      channel:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.string,
+            data['${effectivePrefix}channel'],
+          )!,
+      amountPaise:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.int,
+            data['${effectivePrefix}amount_paise'],
+          )!,
+      oldestDueAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}oldest_due_at'],
+          )!,
+      sentAt:
+          attachedDatabase.typeMapping.read(
+            DriftSqlType.dateTime,
+            data['${effectivePrefix}sent_at'],
+          )!,
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      ),
+      createdBy: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}created_by'],
+      ),
+    );
+  }
+
+  @override
+  $RemindersTable createAlias(String alias) {
+    return $RemindersTable(attachedDatabase, alias);
+  }
+}
+
+class Reminder extends DataClass implements Insertable<Reminder> {
+  final String id;
+  final String shopId;
+  final DateTime createdAt;
+  final DateTime updatedAt;
+  final DateTime? deletedAt;
+  final String partyId;
+
+  /// sms | whatsapp
+  final String channel;
+
+  /// What they owed when reminded.
+  final int amountPaise;
+
+  /// Date of their oldest unpaid bill at the time.
+  final DateTime oldestDueAt;
+  final DateTime sentAt;
+
+  /// The phone that sent it, and who (a person for WhatsApp; null for automatic SMS).
+  final String? deviceId;
+  final String? createdBy;
+  const Reminder({
+    required this.id,
+    required this.shopId,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.partyId,
+    required this.channel,
+    required this.amountPaise,
+    required this.oldestDueAt,
+    required this.sentAt,
+    this.deviceId,
+    this.createdBy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['shop_id'] = Variable<String>(shopId);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['updated_at'] = Variable<DateTime>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt);
+    }
+    map['party_id'] = Variable<String>(partyId);
+    map['channel'] = Variable<String>(channel);
+    map['amount_paise'] = Variable<int>(amountPaise);
+    map['oldest_due_at'] = Variable<DateTime>(oldestDueAt);
+    map['sent_at'] = Variable<DateTime>(sentAt);
+    if (!nullToAbsent || deviceId != null) {
+      map['device_id'] = Variable<String>(deviceId);
+    }
+    if (!nullToAbsent || createdBy != null) {
+      map['created_by'] = Variable<String>(createdBy);
+    }
+    return map;
+  }
+
+  RemindersCompanion toCompanion(bool nullToAbsent) {
+    return RemindersCompanion(
+      id: Value(id),
+      shopId: Value(shopId),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt:
+          deletedAt == null && nullToAbsent
+              ? const Value.absent()
+              : Value(deletedAt),
+      partyId: Value(partyId),
+      channel: Value(channel),
+      amountPaise: Value(amountPaise),
+      oldestDueAt: Value(oldestDueAt),
+      sentAt: Value(sentAt),
+      deviceId:
+          deviceId == null && nullToAbsent
+              ? const Value.absent()
+              : Value(deviceId),
+      createdBy:
+          createdBy == null && nullToAbsent
+              ? const Value.absent()
+              : Value(createdBy),
+    );
+  }
+
+  factory Reminder.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Reminder(
+      id: serializer.fromJson<String>(json['id']),
+      shopId: serializer.fromJson<String>(json['shopId']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      updatedAt: serializer.fromJson<DateTime>(json['updatedAt']),
+      deletedAt: serializer.fromJson<DateTime?>(json['deletedAt']),
+      partyId: serializer.fromJson<String>(json['partyId']),
+      channel: serializer.fromJson<String>(json['channel']),
+      amountPaise: serializer.fromJson<int>(json['amountPaise']),
+      oldestDueAt: serializer.fromJson<DateTime>(json['oldestDueAt']),
+      sentAt: serializer.fromJson<DateTime>(json['sentAt']),
+      deviceId: serializer.fromJson<String?>(json['deviceId']),
+      createdBy: serializer.fromJson<String?>(json['createdBy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'shopId': serializer.toJson<String>(shopId),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'updatedAt': serializer.toJson<DateTime>(updatedAt),
+      'deletedAt': serializer.toJson<DateTime?>(deletedAt),
+      'partyId': serializer.toJson<String>(partyId),
+      'channel': serializer.toJson<String>(channel),
+      'amountPaise': serializer.toJson<int>(amountPaise),
+      'oldestDueAt': serializer.toJson<DateTime>(oldestDueAt),
+      'sentAt': serializer.toJson<DateTime>(sentAt),
+      'deviceId': serializer.toJson<String?>(deviceId),
+      'createdBy': serializer.toJson<String?>(createdBy),
+    };
+  }
+
+  Reminder copyWith({
+    String? id,
+    String? shopId,
+    DateTime? createdAt,
+    DateTime? updatedAt,
+    Value<DateTime?> deletedAt = const Value.absent(),
+    String? partyId,
+    String? channel,
+    int? amountPaise,
+    DateTime? oldestDueAt,
+    DateTime? sentAt,
+    Value<String?> deviceId = const Value.absent(),
+    Value<String?> createdBy = const Value.absent(),
+  }) => Reminder(
+    id: id ?? this.id,
+    shopId: shopId ?? this.shopId,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    partyId: partyId ?? this.partyId,
+    channel: channel ?? this.channel,
+    amountPaise: amountPaise ?? this.amountPaise,
+    oldestDueAt: oldestDueAt ?? this.oldestDueAt,
+    sentAt: sentAt ?? this.sentAt,
+    deviceId: deviceId.present ? deviceId.value : this.deviceId,
+    createdBy: createdBy.present ? createdBy.value : this.createdBy,
+  );
+  Reminder copyWithCompanion(RemindersCompanion data) {
+    return Reminder(
+      id: data.id.present ? data.id.value : this.id,
+      shopId: data.shopId.present ? data.shopId.value : this.shopId,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      partyId: data.partyId.present ? data.partyId.value : this.partyId,
+      channel: data.channel.present ? data.channel.value : this.channel,
+      amountPaise:
+          data.amountPaise.present ? data.amountPaise.value : this.amountPaise,
+      oldestDueAt:
+          data.oldestDueAt.present ? data.oldestDueAt.value : this.oldestDueAt,
+      sentAt: data.sentAt.present ? data.sentAt.value : this.sentAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      createdBy: data.createdBy.present ? data.createdBy.value : this.createdBy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Reminder(')
+          ..write('id: $id, ')
+          ..write('shopId: $shopId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('partyId: $partyId, ')
+          ..write('channel: $channel, ')
+          ..write('amountPaise: $amountPaise, ')
+          ..write('oldestDueAt: $oldestDueAt, ')
+          ..write('sentAt: $sentAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('createdBy: $createdBy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    shopId,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    partyId,
+    channel,
+    amountPaise,
+    oldestDueAt,
+    sentAt,
+    deviceId,
+    createdBy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Reminder &&
+          other.id == this.id &&
+          other.shopId == this.shopId &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.partyId == this.partyId &&
+          other.channel == this.channel &&
+          other.amountPaise == this.amountPaise &&
+          other.oldestDueAt == this.oldestDueAt &&
+          other.sentAt == this.sentAt &&
+          other.deviceId == this.deviceId &&
+          other.createdBy == this.createdBy);
+}
+
+class RemindersCompanion extends UpdateCompanion<Reminder> {
+  final Value<String> id;
+  final Value<String> shopId;
+  final Value<DateTime> createdAt;
+  final Value<DateTime> updatedAt;
+  final Value<DateTime?> deletedAt;
+  final Value<String> partyId;
+  final Value<String> channel;
+  final Value<int> amountPaise;
+  final Value<DateTime> oldestDueAt;
+  final Value<DateTime> sentAt;
+  final Value<String?> deviceId;
+  final Value<String?> createdBy;
+  final Value<int> rowid;
+  const RemindersCompanion({
+    this.id = const Value.absent(),
+    this.shopId = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.partyId = const Value.absent(),
+    this.channel = const Value.absent(),
+    this.amountPaise = const Value.absent(),
+    this.oldestDueAt = const Value.absent(),
+    this.sentAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  RemindersCompanion.insert({
+    required String id,
+    required String shopId,
+    required DateTime createdAt,
+    required DateTime updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String partyId,
+    required String channel,
+    required int amountPaise,
+    required DateTime oldestDueAt,
+    required DateTime sentAt,
+    this.deviceId = const Value.absent(),
+    this.createdBy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       shopId = Value(shopId),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       partyId = Value(partyId),
+       channel = Value(channel),
+       amountPaise = Value(amountPaise),
+       oldestDueAt = Value(oldestDueAt),
+       sentAt = Value(sentAt);
+  static Insertable<Reminder> custom({
+    Expression<String>? id,
+    Expression<String>? shopId,
+    Expression<DateTime>? createdAt,
+    Expression<DateTime>? updatedAt,
+    Expression<DateTime>? deletedAt,
+    Expression<String>? partyId,
+    Expression<String>? channel,
+    Expression<int>? amountPaise,
+    Expression<DateTime>? oldestDueAt,
+    Expression<DateTime>? sentAt,
+    Expression<String>? deviceId,
+    Expression<String>? createdBy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (shopId != null) 'shop_id': shopId,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (partyId != null) 'party_id': partyId,
+      if (channel != null) 'channel': channel,
+      if (amountPaise != null) 'amount_paise': amountPaise,
+      if (oldestDueAt != null) 'oldest_due_at': oldestDueAt,
+      if (sentAt != null) 'sent_at': sentAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (createdBy != null) 'created_by': createdBy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  RemindersCompanion copyWith({
+    Value<String>? id,
+    Value<String>? shopId,
+    Value<DateTime>? createdAt,
+    Value<DateTime>? updatedAt,
+    Value<DateTime?>? deletedAt,
+    Value<String>? partyId,
+    Value<String>? channel,
+    Value<int>? amountPaise,
+    Value<DateTime>? oldestDueAt,
+    Value<DateTime>? sentAt,
+    Value<String?>? deviceId,
+    Value<String?>? createdBy,
+    Value<int>? rowid,
+  }) {
+    return RemindersCompanion(
+      id: id ?? this.id,
+      shopId: shopId ?? this.shopId,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      partyId: partyId ?? this.partyId,
+      channel: channel ?? this.channel,
+      amountPaise: amountPaise ?? this.amountPaise,
+      oldestDueAt: oldestDueAt ?? this.oldestDueAt,
+      sentAt: sentAt ?? this.sentAt,
+      deviceId: deviceId ?? this.deviceId,
+      createdBy: createdBy ?? this.createdBy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (shopId.present) {
+      map['shop_id'] = Variable<String>(shopId.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<DateTime>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<DateTime>(deletedAt.value);
+    }
+    if (partyId.present) {
+      map['party_id'] = Variable<String>(partyId.value);
+    }
+    if (channel.present) {
+      map['channel'] = Variable<String>(channel.value);
+    }
+    if (amountPaise.present) {
+      map['amount_paise'] = Variable<int>(amountPaise.value);
+    }
+    if (oldestDueAt.present) {
+      map['oldest_due_at'] = Variable<DateTime>(oldestDueAt.value);
+    }
+    if (sentAt.present) {
+      map['sent_at'] = Variable<DateTime>(sentAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (createdBy.present) {
+      map['created_by'] = Variable<String>(createdBy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RemindersCompanion(')
+          ..write('id: $id, ')
+          ..write('shopId: $shopId, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('partyId: $partyId, ')
+          ..write('channel: $channel, ')
+          ..write('amountPaise: $amountPaise, ')
+          ..write('oldestDueAt: $oldestDueAt, ')
+          ..write('sentAt: $sentAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('createdBy: $createdBy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -17078,6 +17870,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AppSettingsTable appSettings = $AppSettingsTable(this);
   late final $SyncPeersTable syncPeers = $SyncPeersTable(this);
   late final $SyncStateTable syncState = $SyncStateTable(this);
+  late final $RemindersTable reminders = $RemindersTable(this);
   late final Index outboxOriginSeq = Index(
     'outbox_origin_seq',
     'CREATE UNIQUE INDEX outbox_origin_seq ON outbox (origin_device_id, seq)',
@@ -17105,6 +17898,10 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final Index stockMovementsItem = Index(
     'stock_movements_item',
     'CREATE INDEX stock_movements_item ON stock_movements (item_id)',
+  );
+  late final Index remindersParty = Index(
+    'reminders_party',
+    'CREATE INDEX reminders_party ON reminders (party_id)',
   );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
@@ -17135,6 +17932,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     appSettings,
     syncPeers,
     syncState,
+    reminders,
     outboxOriginSeq,
     itemsName,
     itemVariantsBarcode,
@@ -17142,6 +17940,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     invoicesDate,
     purchasesSupplierNo,
     stockMovementsItem,
+    remindersParty,
   ];
 }
 
@@ -22321,6 +23120,7 @@ typedef $$PartiesTableCreateCompanionBuilder =
       Value<String?> stateCode,
       Value<String> tier,
       Value<int> creditLimitPaise,
+      Value<bool> remindersOff,
       Value<int> rowid,
     });
 typedef $$PartiesTableUpdateCompanionBuilder =
@@ -22338,6 +23138,7 @@ typedef $$PartiesTableUpdateCompanionBuilder =
       Value<String?> stateCode,
       Value<String> tier,
       Value<int> creditLimitPaise,
+      Value<bool> remindersOff,
       Value<int> rowid,
     });
 
@@ -22395,6 +23196,24 @@ final class $$PartiesTableReferences
     ).filter((f) => f.supplierId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_purchasesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$RemindersTable, List<Reminder>>
+  _remindersRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.reminders,
+    aliasName: $_aliasNameGenerator(db.parties.id, db.reminders.partyId),
+  );
+
+  $$RemindersTableProcessedTableManager get remindersRefs {
+    final manager = $$RemindersTableTableManager(
+      $_db,
+      $_db.reminders,
+    ).filter((f) => f.partyId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_remindersRefsTable($_db));
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -22475,6 +23294,11 @@ class $$PartiesTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
+  ColumnFilters<bool> get remindersOff => $composableBuilder(
+    column: $table.remindersOff,
+    builder: (column) => ColumnFilters(column),
+  );
+
   Expression<bool> ledgerEntriesRefs(
     Expression<bool> Function($$LedgerEntriesTableFilterComposer f) f,
   ) {
@@ -22541,6 +23365,31 @@ class $$PartiesTableFilterComposer
           }) => $$PurchasesTableFilterComposer(
             $db: $db,
             $table: $db.purchases,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> remindersRefs(
+    Expression<bool> Function($$RemindersTableFilterComposer f) f,
+  ) {
+    final $$RemindersTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.partyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableFilterComposer(
+            $db: $db,
+            $table: $db.reminders,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -22624,6 +23473,11 @@ class $$PartiesTableOrderingComposer
     column: $table.creditLimitPaise,
     builder: (column) => ColumnOrderings(column),
   );
+
+  ColumnOrderings<bool> get remindersOff => $composableBuilder(
+    column: $table.remindersOff,
+    builder: (column) => ColumnOrderings(column),
+  );
 }
 
 class $$PartiesTableAnnotationComposer
@@ -22673,6 +23527,11 @@ class $$PartiesTableAnnotationComposer
 
   GeneratedColumn<int> get creditLimitPaise => $composableBuilder(
     column: $table.creditLimitPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get remindersOff => $composableBuilder(
+    column: $table.remindersOff,
     builder: (column) => column,
   );
 
@@ -22750,6 +23609,31 @@ class $$PartiesTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> remindersRefs<T extends Object>(
+    Expression<T> Function($$RemindersTableAnnotationComposer a) f,
+  ) {
+    final $$RemindersTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.reminders,
+      getReferencedColumn: (t) => t.partyId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RemindersTableAnnotationComposer(
+            $db: $db,
+            $table: $db.reminders,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$PartiesTableTableManager
@@ -22769,6 +23653,7 @@ class $$PartiesTableTableManager
             bool ledgerEntriesRefs,
             bool invoicesRefs,
             bool purchasesRefs,
+            bool remindersRefs,
           })
         > {
   $$PartiesTableTableManager(_$AppDatabase db, $PartiesTable table)
@@ -22797,6 +23682,7 @@ class $$PartiesTableTableManager
                 Value<String?> stateCode = const Value.absent(),
                 Value<String> tier = const Value.absent(),
                 Value<int> creditLimitPaise = const Value.absent(),
+                Value<bool> remindersOff = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PartiesCompanion(
                 id: id,
@@ -22812,6 +23698,7 @@ class $$PartiesTableTableManager
                 stateCode: stateCode,
                 tier: tier,
                 creditLimitPaise: creditLimitPaise,
+                remindersOff: remindersOff,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -22829,6 +23716,7 @@ class $$PartiesTableTableManager
                 Value<String?> stateCode = const Value.absent(),
                 Value<String> tier = const Value.absent(),
                 Value<int> creditLimitPaise = const Value.absent(),
+                Value<bool> remindersOff = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => PartiesCompanion.insert(
                 id: id,
@@ -22844,6 +23732,7 @@ class $$PartiesTableTableManager
                 stateCode: stateCode,
                 tier: tier,
                 creditLimitPaise: creditLimitPaise,
+                remindersOff: remindersOff,
                 rowid: rowid,
               ),
           withReferenceMapper:
@@ -22860,6 +23749,7 @@ class $$PartiesTableTableManager
             ledgerEntriesRefs = false,
             invoicesRefs = false,
             purchasesRefs = false,
+            remindersRefs = false,
           }) {
             return PrefetchHooks(
               db: db,
@@ -22867,6 +23757,7 @@ class $$PartiesTableTableManager
                 if (ledgerEntriesRefs) db.ledgerEntries,
                 if (invoicesRefs) db.invoices,
                 if (purchasesRefs) db.purchases,
+                if (remindersRefs) db.reminders,
               ],
               addJoins: null,
               getPrefetchedDataCallback: (items) async {
@@ -22929,6 +23820,24 @@ class $$PartiesTableTableManager
                           ),
                       typedResults: items,
                     ),
+                  if (remindersRefs)
+                    await $_getPrefetchedData<Party, $PartiesTable, Reminder>(
+                      currentTable: table,
+                      referencedTable: $$PartiesTableReferences
+                          ._remindersRefsTable(db),
+                      managerFromTypedResult:
+                          (p0) =>
+                              $$PartiesTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).remindersRefs,
+                      referencedItemsForCurrentItem:
+                          (item, referencedItems) => referencedItems.where(
+                            (e) => e.partyId == item.id,
+                          ),
+                      typedResults: items,
+                    ),
                 ];
               },
             );
@@ -22953,6 +23862,7 @@ typedef $$PartiesTableProcessedTableManager =
         bool ledgerEntriesRefs,
         bool invoicesRefs,
         bool purchasesRefs,
+        bool remindersRefs,
       })
     >;
 typedef $$LedgerEntriesTableCreateCompanionBuilder =
@@ -30276,6 +31186,460 @@ typedef $$SyncStateTableProcessedTableManager =
       SyncStateData,
       PrefetchHooks Function()
     >;
+typedef $$RemindersTableCreateCompanionBuilder =
+    RemindersCompanion Function({
+      required String id,
+      required String shopId,
+      required DateTime createdAt,
+      required DateTime updatedAt,
+      Value<DateTime?> deletedAt,
+      required String partyId,
+      required String channel,
+      required int amountPaise,
+      required DateTime oldestDueAt,
+      required DateTime sentAt,
+      Value<String?> deviceId,
+      Value<String?> createdBy,
+      Value<int> rowid,
+    });
+typedef $$RemindersTableUpdateCompanionBuilder =
+    RemindersCompanion Function({
+      Value<String> id,
+      Value<String> shopId,
+      Value<DateTime> createdAt,
+      Value<DateTime> updatedAt,
+      Value<DateTime?> deletedAt,
+      Value<String> partyId,
+      Value<String> channel,
+      Value<int> amountPaise,
+      Value<DateTime> oldestDueAt,
+      Value<DateTime> sentAt,
+      Value<String?> deviceId,
+      Value<String?> createdBy,
+      Value<int> rowid,
+    });
+
+final class $$RemindersTableReferences
+    extends BaseReferences<_$AppDatabase, $RemindersTable, Reminder> {
+  $$RemindersTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $PartiesTable _partyIdTable(_$AppDatabase db) => db.parties
+      .createAlias($_aliasNameGenerator(db.reminders.partyId, db.parties.id));
+
+  $$PartiesTableProcessedTableManager get partyId {
+    final $_column = $_itemColumn<String>('party_id')!;
+
+    final manager = $$PartiesTableTableManager(
+      $_db,
+      $_db.parties,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_partyIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$RemindersTableFilterComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get shopId => $composableBuilder(
+    column: $table.shopId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get channel => $composableBuilder(
+    column: $table.channel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get amountPaise => $composableBuilder(
+    column: $table.amountPaise,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get oldestDueAt => $composableBuilder(
+    column: $table.oldestDueAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get sentAt => $composableBuilder(
+    column: $table.sentAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$PartiesTableFilterComposer get partyId {
+    final $$PartiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableFilterComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableOrderingComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get shopId => $composableBuilder(
+    column: $table.shopId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get updatedAt => $composableBuilder(
+    column: $table.updatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get deletedAt => $composableBuilder(
+    column: $table.deletedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get channel => $composableBuilder(
+    column: $table.channel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get amountPaise => $composableBuilder(
+    column: $table.amountPaise,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get oldestDueAt => $composableBuilder(
+    column: $table.oldestDueAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get sentAt => $composableBuilder(
+    column: $table.sentAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get deviceId => $composableBuilder(
+    column: $table.deviceId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get createdBy => $composableBuilder(
+    column: $table.createdBy,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$PartiesTableOrderingComposer get partyId {
+    final $$PartiesTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableOrderingComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RemindersTable> {
+  $$RemindersTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get shopId =>
+      $composableBuilder(column: $table.shopId, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get updatedAt =>
+      $composableBuilder(column: $table.updatedAt, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get deletedAt =>
+      $composableBuilder(column: $table.deletedAt, builder: (column) => column);
+
+  GeneratedColumn<String> get channel =>
+      $composableBuilder(column: $table.channel, builder: (column) => column);
+
+  GeneratedColumn<int> get amountPaise => $composableBuilder(
+    column: $table.amountPaise,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get oldestDueAt => $composableBuilder(
+    column: $table.oldestDueAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get sentAt =>
+      $composableBuilder(column: $table.sentAt, builder: (column) => column);
+
+  GeneratedColumn<String> get deviceId =>
+      $composableBuilder(column: $table.deviceId, builder: (column) => column);
+
+  GeneratedColumn<String> get createdBy =>
+      $composableBuilder(column: $table.createdBy, builder: (column) => column);
+
+  $$PartiesTableAnnotationComposer get partyId {
+    final $$PartiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.partyId,
+      referencedTable: $db.parties,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$PartiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.parties,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RemindersTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RemindersTable,
+          Reminder,
+          $$RemindersTableFilterComposer,
+          $$RemindersTableOrderingComposer,
+          $$RemindersTableAnnotationComposer,
+          $$RemindersTableCreateCompanionBuilder,
+          $$RemindersTableUpdateCompanionBuilder,
+          (Reminder, $$RemindersTableReferences),
+          Reminder,
+          PrefetchHooks Function({bool partyId})
+        > {
+  $$RemindersTableTableManager(_$AppDatabase db, $RemindersTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer:
+              () => $$RemindersTableFilterComposer($db: db, $table: table),
+          createOrderingComposer:
+              () => $$RemindersTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer:
+              () => $$RemindersTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String> shopId = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<DateTime> updatedAt = const Value.absent(),
+                Value<DateTime?> deletedAt = const Value.absent(),
+                Value<String> partyId = const Value.absent(),
+                Value<String> channel = const Value.absent(),
+                Value<int> amountPaise = const Value.absent(),
+                Value<DateTime> oldestDueAt = const Value.absent(),
+                Value<DateTime> sentAt = const Value.absent(),
+                Value<String?> deviceId = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RemindersCompanion(
+                id: id,
+                shopId: shopId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                partyId: partyId,
+                channel: channel,
+                amountPaise: amountPaise,
+                oldestDueAt: oldestDueAt,
+                sentAt: sentAt,
+                deviceId: deviceId,
+                createdBy: createdBy,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                required String shopId,
+                required DateTime createdAt,
+                required DateTime updatedAt,
+                Value<DateTime?> deletedAt = const Value.absent(),
+                required String partyId,
+                required String channel,
+                required int amountPaise,
+                required DateTime oldestDueAt,
+                required DateTime sentAt,
+                Value<String?> deviceId = const Value.absent(),
+                Value<String?> createdBy = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => RemindersCompanion.insert(
+                id: id,
+                shopId: shopId,
+                createdAt: createdAt,
+                updatedAt: updatedAt,
+                deletedAt: deletedAt,
+                partyId: partyId,
+                channel: channel,
+                amountPaise: amountPaise,
+                oldestDueAt: oldestDueAt,
+                sentAt: sentAt,
+                deviceId: deviceId,
+                createdBy: createdBy,
+                rowid: rowid,
+              ),
+          withReferenceMapper:
+              (p0) =>
+                  p0
+                      .map(
+                        (e) => (
+                          e.readTable(table),
+                          $$RemindersTableReferences(db, table, e),
+                        ),
+                      )
+                      .toList(),
+          prefetchHooksCallback: ({partyId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins: <
+                T extends TableManagerState<
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic,
+                  dynamic
+                >
+              >(state) {
+                if (partyId) {
+                  state =
+                      state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.partyId,
+                            referencedTable: $$RemindersTableReferences
+                                ._partyIdTable(db),
+                            referencedColumn:
+                                $$RemindersTableReferences._partyIdTable(db).id,
+                          )
+                          as T;
+                }
+
+                return state;
+              },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RemindersTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RemindersTable,
+      Reminder,
+      $$RemindersTableFilterComposer,
+      $$RemindersTableOrderingComposer,
+      $$RemindersTableAnnotationComposer,
+      $$RemindersTableCreateCompanionBuilder,
+      $$RemindersTableUpdateCompanionBuilder,
+      (Reminder, $$RemindersTableReferences),
+      Reminder,
+      PrefetchHooks Function({bool partyId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -30328,4 +31692,6 @@ class $AppDatabaseManager {
       $$SyncPeersTableTableManager(_db, _db.syncPeers);
   $$SyncStateTableTableManager get syncState =>
       $$SyncStateTableTableManager(_db, _db.syncState);
+  $$RemindersTableTableManager get reminders =>
+      $$RemindersTableTableManager(_db, _db.reminders);
 }

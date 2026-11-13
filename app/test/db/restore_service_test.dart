@@ -139,6 +139,8 @@ void main() {
       d.execute('ALTER TABLE outbox DROP COLUMN changed_at_ms');
       d.execute('DROP TABLE sync_peers');
       d.execute('DROP TABLE sync_state');
+      d.execute('DROP TABLE reminders');
+      d.execute('ALTER TABLE parties DROP COLUMN reminders_off');
       d.execute('PRAGMA user_version = 3');
       d.dispose();
 

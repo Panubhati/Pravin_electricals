@@ -1,0 +1,19 @@
+name: shop_sms
+description: "Sends plain SMS from the shop app (A11 payment reminders), also from the background job."
+version: 0.0.1
+publish_to: none
+
+environment:
+  sdk: ^3.7.0
+  flutter: '>=3.3.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: com.pravinelectricals.shop_sms
+        pluginClass: ShopSmsPlugin

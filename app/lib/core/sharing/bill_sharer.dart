@@ -16,6 +16,10 @@ abstract class BillSharer {
     required String number,
     String? text,
   });
+
+  /// Opens WhatsApp on the chat with [number] with [text] typed in (no file).
+  /// Returns false when WhatsApp is not installed.
+  Future<bool> whatsAppText({required String number, required String text});
 }
 
 class DeviceBillSharer implements BillSharer {
@@ -40,4 +44,8 @@ class DeviceBillSharer implements BillSharer {
     });
     return ok ?? false;
   }
+
+  @override
+  Future<bool> whatsAppText({required String number, required String text}) async =>
+      await _channel.invokeMethod<bool>('whatsAppText', {'number': number, 'text': text}) ?? false;
 }

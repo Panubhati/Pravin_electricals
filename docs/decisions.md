@@ -121,3 +121,10 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - The pdf package cannot shape Devanagari, so Marathi bills are drawn by Flutter's text engine onto 150 dpi page pictures inside the PDF (about 60 KB a page). English bills remain text PDFs.
 - Translations use everyday shop Marathi with the English words people use (बिल, स्टॉक, GST, UPI, PIN, बॅकअप); docs/marathi-review.md is the sheet for the shop to correct wording.
 - Messages made deep in the app stay English at the source and are translated where they are shown, by whole-sentence patterns that keep names and numbers.
+
+## 2026-11-13 A11 decisions (payment reminders)
+- Both channels (owner's choice): automatic SMS from one chosen phone, and a WhatsApp one-tap list (WhatsApp cannot be sent automatically without a paid business service).
+- Due = owes at least the minimum, oldest unpaid bill (FIFO ageing) at least N days old, mobile number present, not switched off, and not reminded on any phone within M days. Defaults 15, 7 and ₹100.
+- Schema v7: parties.reminders_off and an append-only, synced reminders table, so two phones never double-remind.
+- SMS: once a day after the chosen hour from the hourly background job, max 25, 3 s apart; the day is marked before sending so a crash never double-sends; a failed SMS is not recorded and is retried next day. Sent through our own send-only plugin (packages/shop_sms) instead of a third-party package that also reads SMS.
+- Message in the bill language, English month names, with the UPI link for the amount owed.

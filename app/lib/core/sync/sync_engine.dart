@@ -19,6 +19,10 @@ const phoneOnlySettingKeys = {
   SettingKeys.autoLockMinutes,
   SettingKeys.dailySummaryOn,
   SettingKeys.dailySummaryHour,
+  SettingKeys.reminderSmsHere,
+  SettingKeys.reminderSmsHour,
+  SettingKeys.reminderSkip,
+  SettingKeys.reminderSmsLastDay,
 };
 
 /// Rows that must be unique while not deleted, though each phone makes its own

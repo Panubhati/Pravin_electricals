@@ -551,6 +551,35 @@ and dates are not translated (dates keep English month names). Generated from th
 | The phone is out of storage space. Free some space and try again. Nothing was saved. | फोनमध्ये जागा संपली. थोडी जागा मोकळी करा आणि पुन्हा प्रयत्न करा. काहीही जतन झाले नाही. |  |
 | The phone could not write to its storage. Nothing was saved. Try again, and restart the phone if it keeps happening. | फोनला माहिती लिहिता आली नाही. काहीही जतन झाले नाही. पुन्हा प्रयत्न करा, आणि सारखे होत असेल तर फोन बंद-चालू करा. |  |
 | The shop data is busy. Wait a moment and try again. | दुकानाची माहिती व्यस्त आहे. थोडे थांबा आणि पुन्हा प्रयत्न करा. |  |
+| Payment reminders | पैशांची आठवण |  |
+| Reminder settings | आठवणीची सेटिंग्ज |  |
+| Payment reminders are off. Switch them on in Reminder settings. | पैशांची आठवण बंद आहे. आठवणीच्या सेटिंग्जमध्ये चालू करा. |  |
+| Send payment reminders | पैशांची आठवण पाठवा |  |
+| Customers who owe money get a polite message: the first after the days below, then again until they pay. Switch it off for one customer on their page. | ज्या ग्राहकांकडे पैसे बाकी आहेत त्यांना नम्र संदेश जातो: खालील दिवसांनी पहिला, मग पैसे भरेपर्यंत पुन्हा. एखाद्या ग्राहकासाठी त्याच्या पानावरून बंद करा. |  |
+| First reminder after | पहिली आठवण |  |
+| Then again every | नंतर पुन्हा दर |  |
+| Only if they owe at least | किमान बाकी असेल तरच |  |
+| Message preview | संदेशाचा नमुना |  |
+| Nobody is due for a reminder today. | आज कोणालाही आठवण पाठवायची नाही. |  |
+| Skip today | आज नको |  |
+| Reminder recorded | आठवण नोंदवली |  |
+| WhatsApp is not installed on this phone | या फोनवर WhatsApp नाही |  |
+| No payment reminders | पैशांची आठवण पाठवू नका |  |
+| This customer never gets payment reminders. | या ग्राहकाला कधीही पैशांची आठवण जात नाही. |  |
+| Days counted from their oldest unpaid bill. | सर्वात जुन्या न भरलेल्या बिलापासून दिवस मोजले जातात. |  |
+| Days | दिवस |  |
+| Ramesh | रमेश |  |
+| Automatic SMS | आपोआप SMS |  |
+| Send SMS automatically from this phone | या फोनवरून आपोआप SMS पाठवा |  |
+| Once a day after the time below, this phone texts everyone due, from its own SIM. Switch this on for one phone only. | खालील वेळेनंतर दिवसातून एकदा हा फोन स्वतःच्या SIM वरून सर्व बाकीदारांना SMS पाठवतो. हे फक्त एका फोनवर चालू करा. |  |
+| SMS after | SMS या वेळेनंतर |  |
+| Send a test SMS | चाचणी SMS पाठवा |  |
+| Mobile number for the test | चाचणीसाठी मोबाईल नंबर |  |
+| Test SMS sent | चाचणी SMS पाठवला |  |
+| SMS permission was not given | SMS परवानगी दिली नाही |  |
+| The SMS could not be sent | SMS पाठवता आला नाही |  |
+| Payment reminders sent | पैशांच्या आठवणी पाठवल्या |  |
+| Send today's SMS now | आजचे SMS आत्ता पाठवा |  |
 
 ## Sentences with numbers or names
 
@@ -618,3 +647,10 @@ Here `$n`, `$name`, `$amount` stand for what the app fills in.
 | dayCheckShareSubject | $shop दिवसाचा हिशोब $date |
 | changedFromTo | $label: $from वरून $to |
 | somethingWentWrong | काहीतरी चुकले: $e |
+| reminderDaysValue | $n दिवस |
+| reminderOwesSince | $date पासून बाकी ($days दिवस) |
+| reminderLast | शेवटची आठवण $when |
+| remindersDueNote | $n ग्राहकांना पैशांची आठवण पाठवायची आहे |
+| remindersRowValue | $n दिवसांनी |
+| reminderSmsNoteBody | $sent ग्राहकांना SMS ने आठवण गेली${failed > 0 ?  : }. |
+| reminderSmsNowResult | $sent SMS पाठवले |

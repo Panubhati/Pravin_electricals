@@ -10,6 +10,9 @@ import '../../core/providers.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
+import '../../core/auth/auth_providers.dart';
+import '../../core/permissions.dart';
+import '../reminders/reminders_screen.dart';
 import 'parties_providers.dart';
 import 'party_form_screen.dart';
 import '../../shared/theme.dart';
@@ -164,6 +167,23 @@ class _PartyDetailScreenState extends ConsumerState<PartyDetailScreen> {
                     ),
                   ),
               ]),
+              // A11: leave this customer out of payment reminders (owner only).
+              if (p.kind != 'supplier' && ref.watch(permissionsProvider).canOpenSettings)
+                SwitchListTile(
+                  key: const Key('remindersOffSwitch'),
+                  contentPadding: EdgeInsets.zero,
+                  tileColor: Colors.transparent,
+                  title: Text(S.remindersOffForCustomer),
+                  subtitle: p.remindersOff ? Text(S.remindersOffForCustomerHelp) : null,
+                  value: p.remindersOff,
+                  onChanged: (off) async {
+                    await ref
+                        .read(reminderRepositoryProvider)
+                        .setRemindersOff(p.id, off, userId: ref.read(actingUserIdProvider));
+                    ref.invalidate(dueRemindersProvider);
+                    await _load();
+                  },
+                ),
             ]),
           ),
           const Divider(height: 1),

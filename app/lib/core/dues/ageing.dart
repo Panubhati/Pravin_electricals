@@ -22,6 +22,7 @@ class AgeingBuckets {
     this.days61to90 = 0,
     this.over90 = 0,
     this.advance = 0,
+    this.oldestDue,
   });
 
   final int days0to30;
@@ -31,6 +32,10 @@ class AgeingBuckets {
 
   /// Paid beyond what was owed (positive number). Not counted in [totalDue].
   final int advance;
+
+  /// The date of the oldest debt not yet paid off (FIFO), or null when
+  /// nothing is owed. Payment reminders count days from here (A11).
+  final DateTime? oldestDue;
 
   /// Total still owed.
   int get totalDue => days0to30 + days31to60 + days61to90 + over90;
@@ -109,6 +114,7 @@ abstract final class AgeingCalculator {
       days61to90: b2,
       over90: b3,
       advance: advance,
+      oldestDue: open.isEmpty ? null : DateTime(open.first.date.year, open.first.date.month, open.first.date.day),
     );
   }
 

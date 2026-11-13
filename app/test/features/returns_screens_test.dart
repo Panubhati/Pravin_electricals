@@ -31,6 +31,13 @@ class FakeSharer implements BillSharer {
     whatsapp.add((filename: filename, number: number));
     return true;
   }
+
+  final texts = <(String, String)>[];
+  @override
+  Future<bool> whatsAppText({required String number, required String text}) async {
+    texts.add((number, text));
+    return true;
+  }
 }
 
 Future<void> waitUntil(WidgetTester tester, bool Function() done, {int tries = 120}) async {

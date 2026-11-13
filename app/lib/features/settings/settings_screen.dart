@@ -16,6 +16,8 @@ import '../backup/backup_actions.dart';
 import '../backup/backup_screen.dart';
 import '../datacheck/data_check_screen.dart';
 import '../reports/reports_providers.dart';
+import '../reminders/reminder_settings_screen.dart';
+import '../reminders/reminders_screen.dart';
 import '../sync/phones_screen.dart';
 import '../sync/sync_providers.dart';
 import 'shop_details_screen.dart';
@@ -282,6 +284,15 @@ class SettingsScreen extends ConsumerWidget {
                   }
                   await _save(context, ref, SettingKeys.autoLockMinutes, '$n');
                 },
+              ),
+              _Row(
+                rowKey: const Key('settingReminders'),
+                icon: Icons.notifications_active_outlined,
+                title: S.remindersTitle,
+                value: (ref.watch(reminderSettingsProvider).valueOrNull?.on ?? false)
+                    ? S.remindersRowValue(ref.watch(reminderSettingsProvider).valueOrNull!.firstAfterDays)
+                    : S.settingsOff,
+                onTap: () => _open(context, const ReminderSettingsScreen()),
               ),
               _Row(
                 rowKey: const Key('settingAlerts'),

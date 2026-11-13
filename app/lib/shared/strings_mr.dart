@@ -608,6 +608,36 @@ const mrStrings = <String, String>{
   'spotIntro': 'काही वस्तू निवडा, त्या कपाटात मोजा, आणि ॲपशी जुळतात का ते पाहा. "मोजणी लागू करा" दाबल्याशिवाय काहीही बदलत नाही.',
   'upiHelp':
       'ग्राहक QR स्कॅन करून या UPI ID वर पैसे देतात. तो पैसे घेण्याच्या स्क्रीनवर आणि प्रत्येक बिल PDF वर दिसतो. QR बंद करण्यासाठी रिकामे ठेवा.',
+  // A11 payment reminders
+  'remindersTitle': 'पैशांची आठवण',
+  'remindersSettingsTitle': 'आठवणीची सेटिंग्ज',
+  'remindersOffInfo': 'पैशांची आठवण बंद आहे. आठवणीच्या सेटिंग्जमध्ये चालू करा.',
+  'remindersTurnOn': 'पैशांची आठवण पाठवा',
+  'remindersHelp': 'ज्या ग्राहकांकडे पैसे बाकी आहेत त्यांना नम्र संदेश जातो: खालील दिवसांनी पहिला, मग पैसे भरेपर्यंत पुन्हा. एखाद्या ग्राहकासाठी त्याच्या पानावरून बंद करा.',
+  'reminderFirstAfter': 'पहिली आठवण',
+  'reminderRepeatEvery': 'नंतर पुन्हा दर',
+  'reminderMinimum': 'किमान बाकी असेल तरच',
+  'reminderPreview': 'संदेशाचा नमुना',
+  'remindersNoneDue': 'आज कोणालाही आठवण पाठवायची नाही.',
+  'reminderSkipToday': 'आज नको',
+  'reminderSent': 'आठवण नोंदवली',
+  'whatsAppMissing': 'या फोनवर WhatsApp नाही',
+  'remindersOffForCustomer': 'पैशांची आठवण पाठवू नका',
+  'remindersOffForCustomerHelp': 'या ग्राहकाला कधीही पैशांची आठवण जात नाही.',
+  'reminderDaysHelp': 'सर्वात जुन्या न भरलेल्या बिलापासून दिवस मोजले जातात.',
+  'reminderDaysField': 'दिवस',
+  'reminderSampleName': 'रमेश',
+  'reminderSmsSection': 'आपोआप SMS',
+  'reminderSmsHere': 'या फोनवरून आपोआप SMS पाठवा',
+  'reminderSmsHelp': 'खालील वेळेनंतर दिवसातून एकदा हा फोन स्वतःच्या SIM वरून सर्व बाकीदारांना SMS पाठवतो. हे फक्त एका फोनवर चालू करा.',
+  'reminderSmsTime': 'SMS या वेळेनंतर',
+  'reminderSmsTest': 'चाचणी SMS पाठवा',
+  'reminderSmsTestNumber': 'चाचणीसाठी मोबाईल नंबर',
+  'reminderSmsTestSent': 'चाचणी SMS पाठवला',
+  'reminderSmsNoPermission': 'SMS परवानगी दिली नाही',
+  'reminderSmsNotSent': 'SMS पाठवता आला नाही',
+  'reminderSmsNoteTitle': 'पैशांच्या आठवणी पाठवल्या',
+  'reminderSmsSendNow': 'आजचे SMS आत्ता पाठवा',
 };
 
 /// Sentences with numbers or names, in Marathi.
@@ -682,4 +712,11 @@ abstract final class SMr {
   static String dayCheckShareSubject(String shop, String date) => '$shop दिवसाचा हिशोब $date';
   static String changedFromTo(String label, String from, String to) => '$label: $from वरून $to';
   static String somethingWentWrong(String e) => 'काहीतरी चुकले: $e';
+  static String reminderDaysValue(int n) => '$n दिवस';
+  static String reminderOwesSince(String date, int days) => '$date पासून बाकी ($days दिवस)';
+  static String reminderLast(String when) => 'शेवटची आठवण $when';
+  static String remindersDueNote(int n) => '$n ग्राहकांना पैशांची आठवण पाठवायची आहे';
+  static String remindersRowValue(int n) => '$n दिवसांनी';
+  static String reminderSmsNoteBody(int sent, int failed) => '$sent ग्राहकांना SMS ने आठवण गेली${failed > 0 ? '; $failed पाठवता आले नाहीत' : ''}.';
+  static String reminderSmsNowResult(int sent) => '$sent SMS पाठवले';
 }

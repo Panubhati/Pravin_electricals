@@ -5,6 +5,7 @@ import '../../core/db/repositories/dues_repository.dart';
 import '../../core/dues/ageing.dart';
 import '../../core/money.dart';
 import '../../core/permissions.dart';
+import '../reminders/reminders_screen.dart';
 import '../../shared/format.dart';
 import '../../shared/strings.dart';
 import '../../shared/widgets.dart';
@@ -32,6 +33,15 @@ class DuesScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: Text(S.duesTitle),
+          actions: [
+            IconButton(
+              key: const Key('openReminders'),
+              tooltip: S.remindersTitle,
+              icon: const Icon(Icons.notifications_active_outlined),
+              onPressed: () => Navigator.of(context)
+                  .push<void>(MaterialPageRoute(builder: (_) => const RemindersScreen())),
+            ),
+          ],
           bottom: TabBar(tabs: [
             Tab(key: Key('tabReceivables'), text: S.receivables),
             Tab(key: Key('tabPayables'), text: S.payables),

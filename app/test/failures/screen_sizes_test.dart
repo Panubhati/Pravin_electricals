@@ -27,6 +27,8 @@ import 'package:shop_app/features/settings/settings_screen.dart';
 import 'package:shop_app/features/stock/stock_screen.dart';
 
 import 'package:shop_app/features/backup/backup_screen.dart';
+import 'package:shop_app/features/reminders/reminder_settings_screen.dart';
+import 'package:shop_app/features/reminders/reminders_screen.dart';
 import 'package:shop_app/features/sync/join_shop_screen.dart';
 import 'package:shop_app/features/sync/phones_screen.dart';
 
@@ -71,6 +73,8 @@ void main() {
     'Check my data': (_) => const DataCheckScreen(),
     'Import': (_) => const ImportScreen(),
     'Phones': (_) => const PhonesScreen(),
+    'Payment reminders': (_) => const RemindersScreen(),
+    'Reminder settings': (_) => const ReminderSettingsScreen(),
     'Backup and restore': (_) => const BackupScreen(),
     'Daily summary': (_) => const AlertsScreen(),
     'Join a shop': (_) => const JoinShopScreen(),

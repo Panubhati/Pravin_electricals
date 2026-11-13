@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../core/auth/auth_providers.dart';
 import '../../core/permissions.dart';
 import '../../core/providers.dart';
+import '../reminders/reminders_screen.dart';
 import '../sync/phones_screen.dart';
 import '../../shared/strings.dart';
 import '../../shared/theme.dart';
@@ -112,6 +113,7 @@ class HomeScreen extends ConsumerWidget {
             if (perms.canOpenSettings) const DataCheckNote(),
             if (perms.canOpenSettings) const BackupBanner(),
             if (perms.canOpenSettings) const DuplicatePurchaseNote(),
+            if (perms.canOpenSettings) const RemindersDueNote(),
             if (perms.canSeeReports) ...[
               const DashboardCard(),
               const SizedBox(height: 4),

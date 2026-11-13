@@ -16,5 +16,6 @@ Each covers: purpose, what was built, how it works, rules enforced, tests, decis
 | A8 Shop Wi-Fi sync between two phones (no server) | built; two-phone test in the shop pending | [A8-wifi-sync.md](A8-wifi-sync.md) |
 | A9 OCR feasibility prototype (optional) | planned | |
 | A10 Marathi and English, bills in either language | built; wording and phone check pending | [A10-marathi.md](A10-marathi.md) |
+| A11 Payment reminders (SMS and WhatsApp) | built; phone check pending | [A11-payment-reminders.md](A11-payment-reminders.md) |
 
 Related: [decisions.md](../decisions.md) (every non-obvious decision, with date and reason).

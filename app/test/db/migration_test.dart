@@ -12,6 +12,7 @@ import '../generated_migrations/schema_v2.dart' as v2;
 import '../generated_migrations/schema_v3.dart' as v3;
 import '../generated_migrations/schema_v4.dart' as v4;
 import '../generated_migrations/schema_v5.dart' as v5;
+import '../generated_migrations/schema_v6.dart' as v6;
 
 /// A phone with shop data on schema v1 must upgrade to the current version without losing
 /// anything (plan section 12, "Migration test").
@@ -20,7 +21,7 @@ void main() {
 
   setUpAll(() => verifier = SchemaVerifier(GeneratedHelper()));
 
-  test('v1 to v6 keeps existing shop data and the schema matches', () async {
+  test('v1 to v7 keeps existing shop data and the schema matches', () async {
     final schema = await verifier.schemaAt(1);
 
     // Build a v1 database holding data like an A2 phone: shop, party, ledger, stock.
@@ -43,7 +44,7 @@ void main() {
     late AppDatabase db;
     await verifier.migrateAndValidate(
       db = AppDatabase(schema.newConnection()),
-      6,
+      7,
     );
 
     // Old rows survived and new columns exist (null for old rows).
@@ -63,7 +64,7 @@ void main() {
     await db.close();
   });
 
-  test('v2 to v6 adds settings and keeps shop data', () async {
+  test('v2 to v7 adds settings and keeps shop data', () async {
     final schema = await verifier.schemaAt(2);
     final old = v2.DatabaseAtV2(schema.newConnection());
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
@@ -76,13 +77,13 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 7);
     expect((await db.select(db.users).get()).single.role, 'owner');
     expect((await db.select(db.appSettings).get()), isEmpty);
     await db.close();
   });
 
-  test('v3 upgrades to v6: the sold HSN column appears and existing bill lines are kept', () async {
+  test('v3 upgrades to v7: the sold HSN column appears and existing bill lines are kept', () async {
     final schema = await verifier.schemaAt(3);
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
     final old = v3.DatabaseAtV3(schema.newConnection());
@@ -98,14 +99,14 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 7);
     final line = (await db.select(db.invoiceLines).get()).single;
     expect(line.lineTotalPaise, 11875);
     expect(line.hsn, isNull); // old lines have no sold HSN; reprints fall back to the item's
     await db.close();
   });
 
-  test('v4 to v6 rebuilds the credit note tables and keeps every bill', () async {
+  test('v4 to v7 rebuilds the credit note tables and keeps every bill', () async {
     final schema = await verifier.schemaAt(4);
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
     final old = v4.DatabaseAtV4(schema.newConnection());
@@ -119,7 +120,7 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 7);
     expect((await db.select(db.invoices).get()).single.invoiceNoText, 'A-0001');
     expect(await db.select(db.salesReturns).get(), isEmpty);
     // The rebuilt tables accept a credit note.
@@ -130,7 +131,7 @@ void main() {
     await db.close();
   });
 
-  test('v5 to v6: outbox rows are claimed by this phone in order, and purchases keep their rows', () async {
+  test('v5 to v7: outbox rows are claimed by this phone in order, and purchases keep their rows', () async {
     final schema = await verifier.schemaAt(5);
     final secs = DateTime(2026, 11, 12, 10).millisecondsSinceEpoch ~/ 1000;
     final old = v5.DatabaseAtV5(schema.newConnection());
@@ -150,7 +151,7 @@ void main() {
     await old.close();
 
     late AppDatabase db;
-    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 6);
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 7);
     expect((await db.select(db.purchases).get()).single.supplierInvoiceNo, 'H-1');
 
     final identity = MemoryDeviceIdentity();
@@ -170,10 +171,25 @@ void main() {
     await db.close();
   });
 
-  test('a fresh install creates the v6 schema directly', () async {
+  test('v6 to v7: customers get the reminders switch (off by default) and the reminder log is empty', () async {
     final schema = await verifier.schemaAt(6);
+    final secs = DateTime(2026, 11, 13, 10).millisecondsSinceEpoch ~/ 1000;
+    final old = v6.DatabaseAtV6(schema.newConnection());
+    await old.customStatement(
+        "INSERT INTO parties (id, shop_id, created_at, updated_at, kind, name) VALUES ('p1', 's', $secs, $secs, 'customer', 'Ramesh')");
+    await old.close();
+    late AppDatabase db;
+    await verifier.migrateAndValidate(db = AppDatabase(schema.newConnection()), 7);
+    final p = (await db.select(db.parties).get()).single;
+    expect(p.remindersOff, isFalse);
+    expect(await db.select(db.reminders).get(), isEmpty);
+    await db.close();
+  });
+
+  test('a fresh install creates the v7 schema directly', () async {
+    final schema = await verifier.schemaAt(7);
     final db = AppDatabase(schema.newConnection());
-    await verifier.migrateAndValidate(db, 6);
+    await verifier.migrateAndValidate(db, 7);
     await db.close();
   });
 }

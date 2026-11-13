@@ -10,6 +10,11 @@ import '../backup/backup_reminder_rules.dart';
 import '../db/repositories/reports_repository.dart';
 import '../db/repositories/settings_repository.dart';
 import 'daily_summary.dart';
+import '../db/repositories/reminder_repository.dart';
+import '../i18n/app_language.dart';
+import '../reminders/reminder_sms.dart';
+import '../../shared/messages_mr.dart';
+import '../../shared/strings.dart';
 
 const _channelId = 'daily_summary';
 const _backupChannelId = 'backup_reminder';
@@ -17,6 +22,8 @@ const _taskName = 'dailySummary';
 const _backupTaskName = 'backupCheck';
 const _backupUniqueName = 'backup-check';
 const _uniqueName = 'daily-summary';
+const _reminderTaskName = 'paymentReminders';
+const _reminderUniqueName = 'payment-reminders';
 
 /// Shows notifications with the Android notification system.
 class DeviceNotificationService implements NotificationService {
@@ -83,7 +90,9 @@ class WorkmanagerSummaryScheduler implements SummaryScheduler {
 @pragma('vm:entry-point')
 void summaryCallbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
-    if (task != _taskName && task != _backupTaskName) return true;
+    if (task != _taskName && task != _backupTaskName && task != _reminderTaskName) return true;
+    // Notifications in this phone's language (A10).
+    S.lang = await LanguageStore(const DeviceDatabaseLocation()).read();
     final db = AppDatabase(openShopDatabase());
     try {
       // A phone that has not been set up yet has nothing to report, and the
@@ -98,6 +107,21 @@ void summaryCallbackDispatcher() {
         return true; // the owner has not said which phone this is yet
       }
 
+      if (task == _reminderTaskName) {
+        // A11: payment reminder SMS, once a day after the chosen hour, on the
+        // phone where automatic SMS is switched on.
+        final r = await sendDueReminderSms(
+          repo: ReminderRepository(session.ctx),
+          settings: SettingsRepository(session.ctx),
+          sms: const DeviceSmsSender(),
+          shopName: session.shop.name,
+          deviceId: session.deviceId,
+        );
+        if (r.ran && r.sent + r.failed > 0) {
+          await DeviceNotificationService().show(S.reminderSmsNoteTitle, S.reminderSmsNoteBody(r.sent, r.failed));
+        }
+        return true;
+      }
       if (task == _taskName) {
         if (!await SettingsRepository(session.ctx).dailySummaryOn()) return true;
         final data = await ReportsRepository(session.ctx).dashboard();
@@ -107,8 +131,8 @@ void summaryCallbackDispatcher() {
         final state = await backupReminderState(db, session);
         if (state.shouldRemind) {
           await DeviceNotificationService().show(
-            'Back up your shop data',
-            '${state.message} Open the app, Settings, Backup.',
+            S.backupReminderBanner,
+            '${localizeMessage(state.message)} ${S.backupReminderOpenHint}',
             kind: NotificationKind.backupReminder,
           );
         }
@@ -130,6 +154,13 @@ Future<void> initBackgroundWork() async {
     _backupTaskName,
     frequency: const Duration(hours: 24),
     initialDelay: delayUntilHour(DateTime.now(), 10),
+    existingWorkPolicy: ExistingWorkPolicy.keep,
+  );
+  // A11: looks every hour; sends at most once a day, only when switched on.
+  await Workmanager().registerPeriodicTask(
+    _reminderUniqueName,
+    _reminderTaskName,
+    frequency: const Duration(hours: 1),
     existingWorkPolicy: ExistingWorkPolicy.keep,
   );
 }

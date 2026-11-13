@@ -70,6 +70,11 @@ The same supplier bill entered on both phones is flagged; open it in Purchases a
 The app starts in Marathi. Switch with **मराठी / English** on the PIN screen, or Settings, **भाषा / Language**. The owner chooses the
 **Bill language** (PDF and WhatsApp) for the whole shop in Settings. To improve a word, see `docs/marathi-review.md`.
 
+## Payment reminders (A11)
+Settings, **Payment reminders**: switch on, choose after how many days and how often, and the smallest amount. On one phone switch on
+**Send SMS automatically from this phone** (it asks for SMS permission) and pick the time. Dues, bell icon shows who is due today, with a
+WhatsApp button for each. A customer's page has a **No payment reminders** switch.
+
 ## Layout
 - `app/lib/core/money.dart`: integer paise maths, parsing, Indian-style formatting.
 - `app/lib/core/units.dart`: quantity to base units (cable in millimetres), line amounts.

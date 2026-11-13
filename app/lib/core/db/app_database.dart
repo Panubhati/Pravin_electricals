@@ -7,6 +7,7 @@ import 'tables/party_tables.dart';
 import 'tables/purchase_tables.dart';
 import 'tables/sales_tables.dart';
 import 'tables/stock_tables.dart';
+import 'tables/reminder_tables.dart';
 import 'tables/sync_tables.dart';
 
 part 'app_database.g.dart';
@@ -36,6 +37,7 @@ part 'app_database.g.dart';
   AppSettings,
   SyncPeers,
   SyncState,
+  Reminders,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.executor);
@@ -43,7 +45,7 @@ class AppDatabase extends _$AppDatabase {
   /// Bump on every schema change and add a step in [migration].
   /// Never edit a released schema version; add a new one.
   /// The schema this build of the app writes.
-  static const currentSchemaVersion = 6;
+  static const currentSchemaVersion = 7;
 
   @override
   int get schemaVersion => currentSchemaVersion;
@@ -91,6 +93,12 @@ class AppDatabase extends _$AppDatabase {
             await m.createIndex(purchasesSupplierNo);
             await m.createTable(syncPeers);
             await m.createTable(syncState);
+          }
+          // v7 (A11): payment reminders, and a per-customer switch to opt out.
+          if (from < 7) {
+            await m.addColumn(parties, parties.remindersOff);
+            await m.createTable(reminders);
+            await m.createIndex(remindersParty);
           }
         },
         beforeOpen: (details) async {

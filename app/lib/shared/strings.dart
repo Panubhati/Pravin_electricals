@@ -1329,4 +1329,42 @@ abstract final class S {
       'The phone could not write to its storage. Nothing was saved. Try again, and restart the phone if it keeps happening.');
   static String get dataBusy => _t('dataBusy', 'The shop data is busy. Wait a moment and try again.');
   static String somethingWentWrong(String e) => _mr ? SMr.somethingWentWrong(e) : 'Something went wrong: $e';
+
+  // A11 payment reminders
+  static String get remindersTitle => _t('remindersTitle', 'Payment reminders');
+  static String get remindersSettingsTitle => _t('remindersSettingsTitle', 'Reminder settings');
+  static String get remindersOffInfo => _t('remindersOffInfo', 'Payment reminders are off. Switch them on in Reminder settings.');
+  static String get remindersTurnOn => _t('remindersTurnOn', 'Send payment reminders');
+  static String get remindersHelp => _t('remindersHelp', 'Customers who owe money get a polite message: the first after the days below, then again until they pay. Switch it off for one customer on their page.');
+  static String get reminderFirstAfter => _t('reminderFirstAfter', 'First reminder after');
+  static String get reminderRepeatEvery => _t('reminderRepeatEvery', 'Then again every');
+  static String get reminderMinimum => _t('reminderMinimum', 'Only if they owe at least');
+  static String get reminderPreview => _t('reminderPreview', 'Message preview');
+  static String get remindersNoneDue => _t('remindersNoneDue', 'Nobody is due for a reminder today.');
+  static String get reminderSkipToday => _t('reminderSkipToday', 'Skip today');
+  static String get reminderSent => _t('reminderSent', 'Reminder recorded');
+  static String get whatsAppMissing => _t('whatsAppMissing', 'WhatsApp is not installed on this phone');
+  static String get remindersOffForCustomer => _t('remindersOffForCustomer', 'No payment reminders');
+  static String get remindersOffForCustomerHelp => _t('remindersOffForCustomerHelp', 'This customer never gets payment reminders.');
+  static String get reminderDaysHelp => _t('reminderDaysHelp', 'Days counted from their oldest unpaid bill.');
+  static String get reminderDaysField => _t('reminderDaysField', 'Days');
+  static String get reminderSampleName => _t('reminderSampleName', 'Ramesh');
+  static String reminderDaysValue(int n) => _mr ? SMr.reminderDaysValue(n) : '$n days';
+  static String reminderOwesSince(String date, int days) => _mr ? SMr.reminderOwesSince(date, days) : 'Owes since $date ($days days)';
+  static String reminderLast(String when) => _mr ? SMr.reminderLast(when) : 'Last reminded $when';
+  static String remindersDueNote(int n) => _mr ? SMr.remindersDueNote(n) : n == 1 ? '1 customer is due for a payment reminder' : '$n customers are due for a payment reminder';
+  static String remindersRowValue(int n) => _mr ? SMr.remindersRowValue(n) : 'After $n days';
+  static String get reminderSmsSection => _t('reminderSmsSection', "Automatic SMS");
+  static String get reminderSmsHere => _t('reminderSmsHere', "Send SMS automatically from this phone");
+  static String get reminderSmsHelp => _t('reminderSmsHelp', "Once a day after the time below, this phone texts everyone due, from its own SIM. Switch this on for one phone only.");
+  static String get reminderSmsTime => _t('reminderSmsTime', "SMS after");
+  static String get reminderSmsTest => _t('reminderSmsTest', "Send a test SMS");
+  static String get reminderSmsTestNumber => _t('reminderSmsTestNumber', "Mobile number for the test");
+  static String get reminderSmsTestSent => _t('reminderSmsTestSent', "Test SMS sent");
+  static String get reminderSmsNoPermission => _t('reminderSmsNoPermission', "SMS permission was not given");
+  static String get reminderSmsNotSent => _t('reminderSmsNotSent', "The SMS could not be sent");
+  static String get reminderSmsNoteTitle => _t('reminderSmsNoteTitle', "Payment reminders sent");
+  static String get reminderSmsSendNow => _t('reminderSmsSendNow', "Send today's SMS now");
+  static String reminderSmsNoteBody(int sent, int failed) => _mr ? SMr.reminderSmsNoteBody(sent, failed) : '$sent customers got a reminder by SMS${failed > 0 ? '; $failed could not be sent' : ''}.';
+  static String reminderSmsNowResult(int sent) => _mr ? SMr.reminderSmsNowResult(sent) : 'Sent $sent SMS';
 }

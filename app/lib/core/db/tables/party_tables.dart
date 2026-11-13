@@ -13,6 +13,9 @@ class Parties extends Table with BaseColumns {
   /// retail | contractor | dealer
   TextColumn get tier => text().withDefault(const Constant('retail'))();
   IntColumn get creditLimitPaise => integer().withDefault(const Constant(0))();
+
+  /// A11: never send this customer payment reminders.
+  BoolColumn get remindersOff => boolean().withDefault(const Constant(false))();
 }
 
 /// Append-only. Balance = sum(amountPaise). Corrections use reversing entries.

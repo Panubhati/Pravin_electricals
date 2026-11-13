@@ -31,6 +31,13 @@ class FakeSharer implements BillSharer {
     whatsapp.add((bytes: bytes, filename: filename, number: number, text: text));
     return true;
   }
+
+  final texts = <(String, String)>[];
+  @override
+  Future<bool> whatsAppText({required String number, required String text}) async {
+    texts.add((number, text));
+    return true;
+  }
 }
 
 /// Building the PDF takes real time (fonts, layout), so wait for [done].

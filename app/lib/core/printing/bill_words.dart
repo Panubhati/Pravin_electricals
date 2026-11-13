@@ -74,6 +74,21 @@ class BillWords {
   String get computerCreditNote =>
       _t('This is a computer generated credit note.', 'ही संगणकाने बनवलेली क्रेडिट नोट आहे.');
 
+  // Payment reminder (A11), by SMS or WhatsApp. Dates keep English months.
+  String reminderMessage({
+    required String name,
+    required String shop,
+    required String amount,
+    required String since,
+    String? payLink,
+  }) =>
+      _t(
+        'Namaskar $name, $amount is due at $shop since $since. '
+            'Please pay when convenient${payLink == null ? '' : ': $payLink'}. Thank you.',
+        'नमस्कार $name, $shop कडे $since पासून $amount बाकी आहे. '
+            'सोयीनुसार भरावे${payLink == null ? '' : ': $payLink'}. धन्यवाद.',
+      );
+
   // WhatsApp messages to the customer
   String billMessage(String bill, String shop, String total, String? due) => _t(
         'Bill $bill from $shop: $total${due == null ? '' : ' (balance due $due)'}. Thank you!',

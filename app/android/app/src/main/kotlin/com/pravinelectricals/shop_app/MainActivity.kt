@@ -24,6 +24,11 @@ class MainActivity : FlutterFragmentActivity() {
                             val text = call.argument<String>("text")
                             result.success(sendToWhatsApp(bytes, filename, number, text))
                         }
+                        "whatsAppText" -> {
+                            result.success(
+                                whatsAppText(call.argument<String>("number")!!, call.argument<String>("text")!!),
+                            )
+                        }
                         "shareFile" -> {
                             shareBackup(
                                 call.argument<String>("path")!!,
@@ -67,6 +72,24 @@ class MainActivity : FlutterFragmentActivity() {
             }
             try {
                 startActivity(intent)
+                return true
+            } catch (e: ActivityNotFoundException) {
+                // Try the next WhatsApp variant.
+            }
+        }
+        return false
+    }
+
+    /**
+     * Opens WhatsApp (or WhatsApp Business) on the chat with [number] with
+     * [text] typed in, ready to send (A11 payment reminders). The person still
+     * presses Send. Returns false when WhatsApp is not installed.
+     */
+    private fun whatsAppText(number: String, text: String): Boolean {
+        val uri = android.net.Uri.parse("https://api.whatsapp.com/send?phone=$number&text=" + android.net.Uri.encode(text))
+        for (pkg in listOf("com.whatsapp", "com.whatsapp.w4b")) {
+            try {
+                startActivity(Intent(Intent.ACTION_VIEW, uri).setPackage(pkg))
                 return true
             } catch (e: ActivityNotFoundException) {
                 // Try the next WhatsApp variant.

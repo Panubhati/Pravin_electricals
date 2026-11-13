@@ -485,6 +485,10 @@ Manual (with the owner):
 - Added at the owner's request: every screen in Marathi or English (per phone, Marathi by default), and bills in the language the owner chooses for the shop. See docs/milestones/A10-marathi.md.
 - **Done when:** staff use the app in Marathi, a Marathi bill reads correctly on WhatsApp, and the wording has been checked with docs/marathi-review.md.
 
+#### A11: Payment reminders
+- Customers owing money for N days get a polite reminder, repeated every M days: automatic SMS from one phone and a WhatsApp one-tap list; a per-customer opt-out. See docs/milestones/A11-payment-reminders.md.
+- **Done when:** a test SMS reaches the owner's phone, a real due customer gets the SMS at the set time, and the WhatsApp list opens chats with the message.
+
 #### A9 (optional, can run in parallel): OCR feasibility prototype
 - A standalone Python script on the laptop (no app, no backend): runs the photo quality checks and PaddleOCR on the collected sample invoices and records pass/fail, confidence and parsing accuracy in `docs/decisions.md`.
 - **Done when:** there is a measured answer to "is free OCR good enough for this shop's bills?" and starting thresholds are tuned. This decides how much effort Stage B's photo feature needs.
@@ -583,6 +587,7 @@ Manual (with the owner):
 - [ ] A8 Shop Wi-Fi sync between two phones (built and tested on the laptop; two-phone test in the shop pending)
 - [ ] A9 OCR feasibility prototype (optional)
 - [ ] A10 Marathi and English (built and tested; wording check and phone check with the shop pending)
+- [ ] A11 Payment reminders (built and tested; SMS check on the phone pending)
 
 **Stage B (cloud)**
 - [ ] B1 Backend, database and auth
