@@ -144,3 +144,6 @@ audit_log, sales return posting (tables exist, no repository yet), stock adjustm
 - Reminders carry the UPI ID as text and, on WhatsApp, a QR picture for the exact amount (owner's choice). upi:// links were dropped because WhatsApp and SMS never make them tappable; a tappable https pay link would need a paid payment-link service.
 - File names stay English with ISO dates (Bill_A-0042_2026-11-13.pdf) so they sort by date in Files on every phone.
 
+
+## 2026-11-14 Drawing engine
+- Impeller switched off (AndroidManifest EnableImpeller=false, Flutter 3.29 falls back to Skia): on a Galaxy S24 Ultra screens opened with scrambled text and icons until another screen was opened. Skia is the long-proven renderer; revisit when Flutter is upgraded (later versions remove the switch).
